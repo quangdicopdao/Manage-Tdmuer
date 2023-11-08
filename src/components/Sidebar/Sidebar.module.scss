@@ -1,0 +1,29 @@
+.wrapper {
+    width: 100px;
+    margin-left: 10px;
+}
+.nav-list {
+    padding: 0 10px;
+    margin-top: 16px;
+    list-style: none;
+    cursor: pointer;
+}
+.list-item {
+    height: 75px;
+    width: 75px;
+    border-radius: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    color: #1a1a1a;
+    margin-bottom: 20px;
+    h4 {
+        margin-top: 5px;
+        font-size: 1.4rem;
+        font-weight: 500;
+    }
+    &-active {
+        background-color: #e8ebed;
+    }
+}

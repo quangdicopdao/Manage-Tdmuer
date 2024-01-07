@@ -1,0 +1,28 @@
+.wrapper {
+    margin-top: 20px;
+}
+
+.rbc-calendar {
+    width: 80%;
+    margin: 0 auto;
+}
+
+.rbc-time-view,
+.rbc-month-view {
+    height: 500px;
+}
+
+.rbc-header {
+    background-color: #2196f3;
+    color: white;
+}
+
+.rbc-today {
+    background-color: #f0f0f0;
+}
+
+.rbc-event {
+    background-color: #ff4081;
+    color: white;
+    border: none;
+}

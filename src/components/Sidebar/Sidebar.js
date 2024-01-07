@@ -1,29 +1,47 @@
+import React, { useState } from 'react';
 import classNames from 'classnames/bind';
 import styles from './Sidebar.module.scss';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHouse, faCalendar, faNewspaper } from '@fortawesome/free-solid-svg-icons';
+import { faHouse, faCalendar } from '@fortawesome/free-solid-svg-icons';
+import SidebarItem from './SidebarItem';
+import { faFacebookMessenger } from '@fortawesome/free-brands-svg-icons';
 
 const cx = classNames.bind(styles);
 
-function Sidebar() {
+const Sidebar = () => {
+    const [activeTab, setActiveTab] = useState('Home');
+
+    const handleTabClick = (tabName) => {
+        setActiveTab(tabName);
+    };
+
     return (
         <div className={cx('wrapper')}>
             <ul className={cx('nav-list')}>
-                <li className={cx('list-item', 'list-item-active')}>
-                    <FontAwesomeIcon icon={faHouse} />
-                    <h4>Home</h4>
-                </li>
-                <li className={cx('list-item')}>
-                    <FontAwesomeIcon icon={faNewspaper} />
-                    <h4>Blog</h4>
-                </li>
-                <li className={cx('list-item')}>
-                    <FontAwesomeIcon icon={faCalendar} />
-                    <h4>Schedule</h4>
-                </li>
+                <SidebarItem
+                    icon={faHouse}
+                    label="Trang chủ"
+                    isActive={activeTab === 'Home'}
+                    to={'/'}
+                    onClick={() => handleTabClick('Home')}
+                />
+
+                <SidebarItem
+                    icon={faCalendar}
+                    label="Lịch"
+                    isActive={activeTab === 'Schedule'}
+                    to={'/schedule'}
+                    onClick={() => handleTabClick('Schedule')}
+                />
+                <SidebarItem
+                    icon={faFacebookMessenger}
+                    label="Chat"
+                    isActive={activeTab === 'Message'}
+                    to={'/message'}
+                    onClick={() => handleTabClick('Message')}
+                />
             </ul>
         </div>
     );
-}
+};
 
 export default Sidebar;

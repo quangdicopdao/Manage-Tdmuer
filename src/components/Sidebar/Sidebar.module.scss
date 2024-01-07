@@ -23,7 +23,22 @@
         font-size: 1.4rem;
         font-weight: 500;
     }
+    a {
+        text-decoration: none;
+        color: inherit; // Inherit color from the parent (.list-item)
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
     &-active {
         background-color: #e8ebed;
+
+        a {
+            color: #1a1a1a; // Change color for active state if needed
+        }
     }
 }

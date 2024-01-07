@@ -1,11 +1,13 @@
 import Home from '~/pages/Home/Home';
-import Blog from '~/pages/Blog/Blog';
+import Message from '~/pages/Message/Message';
 import Schedule from '~/pages/Schedule/Schedule';
+import PostDetail from '~/pages/PostDetail';
 
 const publicRoute = [
     { path: '/', component: Home },
-    { path: '/blog', component: Blog },
+    { path: '/post', component: PostDetail },
     { path: '/schedule', component: Schedule },
+    { path: '/message', component: Message },
 ];
 const privateRoute = [];
 export { publicRoute, privateRoute };

@@ -1,7 +1,7 @@
 .wrapper {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-around;
     font-size: 1.6rem;
     font-weight: 700;
     min-width: 100px;
@@ -41,10 +41,15 @@
     }
 }
 
-.icon + title,
+.icon + .title,
 .title + .icon {
     margin-left: 8px;
 }
+
 //size btn
 .medium {
+    width: 300px;
+}
+.small {
+    width: 100px;
 }

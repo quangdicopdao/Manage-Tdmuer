@@ -1,0 +1,30 @@
+.wrapper {
+    margin-left: 10px;
+    margin-top: 10px;
+}
+.col {
+    width: 350px;
+}
+.row {
+    display: flex;
+    flex: 1;
+}
+.wrap-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.post-title {
+    margin-bottom: 20px;
+    font-style: bold;
+}
+.text-link {
+    color: #1494cb;
+    text-decoration: none;
+    margin-right: 10px;
+    cursor: pointer;
+}
+.wrap-view-all {
+    display: flex;
+    align-items: center;
+}

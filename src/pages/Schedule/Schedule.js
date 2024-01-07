@@ -1,5 +1,6 @@
+import MyCalendar from '~/components/Calendar';
 function Schedule() {
-    return <h2>Schedule page</h2>;
+    return <MyCalendar />;
 }
 
 export default Schedule;

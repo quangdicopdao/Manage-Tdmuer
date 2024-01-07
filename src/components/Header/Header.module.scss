@@ -1,7 +1,14 @@
+.wrapper-all {
+    width: 100%;
+}
 .wrapper {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    background-color: #fff;
+    position: fixed;
+    top: 0;
+    z-index: 1000;
     height: 60px;
     width: 100%;
     box-shadow: 1px 1px 1px rgba(0 0 0/12%);
@@ -17,6 +24,7 @@
     height: 50px;
     margin-right: 10px;
 }
+
 .search,
 .search-result {
     width: 420px;
@@ -60,4 +68,89 @@
 }
 .actions {
     margin-right: 10px;
+}
+.current-user {
+    display: flex;
+    align-items: center;
+}
+.action-icon {
+    width: 20px;
+    height: 20px;
+    font-size: 1.4rem;
+    margin-right: 15px;
+    color: var(--icon-color);
+    cursor: pointer;
+    &:hover {
+        color: #333;
+    }
+}
+.img-user {
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-right: 15px;
+}
+
+//modal
+.img-modal {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 20px;
+}
+.container-modal {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.wrap-action {
+    margin-top: 50px;
+}
+.btn-action {
+    text-decoration: none;
+    width: 300px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    background-color: transparent;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 5px;
+    margin-bottom: 20px;
+    cursor: pointer;
+
+    &:hover {
+        background-color: rgba(0, 0, 0, 0.09);
+    }
+}
+.text-btn {
+    /* Đặt kiểu chữ cho phần tử h3 */
+    color: #000;
+    font-size: 1.6rem;
+    font-weight: bold;
+    margin-left: 10px; /* Điều chỉnh khoảng cách giữa biểu tượng và văn bản */
+}
+.img-icon {
+    width: 25px;
+    height: 25px;
+}
+.img-icon-google {
+    width: 30px;
+    height: 30px;
+}
+.img-icon,
+.img-icon-google {
+    margin-left: 10px;
+    margin-right: 20px;
+}
+
+.route-text-modal {
+    margin-top: 40px;
+    font-weight: 500;
+}
+.text-link-modal {
+    color: #1494cb;
+    margin-left: 5px;
+    cursor: pointer;
 }

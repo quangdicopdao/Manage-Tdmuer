@@ -16,8 +16,15 @@ const cx = classNames.bind(style);
 function ChatBox() {
     const [isActive, setIsActive] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);
+    const [selectedUserId, setSelectedUserId] = useState(null);
 
-    //search for modal
+    //user add null
+    const [arrUsers, setArrUsers] = useState([]);
+    const [arrUsersAdded, setArrUsersAdded] = useState([]);
+    const [keywords, setKeywords] = useState('');
+    const [groupName, setGroupName] = useState('');
+
+    //search for modal: dữ liệu mẫu
     const users = [
         {
             id: 1,
@@ -46,34 +53,23 @@ function ChatBox() {
         },
         {
             id: 6,
-            name: 'Nguyen Huu Nhan',
-            url: 'https://scontent.fsgn21-1.fna.fbcdn.net/v/t39.30808-1/378393423_1307195950164637_4310189808608344293_n.jpg?stp=dst-jpg_p320x320&_nc_cat=111&ccb=1-7&_nc_sid=5740b7&_nc_ohc=qidZAFIJwWMAX91ujIV&_nc_oc=AQkn_EYpnJOyZI1QRuDQ1Fn6G3Cekfumfr-g4PLK5xca1AZik2eiKWo7kwlFxhP_l8o&_nc_ht=scontent.fsgn21-1.fna&oh=00_AfCgVGSawwBMnZC7cZGq0f3zBJuXeX7mYxjemzLLpDBlZA&oe=659AD2A2',
-        },
-        {
-            id: 7,
-            name: 'Dang Viet Quang',
-            url: 'https://scontent.fsgn21-1.fna.fbcdn.net/v/t39.30808-1/378393423_1307195950164637_4310189808608344293_n.jpg?stp=dst-jpg_p320x320&_nc_cat=111&ccb=1-7&_nc_sid=5740b7&_nc_ohc=qidZAFIJwWMAX91ujIV&_nc_oc=AQkn_EYpnJOyZI1QRuDQ1Fn6G3Cekfumfr-g4PLK5xca1AZik2eiKWo7kwlFxhP_l8o&_nc_ht=scontent.fsgn21-1.fna&oh=00_AfCgVGSawwBMnZC7cZGq0f3zBJuXeX7mYxjemzLLpDBlZA&oe=659AD2A2',
-        },
-        {
-            id: 8,
-            name: 'Tran Thanh Nam',
-            url: 'https://scontent.fsgn21-1.fna.fbcdn.net/v/t39.30808-1/378393423_1307195950164637_4310189808608344293_n.jpg?stp=dst-jpg_p320x320&_nc_cat=111&ccb=1-7&_nc_sid=5740b7&_nc_ohc=qidZAFIJwWMAX91ujIV&_nc_oc=AQkn_EYpnJOyZI1QRuDQ1Fn6G3Cekfumfr-g4PLK5xca1AZik2eiKWo7kwlFxhP_l8o&_nc_ht=scontent.fsgn21-1.fna&oh=00_AfCgVGSawwBMnZC7cZGq0f3zBJuXeX7mYxjemzLLpDBlZA&oe=659AD2A2',
-        },
-        {
-            id: 9,
-            name: 'Nguyen Huu Nhan',
-            url: 'https://scontent.fsgn21-1.fna.fbcdn.net/v/t39.30808-1/378393423_1307195950164637_4310189808608344293_n.jpg?stp=dst-jpg_p320x320&_nc_cat=111&ccb=1-7&_nc_sid=5740b7&_nc_ohc=qidZAFIJwWMAX91ujIV&_nc_oc=AQkn_EYpnJOyZI1QRuDQ1Fn6G3Cekfumfr-g4PLK5xca1AZik2eiKWo7kwlFxhP_l8o&_nc_ht=scontent.fsgn21-1.fna&oh=00_AfCgVGSawwBMnZC7cZGq0f3zBJuXeX7mYxjemzLLpDBlZA&oe=659AD2A2',
+            name: 'Nguyễn Thúy An',
+            url: 'https://scontent-xsp1-2.xx.fbcdn.net/v/t39.30808-1/416323643_762292415939747_877860037475857663_n.jpg?stp=dst-jpg_s320x320&_nc_cat=102&ccb=1-7&_nc_sid=5740b7&_nc_eui2=AeFWssJp4uxPB3vRGzh1p4nR9PSZoO3b1_D09Jmg7dvX8CRVzrjyN13gJDO3HaNhEwYIGRjNH4oso8Y1tlBFk16X&_nc_ohc=zOtzvj6KOL0AX_p-uHs&_nc_ht=scontent-xsp1-2.xx&oh=00_AfAaKSAD89luloxCAVHkeSq68xi2r1rDgNXFyNkLUKuONw&oe=65A0F558',
         },
     ];
-    //user add null
-    const [arrUsers, setArrUsers] = useState([]);
-    const [arrUsersAdded, setArrUsersAdded] = useState([]);
-    const [keywords, setKeywords] = useState('');
+
     // function search user
     const searchUsers = () => {
-        const filteredUsers = users.filter((user) => user.name.toLowerCase().includes(keywords.toLowerCase()));
+        const filteredUsers = users.filter((user) => {
+            // Kiểm tra xem người dùng không có trong arrUsersAdded
+            return (
+                !arrUsersAdded.find((addedUser) => addedUser.id === user.id) &&
+                user.name.toLowerCase().includes(keywords.toLowerCase())
+            );
+        });
         setArrUsers(filteredUsers);
     };
+
     // add users to list
     const addToArrUsersAdded = (user) => {
         setArrUsersAdded((prevArrUsersAdded) => [...prevArrUsersAdded, user]);
@@ -134,6 +130,7 @@ function ChatBox() {
     };
     const handleUserSelect = (user) => {
         setSelectedUser(user);
+        setSelectedUserId(user.id);
     };
 
     return (
@@ -150,52 +147,16 @@ function ChatBox() {
                     </button>
                 </div>
                 <div className={cx('wrap-all-user')}>
-                    <UserChatComp
-                        imageUrl={
-                            'https://scontent.fsgn21-1.fna.fbcdn.net/v/t39.30808-1/378393423_1307195950164637_4310189808608344293_n.jpg?stp=dst-jpg_p320x320&_nc_cat=111&ccb=1-7&_nc_sid=5740b7&_nc_ohc=qidZAFIJwWMAX91ujIV&_nc_oc=AQkn_EYpnJOyZI1QRuDQ1Fn6G3Cekfumfr-g4PLK5xca1AZik2eiKWo7kwlFxhP_l8o&_nc_ht=scontent.fsgn21-1.fna&oh=00_AfCgVGSawwBMnZC7cZGq0f3zBJuXeX7mYxjemzLLpDBlZA&oe=659AD2A2'
-                        }
-                        name={'Đặng Việt Quang'}
-                        lastMessage={'Chúc ngủ ngon'}
-                        onUserClick={() =>
-                            handleUserSelect({
-                                name: 'Đặng Việt Quang',
-                                imageUrl:
-                                    'https://scontent.fsgn21-1.fna.fbcdn.net/v/t39.30808-1/378393423_1307195950164637_4310189808608344293_n.jpg?stp=dst-jpg_p320x320&_nc_cat=111&ccb=1-7&_nc_sid=5740b7&_nc_ohc=qidZAFIJwWMAX91ujIV&_nc_oc=AQkn_EYpnJOyZI1QRuDQ1Fn6G3Cekfumfr-g4PLK5xca1AZik2eiKWo7kwlFxhP_l8o&_nc_ht=scontent.fsgn21-1.fna&oh=00_AfCgVGSawwBMnZC7cZGq0f3zBJuXeX7mYxjemzLLpDBlZA&oe=659AD2A2',
-                            })
-                        }
-                        isActive={isActive}
-                    />
-
-                    <UserChatComp
-                        imageUrl={
-                            'https://scontent.fsgn21-1.fna.fbcdn.net/v/t39.30808-1/416323643_762292415939747_877860037475857663_n.jpg?stp=dst-jpg_s320x320&_nc_cat=102&ccb=1-7&_nc_sid=5740b7&_nc_ohc=0R4-ioUBDwAAX_Xkmob&_nc_ht=scontent.fsgn21-1.fna&oh=00_AfDNk2U5Z1RJ9hTs8VAQjRS2UoIAn2h80eJPVZtEfrIQyQ&oe=659D00D8'
-                        }
-                        name={'Nguyễn Thúy An'}
-                        lastMessage={'Chúc ngủ ngon'}
-                        onUserClick={() =>
-                            handleUserSelect({
-                                name: 'Nguyễn Thúy An',
-                                imageUrl:
-                                    'https://scontent.fsgn21-1.fna.fbcdn.net/v/t39.30808-1/416323643_762292415939747_877860037475857663_n.jpg?stp=dst-jpg_s320x320&_nc_cat=102&ccb=1-7&_nc_sid=5740b7&_nc_ohc=0R4-ioUBDwAAX_Xkmob&_nc_ht=scontent.fsgn21-1.fna&oh=00_AfDNk2U5Z1RJ9hTs8VAQjRS2UoIAn2h80eJPVZtEfrIQyQ&oe=659D00D8',
-                            })
-                        }
-                        isActive={isActive}
-                    />
-                    <UserChatComp
-                        imageUrl={
-                            'https://scontent.fsgn21-1.fna.fbcdn.net/v/t1.6435-9/102326557_658139238246076_1608374780314545293_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=be3454&_nc_ohc=5P7hKQNyWAwAX9-O6EB&_nc_ht=scontent.fsgn21-1.fna&oh=00_AfDLtBLqD6yQWT9U1lsOT4gnv5-EwOfhBMhF97Rb5TraXg&oe=65C0509F'
-                        }
-                        name={'Nhân moi'}
-                        lastMessage={'Chúc ngủ ngon'}
-                        onUserClick={() =>
-                            handleUserSelect({
-                                name: 'Nhân moi',
-                                imageUrl:
-                                    'https://scontent.fsgn21-1.fna.fbcdn.net/v/t1.6435-9/102326557_658139238246076_1608374780314545293_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=be3454&_nc_ohc=5P7hKQNyWAwAX9-O6EB&_nc_ht=scontent.fsgn21-1.fna&oh=00_AfDLtBLqD6yQWT9U1lsOT4gnv5-EwOfhBMhF97Rb5TraXg&oe=65C0509F',
-                            })
-                        }
-                        isActive={isActive}
-                    />
+                    {users.map((user) => (
+                        <UserChatComp
+                            key={user.id}
+                            imageUrl={user.url}
+                            name={user.name}
+                            lastMessage={'Chúc ngủ ngon'}
+                            onUserClick={() => handleUserSelect(user)}
+                            isActive={user.id === selectedUserId}
+                        />
+                    ))}
                 </div>
             </div>
             <div className={cx('right-side-chat-box')}>
@@ -291,14 +252,14 @@ function ChatBox() {
                             <FontAwesomeIcon icon={faUsers} className={cx('icon-search')} />
                             <input
                                 type="text"
-                                value={keywords}
-                                onChange={handleInputChange}
+                                value={groupName}
+                                onChange={(text) => setGroupName()}
                                 placeholder="Nhập tên nhóm mới"
                                 className={cx('input-search')}
                             />
                         </div>
                         <Button outline className={cx('btn-submit')}>
-                            Thêm nhóm
+                            Tạo nhóm
                         </Button>
                     </div>
                 </Modal>

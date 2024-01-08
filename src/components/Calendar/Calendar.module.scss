@@ -1,3 +1,4 @@
+/* Calendar.module.scss */
 .wrapper {
     margin-top: 20px;
 }
@@ -5,6 +6,7 @@
 .rbc-calendar {
     width: 80%;
     margin: 0 auto;
+    font-family: 'Roboto', sans-serif; /* Chọn font chữ */
 }
 
 .rbc-time-view,
@@ -15,6 +17,7 @@
 .rbc-header {
     background-color: #2196f3;
     color: white;
+    font-weight: bold;
 }
 
 .rbc-today {
@@ -25,4 +28,51 @@
     background-color: #ff4081;
     color: white;
     border: none;
+}
+/* Calendar.module.scss */
+.rbc-header,
+.rbc-event,
+.rbc-time-header,
+.rbc-today {
+    font-family: 'Roboto', sans-serif;
+}
+/* Calendar.module.scss */
+.rbc-time-view {
+    .rbc-time-header {
+        display: none; /* Ẩn tiêu đề thời gian */
+    }
+
+    .rbc-allday-cell {
+        display: none; /* Ẩn ô hiển thị sự kiện cả ngày */
+    }
+
+    .rbc-day-slot {
+        padding: 10px; /* Khoảng cách giữa các ô thời gian trong ngày */
+        border-bottom: 1px solid #ccc; /* Đường viền giữa các ô thời gian trong ngày */
+    }
+
+    .rbc-time-content {
+        overflow-y: hidden; /* Ẩn thanh cuộn dọc */
+    }
+}
+/* Kiểu button mặc định */
+.rbc-toolbar button {
+    background-color: #2196f3;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+/* Kiểu button khi được hover */
+.rbc-toolbar button:hover {
+    background-color: #1565c0;
+}
+
+/* Kiểu button khi được nhấn */
+.rbc-toolbar button:active {
+    background-color: #0d47a1;
 }

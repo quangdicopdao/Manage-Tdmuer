@@ -10,18 +10,7 @@ const cx = classNames.bind(style);
 const localizer = momentLocalizer(moment);
 
 const MyCalendar = () => {
-    const [events, setEvents] = useState([
-        {
-            title: 'Event 1',
-            start: new Date(2024, 0, 1),
-            end: new Date(2024, 0, 3),
-        },
-        {
-            title: 'Event 2',
-            start: new Date(2024, 0, 5),
-            end: new Date(2024, 0, 7),
-        },
-    ]);
+    const [events, setEvents] = useState([]);
 
     const [selectedSlot, setSelectedSlot] = useState(null);
     const [showModal, setShowModal] = useState(false);

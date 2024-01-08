@@ -24,7 +24,7 @@
     background-color: var(--primary-color);
     color: var(--white);
     &:hover {
-        background: linear-gradient(0deg, rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0.06)), #07689f;
+        background: linear-gradient(0deg, rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0.06)), #cc99ff;
     }
 }
 
@@ -52,4 +52,7 @@
 }
 .small {
     width: 100px;
+}
+.large {
+    width: 400px;
 }

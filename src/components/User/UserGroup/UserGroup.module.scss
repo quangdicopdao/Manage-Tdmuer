@@ -1,0 +1,50 @@
+.wrapper {
+    display: flex;
+    border-radius: 10px;
+    margin: 5px auto;
+
+    .wrap-info {
+        display: flex;
+        align-items: center;
+        height: 20px;
+        padding: 10px;
+        width: 100%;
+        margin-left: 5px;
+        margin-right: 5px;
+        border-radius: 10px;
+
+        .img {
+            height: 20px;
+            width: 20px;
+            margin-right: 5px;
+            border-radius: 100px;
+        }
+        .name {
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-right: 10px;
+            margin-right: 5px;
+        }
+        .btn-icon {
+            background-color: transparent;
+            cursor: pointer;
+            .icon {
+                font-size: 1rem;
+            }
+        }
+        &:hover {
+            cursor: pointer;
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+    }
+}
+.wrapper-added {
+    height: 40px;
+    padding: 0;
+    margin: 5px;
+    .wrap-info {
+        &:not(:hover) {
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+    }
+}

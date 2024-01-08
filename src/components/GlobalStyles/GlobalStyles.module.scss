@@ -2,7 +2,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;1,400;1,500&display=swap');
 
 :root {
-    --primary-color: #1494cb;
+    --primary-color: #9966ff;
     --white: #fff;
     --black: #000;
     --icon-color: #666;
@@ -25,4 +25,20 @@ button,
 input {
     outline: none;
     border: none;
+}
+
+body::-webkit-scrollbar,
+html::-webkit-scrollbar {
+    width: 8px;
+}
+
+body::-webkit-scrollbar-thumb,
+html::-webkit-scrollbar-thumb {
+    background-color: #ccc; /* Màu nền của thanh cuộn */
+    border-radius: 5px; /* Bo tròn góc của thanh cuộn */
+}
+
+body::-webkit-scrollbar-track,
+html::-webkit-scrollbar-track {
+    background-color: #f1f1f1; /* Màu nền của phần track thanh cuộn */
 }

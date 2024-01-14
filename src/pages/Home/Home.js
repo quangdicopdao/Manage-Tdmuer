@@ -46,6 +46,7 @@ function Home() {
                                 nameUser={post.userPost}
                                 imageUrl={post.imageUser}
                                 description={post.description}
+                                to={'/post'}
                             />
                         </div>
                     ))}

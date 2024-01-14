@@ -14,70 +14,22 @@ import AccountItem from '../AccountItem/AccountItem';
 import BlogItem from '../BlogItem/BlogItem';
 import Button from '~/components/Button';
 import Modal from '../Modal/Modal';
-import { useGoogleLogin } from '@react-oauth/google';
+import { useDispatch } from 'react-redux';
+import { loginUser } from '../../redux/middleware';
 const cx = classNames.bind(style);
 
 function Header() {
     const [searchResult, setSearchResult] = useState([]);
     const [modalOpen, setModalOpen] = useState(false);
     const [user, setUser] = useState(null);
-
-    const login = useGoogleLogin({
-        onSuccess: async (tokenResponse) => {
-            console.log('Google Login Success:', tokenResponse);
-
-            if (tokenResponse) {
-                // Lấy thông tin người dùng từ tokenResponse và cập nhật state
-                try {
-                    const userInfo = await fetchUserInfoFromGoogle(tokenResponse.accessToken);
-                    setUser(userInfo);
-                } catch (error) {
-                    console.error('Error fetching user info:', error);
-                }
-            } else {
-                console.error('Token response is undefined');
-            }
-        },
-        onFailure: (error) => {
-            console.error('Google Login Failure:', error);
-            // Handle the error or log additional information
-        },
-    });
-
-    const handleCustomLogin = async () => {
-        try {
-            const tokenResponse = await login();
-
-            console.log('Custom Login Success:', tokenResponse);
-            if (tokenResponse) {
-                // Lấy thông tin người dùng từ tokenResponse và cập nhật state
-                const userInfo = await fetchUserInfoFromGoogle(tokenResponse.accessToken);
-                setUser(userInfo);
-            }
-        } catch (error) {
-            console.error('Custom Login Failure:', error);
-            // Handle the error or log additional information
-        }
+    // define for form
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const dispatch = useDispatch();
+    //login function
+    const handleLogin = () => {
+        dispatch(loginUser(username, password));
     };
-
-    const fetchUserInfoFromGoogle = async (accessToken) => {
-        const googleApiUrl = 'https://www.googleapis.com/oauth2/v1/userinfo';
-
-        try {
-            const response = await fetch(`${googleApiUrl}?access_token=${accessToken}`);
-
-            if (!response.ok) {
-                throw new Error('Error fetching user info from Google');
-            }
-
-            const userInfo = await response.json();
-            return userInfo;
-        } catch (error) {
-            console.error('Error fetching user info from Google:', error);
-            throw error;
-        }
-    };
-
     // func for modal
     const openModal = () => {
         setModalOpen(true);
@@ -153,7 +105,7 @@ function Header() {
                         <h2>Đăng nhập Tdmu Manager</h2>
 
                         <div className={cx('wrap-action')}>
-                            <button onClick={handleCustomLogin} className={cx('btn-action')}>
+                            <button className={cx('btn-action')}>
                                 <img className={cx('img-icon-google')} src={google} alt="" />
                                 <h3 className={cx('text-btn')}>Đăng nhập với google</h3>
                             </button>
@@ -163,7 +115,28 @@ function Header() {
                                 <h3 className={cx('text-btn')}>Đăng nhập với facebook</h3>
                             </button>
                         </div>
-
+                        <h3> Hoặc</h3>
+                        <div className={cx('wrap-form')}>
+                            <form onSubmit={handleLogin}>
+                                <div className={cx('wrap-form-input')}>
+                                    <input
+                                        type="text"
+                                        placeholder="Nhập tên đăng nhập"
+                                        onChange={(e) => setUsername(e.target.value)}
+                                    />
+                                </div>
+                                <div className={cx('wrap-form-input')}>
+                                    <input
+                                        type="password"
+                                        placeholder="Nhập mật khẩu"
+                                        onChange={(e) => setPassword(e.target.value)}
+                                    />
+                                </div>
+                                <button type="submit" className={cx('btn-form')}>
+                                    Đăng nhập
+                                </button>
+                            </form>
+                        </div>
                         <h4 className={cx('route-text-modal')}>
                             Bạn chưa có tài khoản?
                             <a href="/" className={cx('text-link-modal')}>

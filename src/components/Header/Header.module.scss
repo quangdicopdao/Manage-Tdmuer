@@ -106,10 +106,9 @@
     align-items: center;
 }
 .wrap-action {
-    margin-top: 50px;
+    margin-top: 10px;
 }
 .btn-action {
-    text-decoration: none;
     width: 300px;
     height: 40px;
     display: flex;
@@ -123,6 +122,41 @@
 
     &:hover {
         background-color: rgba(0, 0, 0, 0.09);
+    }
+}
+
+//modal-form
+.wrap-form {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+    .wrap-form-input {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 300px;
+        height: 40px;
+        background-color: rgba(0, 0, 0, 0.1);
+        margin-top: 10px;
+        border-radius: 10px;
+        input {
+            background-color: transparent;
+            width: 100%;
+            margin-left: 10px;
+            font-size: 1.4rem;
+            font-weight: 500;
+        }
+    }
+    .btn-form {
+        width: 300px;
+        height: 40px;
+        background-color: #ccc;
+        font-size: 1.6rem;
+        font-weight: 500;
+        margin-top: 10px;
+        border-radius: 10px;
+        cursor: pointer;
     }
 }
 .text-btn {

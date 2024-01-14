@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import classNames from 'classnames/bind';
 import style from './Header.module.scss';
-import logo from '~/assets/tdmu-icon-ldpi.png';
 import facebook from '~/assets/facebook.png';
 import google from '~/assets/google.png';
+import logo from '~/assets/tdmu-icon-ldpi.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBell, faSearch } from '@fortawesome/free-solid-svg-icons';
 import { faFacebookMessenger } from '@fortawesome/free-brands-svg-icons';
@@ -14,21 +14,32 @@ import AccountItem from '../AccountItem/AccountItem';
 import BlogItem from '../BlogItem/BlogItem';
 import Button from '~/components/Button';
 import Modal from '../Modal/Modal';
-import { useDispatch } from 'react-redux';
-import { loginUser } from '../../redux/middleware';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { loginUser } from '~/redux/apiRequest';
+
 const cx = classNames.bind(style);
 
 function Header() {
     const [searchResult, setSearchResult] = useState([]);
     const [modalOpen, setModalOpen] = useState(false);
-    const [user, setUser] = useState(null);
+    const [isForm, setIsForm] = useState(true);
+    // display user information
+    const user = useSelector((state) => state.auth.login.currentUser);
+
     // define for form
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     //login function
-    const handleLogin = () => {
-        dispatch(loginUser(username, password));
+    const handleLogin = (e) => {
+        e.preventDefault();
+        const newUser = {
+            username,
+            password,
+        };
+        loginUser(newUser, dispatch, navigate, closeModal);
     };
     // func for modal
     const openModal = () => {
@@ -80,18 +91,22 @@ function Header() {
                     <div className={cx('current-user')}>
                         <FontAwesomeIcon className={cx('action-icon')} icon={faBell} />
                         <FontAwesomeIcon className={cx('action-icon')} icon={faFacebookMessenger} />
-                        <img
-                            className={cx('img-user')}
-                            src="https://scontent.fsgn21-1.fna.fbcdn.net/v/t39.30808-6/378393423_1307195950164637_4310189808608344293_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=5f2048&_nc_ohc=gByMQlsaVTcAX-G-MvD&_nc_ht=scontent.fsgn21-1.fna&oh=00_AfCVJAMePvXnfypds0z-fCgALCvg0isft_ajv9xFRrLU7A&oe=655104E4"
-                            alt="name"
-                        />
+                        {/* <img className={cx('img-user')} src="" alt="name" /> */}
+                        <span>{user.email}</span>
                     </div>
                 ) : (
                     <div className={cx('actions')}>
                         <Button small onClick={openModal}>
                             Đăng nhập
                         </Button>
-                        <Button primary small onClick={openModal}>
+                        <Button
+                            primary
+                            small
+                            onClick={() => {
+                                openModal();
+                                setIsForm(false);
+                            }}
+                        >
                             Đăng ký
                         </Button>
                     </div>
@@ -102,17 +117,17 @@ function Header() {
                 <Modal onClose={closeModal}>
                     <div className={cx('container-modal')}>
                         <img className={cx('img-modal')} src={logo} alt="logo tdmu" />
-                        <h2>Đăng nhập Tdmu Manager</h2>
+                        <h2>{isForm ? 'Đăng nhập' : 'Đăng ký'} Tdmu Manager</h2>
 
                         <div className={cx('wrap-action')}>
                             <button className={cx('btn-action')}>
                                 <img className={cx('img-icon-google')} src={google} alt="" />
-                                <h3 className={cx('text-btn')}>Đăng nhập với google</h3>
+                                <h3 className={cx('text-btn')}>{isForm ? 'Đăng nhập' : 'Đăng ký'} với google</h3>
                             </button>
 
                             <button className={cx('btn-action')}>
                                 <img className={cx('img-icon')} src={facebook} alt="" />
-                                <h3 className={cx('text-btn')}>Đăng nhập với facebook</h3>
+                                <h3 className={cx('text-btn')}>{isForm ? 'Đăng nhập' : 'Đăng ký'} với facebook</h3>
                             </button>
                         </div>
                         <h3> Hoặc</h3>
@@ -133,16 +148,25 @@ function Header() {
                                     />
                                 </div>
                                 <button type="submit" className={cx('btn-form')}>
-                                    Đăng nhập
+                                    {isForm ? 'Đăng nhập' : 'Đăng ký'}
                                 </button>
                             </form>
                         </div>
-                        <h4 className={cx('route-text-modal')}>
-                            Bạn chưa có tài khoản?
-                            <a href="/" className={cx('text-link-modal')}>
-                                Đăng ký
-                            </a>
-                        </h4>
+                        {isForm ? (
+                            <h4 className={cx('route-text-modal')}>
+                                Bạn chưa có tài khoản?
+                                <button className={cx('text-link-modal')} onClick={() => setIsForm(!isForm)}>
+                                    Đăng ký
+                                </button>
+                            </h4>
+                        ) : (
+                            <h4 className={cx('route-text-modal')}>
+                                Bạn đã có tài khoản?
+                                <button className={cx('text-link-modal')} onClick={() => setIsForm(!isForm)}>
+                                    Đăng ký
+                                </button>
+                            </h4>
+                        )}
                     </div>
                 </Modal>
             )}

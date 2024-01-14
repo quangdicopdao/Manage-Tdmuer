@@ -40,14 +40,14 @@ class AuthController {
                 return res.status(404).json('wrong password!');
             }
             if (user && valiPassword) {
-                const accsesToken = jwt.sign(
+                const accsessToken = jwt.sign(
                     {
                         id: user._id,
                         admin: user.isAdmin,
                     },
                     process.env.JWT_ACCCES_KEY,
                     {
-                        expiresIn: '30s',
+                        expiresIn: '3h',
                     },
                 );
                 const refreshToken = jwt.sign(
@@ -67,7 +67,7 @@ class AuthController {
                     sameSite: 'strict',
                 });
                 const { password, ...others } = user._doc;
-                res.status(200).json({ ...others, accsesToken });
+                res.status(200).json({ ...others, accsessToken });
             }
         } catch (error) {
             console.error('Login error:', error);
@@ -82,16 +82,17 @@ class AuthController {
         jwt.verify(refreshToken, process.env.JWT_REFRESH_TOKEN, (err, user) => {
             if (err) {
                 console.log(err);
+                return res.status(401).json('Invalid refresh token');
             }
 
-            const newAccesToken = jwt.sign(
+            const newAccessToken = jwt.sign(
                 {
                     id: user._id,
                     admin: user.isAdmin,
                 },
                 process.env.JWT_ACCCES_KEY,
                 {
-                    expiresIn: '30s',
+                    expiresIn: '3h',
                 },
             );
             const newRefreshToken = jwt.sign(
@@ -110,7 +111,7 @@ class AuthController {
                 path: '/',
                 sameSite: 'strict',
             });
-            res.status(200).json({ accsesToken: newAccesToken });
+            res.status(200).json({ accsessToken: newAccessToken });
         });
     }
     async logout(req, res) {

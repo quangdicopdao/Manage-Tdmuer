@@ -1,0 +1,35 @@
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-left: 10px;
+    margin-right: 10px;
+    .wrap-input {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 50px;
+        border-bottom: 1px solid #ccc;
+        margin-top: 10px;
+        input {
+            flex: 1;
+            height: 100%;
+            font-size: 2rem;
+        }
+        button {
+            cursor: pointer;
+            width: 100px;
+            height: 40px;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 1.6rem;
+            font-weight: 600;
+            background-color: var(--primary-color);
+            &:hover {
+                background-color: var(--hover-color-primary);
+            }
+        }
+    }
+    .wrap-editor {
+    }
+}

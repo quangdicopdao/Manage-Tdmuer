@@ -1,10 +1,12 @@
 // app.js
 const express = require('express');
 const bodyParser = require('body-parser');
+
 const cors = require('cors');
 const db = require('./config/db');
 const siteRoutes = require('./routes/site');
 const authRoutes = require('./routes/auth');
+const scheduleRoutes = require('./routes/schedule');
 require('dotenv').config();
 
 const app = express();
@@ -18,6 +20,8 @@ db.connect()
     .then(() => {
         //home
         app.use('/', siteRoutes);
+        //schedule
+        app.use('/schedule', scheduleRoutes);
 
         //register
         app.use('/v1/auth', authRoutes);

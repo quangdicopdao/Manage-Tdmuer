@@ -2,12 +2,16 @@ import React, { useState } from 'react';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import moment from 'moment';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import TimePicker from 'react-time-picker';
+import 'react-time-picker/dist/TimePicker.css';
 import classNames from 'classnames/bind';
 import style from './Calendar.module.scss';
 import Modal from '../Modal/Modal';
 import Button from '../Button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faClock } from '@fortawesome/free-regular-svg-icons';
+import { faClock, faCalendarDay } from '@fortawesome/free-solid-svg-icons';
 
 const cx = classNames.bind(style);
 const localizer = momentLocalizer(moment);
@@ -26,22 +30,40 @@ const myEventsList = [
     },
 ];
 
-// ...
-
-// ...
-
 function MyCalendar() {
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedSlot, setSelectedSlot] = useState(null);
+    const [selectedTitle, setSelectedTitle] = useState('');
+    const [selectedStartDate, setSelectedStartDate] = useState(new Date());
+    const [selectedEndDate, setSelectedEndDate] = useState(new Date());
+    const [selectedStartTime, setSelectedStartTime] = useState(new Date());
+    const [selectedEndTime, setSelectedEndTime] = useState(new Date());
 
     const openModal = (slotInfo) => {
         setSelectedSlot(slotInfo);
+        setSelectedTitle('');
+        setSelectedStartDate(slotInfo.start || new Date());
+        setSelectedEndDate(slotInfo.end || new Date());
+        setSelectedStartTime(new Date());
+        setSelectedEndTime(new Date());
         setModalOpen(true);
     };
 
     const closeModal = () => {
         setSelectedSlot(null);
         setModalOpen(false);
+    };
+
+    const handleSave = () => {
+        // Add your logic to save the event
+        console.log({
+            title: selectedTitle,
+            start: selectedStartDate,
+            end: selectedEndDate,
+            startTime: selectedStartTime,
+            endTime: selectedEndTime,
+        });
+        closeModal();
     };
 
     return (
@@ -63,10 +85,9 @@ function MyCalendar() {
             />
             {modalOpen && (
                 <Modal onClose={closeModal}>
-                    {/* Render modal content using selectedSlot */}
                     <div className={cx('wrap-modal')}>
                         <div className={cx('modal-header')}>
-                            <h2>Thêm sự kiện vào {selectedSlot && selectedSlot.start.toLocaleDateString()}</h2>
+                            <h2>Thêm sự kiện vào {selectedStartDate && moment(selectedStartDate).format('L')}</h2>
                         </div>
                         <div className={cx('modal-content')}>
                             <div className={cx('wrap-input-modal')}>
@@ -74,14 +95,53 @@ function MyCalendar() {
                                     type="text"
                                     placeholder="Nhập tiêu đề cho sự kiện"
                                     className={cx('input-modal')}
+                                    value={selectedTitle}
+                                    onChange={(e) => setSelectedTitle(e.target.value)}
                                 />
                             </div>
                             <div className={cx('wrap-more')}>
-                                <div className={cx('modal-components')}>
-                                    <FontAwesomeIcon icon={faClock} className={cx('icon')} />
-                                    <h4 className={cx('title')}>Chọn giờ</h4>
+                                <div className={cx('wrap-option')}>
+                                    <div className={cx('modal-components')}>
+                                        <FontAwesomeIcon icon={faCalendarDay} className={cx('icon')} />
+                                        <DatePicker
+                                            selected={selectedStartDate}
+                                            onChange={(date) => setSelectedStartDate(date)}
+                                            dateFormat="dd/MM/yyyy"
+                                            className={cx('title')}
+                                        />
+                                    </div>
+                                    <div className={cx('modal-components')}>
+                                        <FontAwesomeIcon icon={faCalendarDay} className={cx('icon')} />
+                                        <DatePicker
+                                            selected={selectedEndDate}
+                                            onChange={(date) => setSelectedEndDate(date)}
+                                            dateFormat="dd/MM/yyyy"
+                                            className={cx('title')}
+                                        />
+                                    </div>
                                 </div>
-
+                                <div className={cx('wrap-option')}>
+                                    <div className={cx('modal-components')}>
+                                        <FontAwesomeIcon icon={faClock} className={cx('icon')} />
+                                        <TimePicker
+                                            onChange={(time) => setSelectedStartTime(time)}
+                                            value={selectedStartTime}
+                                            format="HH:mm"
+                                            clearIcon={null} // Hide the clear icon
+                                            className={cx('title')}
+                                        />
+                                    </div>
+                                    <div className={cx('modal-components')}>
+                                        <FontAwesomeIcon icon={faClock} className={cx('icon')} />
+                                        <TimePicker
+                                            onChange={(time) => setSelectedStartTime(time)}
+                                            value={selectedStartTime}
+                                            format="HH:mm"
+                                            clearIcon={null} // Hide the clear icon
+                                            className={cx('title')}
+                                        />
+                                    </div>
+                                </div>
                                 <div className={cx('wrap-desciptiom')}>
                                     <h4 className={cx('title')}>Mô tả</h4>
                                     <textarea className={cx('desciption')}></textarea>
@@ -89,7 +149,7 @@ function MyCalendar() {
                             </div>
                         </div>
                         <div className={cx('modal-footer')}>
-                            <Button primary className={cx('btn-footer')}>
+                            <Button primary className={cx('btn-footer')} onClick={handleSave}>
                                 Lưu
                             </Button>
                         </div>
@@ -99,7 +159,5 @@ function MyCalendar() {
         </div>
     );
 }
-
-// ...
 
 export default MyCalendar;

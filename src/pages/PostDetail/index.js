@@ -1,32 +1,42 @@
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames/bind';
 import style from './PostDetail.module.scss';
 import Button from '../../components/Button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faComment, faHeart } from '@fortawesome/free-regular-svg-icons';
-
+import axios from 'axios';
+import { baseURL } from '~/utils/api';
+import { useParams } from 'react-router-dom';
 const cx = classNames.bind(style);
 function PostDetail() {
+    const { postId } = useParams();
+    const [post, setPost] = useState(null);
+    const renderHTML = (htmlString) => {
+        return <div dangerouslySetInnerHTML={{ __html: htmlString }} />;
+    };
+    useEffect(() => {
+        const fetchPostDetail = async () => {
+            try {
+                const response = await axios.get(baseURL + `api/posts/${postId}`);
+                setPost(response.data.post);
+            } catch (error) {
+                console.error('Error fetching post detail:', error);
+            }
+        };
+
+        fetchPostDetail();
+    }, [postId]);
+
+    if (!post) {
+        return <div>Loading...</div>;
+    }
     return (
         <div className={cx('wrapper')}>
             <div className={cx('row')}>
                 <div className={cx('col-7')}>
                     <div className={cx('wrap-content')}>
-                        <h2 className={cx('title-content')}>Ký sự ngày thứ 25 học ở F8 </h2>
-                        <p className={cx('content')}>
-                            Hí ae, tôi cũng tên Sơn nhưng mà là newbie còn ông Sơn kia thì trùm rồi :))). Tôi cũng vừa
-                            mới đến với lập trình,tôi là sv năm 1. Sau khi nghe truyền thuyết thằng anh sinh năm 96 học
-                            cơ khí bách khoa, tôi đã lao đầu ngay vào học code vì nghe bảo ngành được xã hội trọng dụng,
-                            nhắc đến là gái chảy nước( một phần là sợ bị tụt hậu-nghe đồn là ngành IT đào thải nhanh
-                            lắm). Khoảng thời gian trước đó việc tìm hiểu học về web tôi còn khá lơ mơ vì trên mạng
-                            người ta chỉ loạn cả lên ( không có lộ trình rõ ràng). Đó là khi F8 của anh Sơn xuất hiện,
-                            với lộ trình rõ ràng, bài học được chia ra rạch ròi, course-mate khá là tậm tâm giúp đỡ. Tôi
-                            đã có câu hỏi ngớ ngấn nhu bao anh em khác, đó là web này trả phí hả anh Sơn. Tôi cũng khác
-                            bất ngờ về việc một người bỏ khác nhiều công sức, làm việc nghiệm túc nhưng lại không thu
-                            phí. F8 cho ta một con đường rõ ràng, không lan man, có thế tiết kiệm được vài tháng đến cả
-                            năm. Tôi hy vọng ae học và phát triển cộng đồng này nhiệt tình đề không phí công ông anh Sơn
-                            Đặng nhé. Nếu ai hỏi tôi nên học khóa front-end nào cho begginer tôi chắc chắn sẽ recommend
-                            F8. Tus này mục đích chủ yếu test thử tính năng Blog :).
-                        </p>
+                        <h2 className={cx('title-content')}>{post.title} </h2>
+                        <p className={cx('content')}>{renderHTML(post.content)}</p>
                     </div>
                 </div>
                 <div className={cx('col-3')}>

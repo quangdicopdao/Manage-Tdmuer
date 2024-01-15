@@ -6,7 +6,6 @@ import google from '~/assets/google.png';
 import logo from '~/assets/tdmu-icon-ldpi.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBell, faSearch } from '@fortawesome/free-solid-svg-icons';
-import { faFacebookMessenger } from '@fortawesome/free-brands-svg-icons';
 import Tippy from '@tippyjs/react/headless';
 import 'tippy.js/dist/tippy.css'; // optional
 import { Wrapper as PopperWrapper } from '~/components/Popper';
@@ -90,9 +89,9 @@ function Header() {
                 {user ? (
                     <div className={cx('current-user')}>
                         <FontAwesomeIcon className={cx('action-icon')} icon={faBell} />
-                        <FontAwesomeIcon className={cx('action-icon')} icon={faFacebookMessenger} />
+                        {/* <FontAwesomeIcon className={cx('action-icon')} icon={faFacebookMessenger} /> */}
                         {/* <img className={cx('img-user')} src="" alt="name" /> */}
-                        <span>{user.email}</span>
+                        <img className={cx('img-user')} src={user.avatar} alt={user.username} />
                     </div>
                 ) : (
                     <div className={cx('actions')}>

@@ -3,13 +3,22 @@
     margin-top: 10px;
 }
 
+.grid {
+    width: 1400px;
+}
 .col {
-    width: 400px;
+    width: 25%;
+    box-sizing: border-box;
 }
 .row {
     display: flex;
     margin-top: 20px;
-    flex: 1;
+    flex-wrap: wrap;
+}
+.wrap-action {
+    display: flex;
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 .wrap-title {
     display: flex;

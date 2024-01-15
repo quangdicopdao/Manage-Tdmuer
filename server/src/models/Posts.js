@@ -5,9 +5,8 @@ const Schema = mongoose.Schema;
 const PostSchema = new Schema(
     {
         title: { type: String, required: true },
-        description: { type: String, required: true },
-        imageURL: { type: String, required: true },
-        userPost: { type: String, required: true },
+        content: { type: String, required: true },
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     },
     {
         timestamps: true,

@@ -29,9 +29,9 @@ function BlogItemForHome({ title, imagePostUrl, imageUrl, nameUser, to }) {
         <Link to={to} className={cx('wrap-all')}>
             <div className={cx('wrapper')}>
                 <img className={cx('image-post')} src={imagePostUrl} alt="" />
-                <h2 className={cx('text-title')}>{limitCharsPerLine(title, 37)}</h2>
+                <h2 className={cx('text-title')}>{limitCharsPerLine(title, 30)}</h2>
                 <div className={cx('wrap-post-info')}>
-                    <img className={cx('image-user')} src={imageUrl} alt="" />
+                    <img className={cx('image-user')} src={imageUrl} alt={nameUser} />
                     <h4 className={cx('text-username')}>{nameUser}</h4>
                 </div>
             </div>

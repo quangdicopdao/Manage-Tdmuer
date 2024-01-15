@@ -1,6 +1,7 @@
 // controllers/SiteController.js
 const User = require('../models/User.js');
 const bcrypt = require('bcrypt');
+const gravatar = require('gravatar');
 const jwt = require('jsonwebtoken');
 
 // controllers/AuthController.js
@@ -8,21 +9,29 @@ class AuthController {
     //register
     async register(req, res) {
         try {
-            //hash password
-            const salt = await bcrypt.genSalt(10);
-            const hashed = await bcrypt.hash(req.body.password, salt);
+            const { username, password, email } = req.body;
 
-            // create a new user
-            const newUser = await new User({
-                username: req.body.username,
-                password: hashed,
-                email: req.body.email,
+            // Tạo ảnh avatar dựa trên chữ cái đầu của tên người dùng
+            const avatar = gravatar.url(email, { s: '200', r: 'pg', d: 'identicon' }); // Adjust the parameters as needed
+            // Hash password
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(password, salt);
+
+            // Tạo một đối tượng User mới
+            const newUser = new User({
+                username: username,
+                password: hashedPassword,
+                email: email,
+                avatar: avatar, // Lưu đường dẫn ảnh avatar vào trường avatar
             });
-            //save to db
-            const user = await newUser.save();
-            res.status(200).json(user);
+
+            // Lưu thông tin người dùng vào cơ sở dữ liệu
+            const savedUser = await newUser.save();
+
+            res.status(201).json(savedUser);
         } catch (error) {
-            res.status(500).json(error);
+            console.error(error);
+            res.status(500).json({ message: 'Đã xảy ra lỗi khi đăng ký người dùng.' });
         }
     }
 
@@ -45,7 +54,7 @@ class AuthController {
                         id: user._id,
                         admin: user.isAdmin,
                     },
-                    process.env.JWT_ACCCES_KEY,
+                    process.env.JWT_ACCESS_KEY,
                     {
                         expiresIn: '3h',
                     },
@@ -90,7 +99,7 @@ class AuthController {
                     id: user._id,
                     admin: user.isAdmin,
                 },
-                process.env.JWT_ACCCES_KEY,
+                process.env.JWT_ACCESS_KEY,
                 {
                     expiresIn: '3h',
                 },

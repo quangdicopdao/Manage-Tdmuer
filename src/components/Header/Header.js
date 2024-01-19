@@ -16,7 +16,8 @@ import Modal from '../Modal/Modal';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { loginUser } from '~/redux/apiRequest';
-
+import {registerUser} from '~/redux/apiRequest';
+import { logoutUser } from '~/redux/apiRequest';
 const cx = classNames.bind(style);
 
 function Header() {
@@ -33,13 +34,30 @@ function Header() {
     const navigate = useNavigate();
     //login function
     const handleLogin = (e) => {
+
         e.preventDefault();
-        const newUser = {
-            username,
-            password,
-        };
-        loginUser(newUser, dispatch, navigate, closeModal);
+        if(isForm){
+            const newUser = {
+                username,
+                password,
+            };
+            loginUser(newUser, dispatch, navigate, closeModal);
+        }
+        else{
+            const newUser = {
+                username,
+                password,
+                email: 'nguyen12@gmail.com',
+            };
+            registerUser(newUser, dispatch, navigate, openModalLogin);
+        }
+        
     };
+    // func Logout
+    const handleLogout = (e) =>{
+        logoutUser(dispatch, navigate);
+        
+    }
     // func for modal
     const openModal = () => {
         setModalOpen(true);
@@ -47,6 +65,9 @@ function Header() {
 
     const closeModal = () => {
         setModalOpen(false);
+    };
+    const openModalLogin = () => {
+        setIsForm(true);
     };
     // have a current user login
     //search result
@@ -92,6 +113,15 @@ function Header() {
                         {/* <FontAwesomeIcon className={cx('action-icon')} icon={faFacebookMessenger} /> */}
                         {/* <img className={cx('img-user')} src="" alt="name" /> */}
                         <img className={cx('img-user')} src={user.avatar} alt={user.username} />
+                        <Button
+                            primary
+                            small
+                            onClick={() => {
+                                handleLogout()
+                            }}
+                        >
+                            Đăng xuất
+                        </Button>
                     </div>
                 ) : (
                     <div className={cx('actions')}>

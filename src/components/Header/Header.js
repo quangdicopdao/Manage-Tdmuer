@@ -7,7 +7,7 @@ import logo from '~/assets/tdmu-icon-ldpi.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBell, faSearch } from '@fortawesome/free-solid-svg-icons';
 import Tippy from '@tippyjs/react/headless';
-import 'tippy.js/dist/tippy.css'; // optional
+import 'tippy.js/dist/tippy.css';
 import { Wrapper as PopperWrapper } from '~/components/Popper';
 import AccountItem from '../AccountItem/AccountItem';
 import BlogItem from '../BlogItem/BlogItem';
@@ -16,13 +16,24 @@ import Modal from '../Modal/Modal';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { loginUser } from '~/redux/apiRequest';
-
+import { baseURL } from '~/utils/api';
+import { Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from 'react-toastify';
 const cx = classNames.bind(style);
 
 function Header() {
     const [searchResult, setSearchResult] = useState([]);
     const [modalOpen, setModalOpen] = useState(false);
     const [isForm, setIsForm] = useState(true);
+
+    //open and close from avatar
+    const [show, setShow] = useState(false);
+    const handleShowAction = () => {
+        setShow(!show);
+    };
+
     // display user information
     const user = useSelector((state) => state.auth.login.currentUser);
 
@@ -31,7 +42,27 @@ function Header() {
     const [password, setPassword] = useState('');
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    //login function
+    //api ssearch
+
+    const handleSearchChange = async (e) => {
+        const query = e.target.value;
+
+        // Kiểm tra nếu giá trị query là rỗng, không cần gọi API và ẩn Tippy
+        if (query.trim() === '') {
+            setSearchResult([]);
+            return;
+        }
+
+        try {
+            const response = await fetch(baseURL + `api/search?q=${query}`);
+            const data = await response.json();
+            setSearchResult(data);
+        } catch (error) {
+            console.error('Error searching:', error);
+        }
+    };
+
+    // login function
     const handleLogin = (e) => {
         e.preventDefault();
         const newUser = {
@@ -40,6 +71,7 @@ function Header() {
         };
         loginUser(newUser, dispatch, navigate, closeModal);
     };
+
     // func for modal
     const openModal = () => {
         setModalOpen(true);
@@ -48,8 +80,9 @@ function Header() {
     const closeModal = () => {
         setModalOpen(false);
     };
+
     // have a current user login
-    //search result
+    // search result
     useEffect(() => {
         setTimeout(() => {
             setSearchResult([]);
@@ -58,9 +91,13 @@ function Header() {
 
     return (
         <div className={cx('wrapper-all')}>
+            <ToastContainer autoClose={3000} />
+
             <header className={cx('wrapper')}>
                 <div className={cx('logo')}>
-                    <img className={cx('img')} src={logo} alt="logo tdmu" />
+                    <Link to={'/'}>
+                        <img className={cx('img')} src={logo} alt="logo tdmu" />
+                    </Link>
                     <h4>Quản lý hoạt động cá nhân</h4>
                 </div>
                 <Tippy
@@ -70,18 +107,15 @@ function Header() {
                         <div className={cx('search-result')} tabIndex="-1" {...attrs}>
                             <PopperWrapper>
                                 <h4 className={cx('search-title')}>Accounts</h4>
-                                <AccountItem />
-                                <AccountItem />
+                                <AccountItem searchResults={searchResult} />
                                 <h4 className={cx('search-title')}>Blogs</h4>
-                                <BlogItem />
-                                <BlogItem />
-                                <BlogItem />
+                                <BlogItem searchResults={searchResult} />
                             </PopperWrapper>
                         </div>
                     )}
                 >
                     <div className={cx('search')}>
-                        <input placeholder="Tìm kiếm bài viết, người dùng,.." />
+                        <input placeholder="Tìm kiếm bài viết, người dùng,.." onChange={(e) => handleSearchChange(e)} />
                         <FontAwesomeIcon className={cx('search-icon')} icon={faSearch} />
                     </div>
                 </Tippy>
@@ -89,9 +123,27 @@ function Header() {
                 {user ? (
                     <div className={cx('current-user')}>
                         <FontAwesomeIcon className={cx('action-icon')} icon={faBell} />
-                        {/* <FontAwesomeIcon className={cx('action-icon')} icon={faFacebookMessenger} /> */}
-                        {/* <img className={cx('img-user')} src="" alt="name" /> */}
-                        <img className={cx('img-user')} src={user.avatar} alt={user.username} />
+                        <Tippy
+                            visible={show}
+                            interactive
+                            render={(attrs) => (
+                                <div className={cx('wrap-action-avatar')} tabIndex="-1" {...attrs}>
+                                    <PopperWrapper>
+                                        <ul>
+                                            <li>Trang cá nhân</li>
+                                            <li>Đăng xuất</li>
+                                        </ul>
+                                    </PopperWrapper>
+                                </div>
+                            )}
+                        >
+                            <img
+                                className={cx('img-user')}
+                                src={user.avatar}
+                                alt={user.username}
+                                onClick={handleShowAction}
+                            />
+                        </Tippy>
                     </div>
                 ) : (
                     <div className={cx('actions')}>
@@ -162,7 +214,7 @@ function Header() {
                             <h4 className={cx('route-text-modal')}>
                                 Bạn đã có tài khoản?
                                 <button className={cx('text-link-modal')} onClick={() => setIsForm(!isForm)}>
-                                    Đăng ký
+                                    Đăng nhập
                                 </button>
                             </h4>
                         )}

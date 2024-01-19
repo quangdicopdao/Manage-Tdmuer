@@ -1,34 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import moment from 'moment';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import TimePicker from 'react-time-picker';
-import 'react-time-picker/dist/TimePicker.css';
+import TimePicker from 'react-bootstrap-time-picker';
 import classNames from 'classnames/bind';
 import style from './Calendar.module.scss';
 import Modal from '../Modal/Modal';
 import Button from '../Button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClock, faCalendarDay } from '@fortawesome/free-solid-svg-icons';
-
+import { createSchedule } from '~/redux/apiRequest';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { baseURL } from '~/utils/api';
+import axios from 'axios';
+import { toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const cx = classNames.bind(style);
 const localizer = momentLocalizer(moment);
-const myEventsList = [
-    {
-        start: new Date(2024, 0, 9, 10, 0),
-        end: new Date(2024, 0, 9, 12, 0),
-        title: 'Meeting with Client',
-        color: 'red',
-    },
-    {
-        start: new Date(2024, 0, 10, 14, 30),
-        end: new Date(2024, 0, 10, 16, 0),
-        title: 'Team Workshop',
-        color: 'blue',
-    },
-];
 
 function MyCalendar() {
     const [modalOpen, setModalOpen] = useState(false);
@@ -36,16 +28,32 @@ function MyCalendar() {
     const [selectedTitle, setSelectedTitle] = useState('');
     const [selectedStartDate, setSelectedStartDate] = useState(new Date());
     const [selectedEndDate, setSelectedEndDate] = useState(new Date());
-    const [selectedStartTime, setSelectedStartTime] = useState(new Date());
-    const [selectedEndTime, setSelectedEndTime] = useState(new Date());
+    const [selectedStartTime, setSelectedStartTime] = useState(0);
+    const [selectedEndTime, setSelectedEndTime] = useState(0);
+    const [description, setDescription] = useState('');
+    const [schedules, setSchedules] = useState([]);
+    const [error, setError] = useState(null);
+
+    const staticCalendarData = [
+        {
+            id: 1,
+            title: 'Meeting 1',
+            start: new Date(2024, 0, 19, 10, 0), // 19th January 2024, 10:00 AM
+            end: new Date(2024, 0, 19, 12, 0), // 19th January 2024, 12:00 PM
+            color: '#FF5733', // Optional: Màu sắc của sự kiện
+        },
+        {
+            id: 2,
+            title: 'Meeting 2',
+            start: new Date(2024, 0, 20, 14, 0), // 20th January 2024, 2:00 PM
+            end: new Date(2024, 0, 20, 16, 0), // 20th January 2024, 4:00 PM
+            color: '#337DFF',
+        },
+        // Thêm các sự kiện khác nếu cần
+    ];
 
     const openModal = (slotInfo) => {
         setSelectedSlot(slotInfo);
-        setSelectedTitle('');
-        setSelectedStartDate(slotInfo.start || new Date());
-        setSelectedEndDate(slotInfo.end || new Date());
-        setSelectedStartTime(new Date());
-        setSelectedEndTime(new Date());
         setModalOpen(true);
     };
 
@@ -54,35 +62,85 @@ function MyCalendar() {
         setModalOpen(false);
     };
 
-    const handleSave = () => {
-        // Add your logic to save the event
-        console.log({
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const user = useSelector((state) => state.auth.login.currentUser);
+    const id = user._id;
+    const accsessToken = user.accsessToken;
+
+    const secondsToHoursAndMinutes = (seconds) => {
+        const duration = moment.duration(seconds, 'seconds');
+        const hours = Math.floor(duration.asHours());
+        const minutes = duration.minutes();
+        return `${hours}:${minutes < 10 ? '0' : ''}${minutes}`;
+    };
+
+    const fetchSchedules = async () => {
+        try {
+            const response = await axios.get(baseURL + 'schedule/api/show', {
+                headers: {
+                    Authorization: `Bearer ${accsessToken}`,
+                },
+            });
+            setSchedules(response.data);
+        } catch (error) {
+            console.error('Error fetching schedules:', error);
+            setError(error);
+        }
+    };
+
+    useEffect(() => {
+        if (accsessToken) {
+            fetchSchedules();
+        }
+    }, [accsessToken, schedules]);
+
+    const handleSave = async (e) => {
+        e.preventDefault();
+
+        const formattedTimeStart = secondsToHoursAndMinutes(selectedStartTime);
+        const formattedTimeEnd = secondsToHoursAndMinutes(selectedEndTime);
+        console.log(formattedTimeStart, formattedTimeEnd);
+        const dateStart = moment(selectedStartDate).format('YYYY-MM-DD') + ' ' + formattedTimeStart;
+        const dateEnd = moment(selectedEndDate).format('YYYY-MM-DD') + ' ' + formattedTimeEnd;
+        console.log(dateStart, dateEnd);
+
+        const dateStartUTC = moment.utc(dateStart);
+        const dateEndUTC = moment.utc(dateEnd);
+        // console.log('Formatted Start Date:', dateStartUTC.toDate());
+        // console.log('Formatted End Date:', dateEndUTC.toDate());
+        const newSchedule = {
             title: selectedTitle,
-            start: selectedStartDate,
-            end: selectedEndDate,
-            startTime: selectedStartTime,
-            endTime: selectedEndTime,
-        });
-        closeModal();
+            start: new Date(dateStartUTC),
+            end: new Date(dateEndUTC),
+            description,
+            userId: id,
+        };
+
+        try {
+            await createSchedule(newSchedule, dispatch, navigate, accsessToken);
+            fetchSchedules();
+            closeModal();
+            toast.success('Lịch đã được lưu thành công');
+        } catch (error) {
+            console.error('Error saving schedule:', error);
+            toast.error('Đã xảy ra lỗi khi lưu lịch');
+        }
     };
 
     return (
         <div className={cx('wrapper')}>
+            <ToastContainer autoClose={3000} />
+
             <Calendar
                 localizer={localizer}
-                events={myEventsList}
-                startAccessor="start"
-                endAccessor="end"
+                events={schedules}
                 style={{ height: 550 }}
-                eventPropGetter={(event) => ({
-                    style: {
-                        backgroundColor: event.color,
-                    },
-                })}
-                onSelectEvent={() => openModal()}
+                onSelectEvent={(event) => openModal(event)}
                 onSelectSlot={(slotInfo) => openModal(slotInfo)}
-                selectable={true} // Enable selection of entire days
+                selectable
             />
+
             {modalOpen && (
                 <Modal onClose={closeModal}>
                     <div className={cx('wrap-modal')}>
@@ -123,28 +181,30 @@ function MyCalendar() {
                                 <div className={cx('wrap-option')}>
                                     <div className={cx('modal-components')}>
                                         <FontAwesomeIcon icon={faClock} className={cx('icon')} />
+
                                         <TimePicker
                                             onChange={(time) => setSelectedStartTime(time)}
                                             value={selectedStartTime}
-                                            format="HH:mm"
-                                            clearIcon={null} // Hide the clear icon
-                                            className={cx('title')}
+                                            format={24} // Set format to 24 for 24-hour time
                                         />
                                     </div>
                                     <div className={cx('modal-components')}>
                                         <FontAwesomeIcon icon={faClock} className={cx('icon')} />
+
                                         <TimePicker
-                                            onChange={(time) => setSelectedStartTime(time)}
-                                            value={selectedStartTime}
-                                            format="HH:mm"
-                                            clearIcon={null} // Hide the clear icon
-                                            className={cx('title')}
+                                            onChange={(time) => setSelectedEndTime(time)}
+                                            value={selectedEndTime}
+                                            format={24} // Set format to 24 for 24-hour time
                                         />
                                     </div>
                                 </div>
                                 <div className={cx('wrap-desciptiom')}>
                                     <h4 className={cx('title')}>Mô tả</h4>
-                                    <textarea className={cx('desciption')}></textarea>
+                                    <textarea
+                                        className={cx('desciption')}
+                                        value={description}
+                                        onChange={(e) => setDescription(e.target.value)}
+                                    ></textarea>
                                 </div>
                             </div>
                         </div>

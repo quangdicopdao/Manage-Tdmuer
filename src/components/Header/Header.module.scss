@@ -123,7 +123,21 @@
         background-color: rgba(0, 0, 0, 0.09);
     }
 }
-
+//tippy logout
+.wrap-action-avatar {
+    width: 150px;
+    ul {
+        list-style-type: none;
+        li {
+            cursor: pointer;
+            margin-left: 20px;
+            line-height: 30px;
+            font-size: 1.6rem;
+            font-weight: 500;
+            margin-top: 10px;
+        }
+    }
+}
 //modal-form
 .wrap-form {
     width: 100%;

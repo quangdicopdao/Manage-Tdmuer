@@ -4,10 +4,13 @@ import styles from './Sidebar.module.scss';
 import { faHouse, faCalendar } from '@fortawesome/free-solid-svg-icons';
 import SidebarItem from './SidebarItem';
 import { faFacebookMessenger } from '@fortawesome/free-brands-svg-icons';
+import { useSelector } from 'react-redux';
 
 const cx = classNames.bind(styles);
 
 const Sidebar = () => {
+    const user = useSelector((state) => state.auth.login.currentUser);
+
     const [activeTab, setActiveTab] = useState('Home');
 
     const handleTabClick = (tabName) => {
@@ -24,21 +27,24 @@ const Sidebar = () => {
                     to={'/'}
                     onClick={() => handleTabClick('Home')}
                 />
-
-                <SidebarItem
-                    icon={faCalendar}
-                    label="Lịch"
-                    isActive={activeTab === 'Schedule'}
-                    to={'/schedule'}
-                    onClick={() => handleTabClick('Schedule')}
-                />
-                <SidebarItem
-                    icon={faFacebookMessenger}
-                    label="Chat"
-                    isActive={activeTab === 'Message'}
-                    to={'/message'}
-                    onClick={() => handleTabClick('Message')}
-                />
+                {user && (
+                    <div>
+                        <SidebarItem
+                            icon={faCalendar}
+                            label="Lịch"
+                            isActive={activeTab === 'Schedule'}
+                            to={'/schedule'}
+                            onClick={() => handleTabClick('Schedule')}
+                        />
+                        <SidebarItem
+                            icon={faFacebookMessenger}
+                            label="Chat"
+                            isActive={activeTab === 'Message'}
+                            to={'/message'}
+                            onClick={() => handleTabClick('Message')}
+                        />
+                    </div>
+                )}
             </ul>
         </div>
     );

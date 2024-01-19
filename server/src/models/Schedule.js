@@ -3,10 +3,11 @@ const Schema = mongoose.Schema;
 const scheduleSchema = new Schema(
     {
         title: { type: String, required: true },
-        timeStart: { type: Date, required: true },
-        timeEnd: { type: Date, required: true },
-        description: { type: String, required: true },
-        uid: { type: String, required: true },
+        start: { type: Date, required: true },
+        end: { type: Date, required: true },
+        description: { type: String },
+        statusWork: { type: Number, default: 0, required: true },
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     },
     {
         timestamps: true,

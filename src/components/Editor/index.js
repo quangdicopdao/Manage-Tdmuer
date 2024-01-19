@@ -41,7 +41,7 @@ class Editor extends Component {
 
                     // Cập nhật trạng thái với HTML mới chứa ảnh
                     this.setState((prevState) => ({
-                        text: prevState.text + `<img src="${result.data.url}" alt="uploaded image" />`,
+                        text: prevState.text + `<img src="${result.data.url}" alt="uploaded image"  />`,
                     }));
 
                     return result.data.url;

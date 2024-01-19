@@ -3,6 +3,7 @@
 
 :root {
     --primary-color: #9966ff;
+    --input-color: #dbdcff;
     --white: #fff;
     --black: #000;
     --icon-color: #666;
@@ -23,6 +24,7 @@ body {
     font-size: 1.6rem;
     line-height: 1.5;
     text-rendering: optimizeSpeed;
+    overflow-x: hidden;
 }
 button,
 input {

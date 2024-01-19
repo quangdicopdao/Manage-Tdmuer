@@ -15,7 +15,10 @@ import Button from '~/components/Button';
 import Modal from '../Modal/Modal';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { loginUser } from '~/redux/apiRequest';
+import { loginUser, logoutUser } from '~/redux/apiRequest';
+import { baseURL } from '~/utils/api';
+import { ToastContainer } from 'react-toastify';
+import { Link } from 'react-router-dom';
 
 const cx = classNames.bind(style);
 
@@ -67,6 +70,12 @@ function Header() {
         };
         loginUser(newUser, dispatch, navigate, closeModal);
     };
+
+    //logout function
+    const handleLogout = () => {
+        logoutUser(dispatch, navigate);
+        setShow(false);
+    };
     // func for modal
     const openModal = () => {
         setModalOpen(true);
@@ -117,9 +126,25 @@ function Header() {
                 {user ? (
                     <div className={cx('current-user')}>
                         <FontAwesomeIcon className={cx('action-icon')} icon={faBell} />
-                        {/* <FontAwesomeIcon className={cx('action-icon')} icon={faFacebookMessenger} /> */}
-                        {/* <img className={cx('img-user')} src="" alt="name" /> */}
-                        <img className={cx('img-user')} src={user.avatar} alt={user.username} />
+                        <Tippy
+                            visible={show}
+                            interactive
+                            render={(attrs) => (
+                                <div className={cx('wrap-action-avatar')} tabIndex="-1" {...attrs}>
+                                    <ul>
+                                        <li>Trang cá nhân</li>
+                                        <li onClick={handleLogout}>Đăng xuất</li>
+                                    </ul>
+                                </div>
+                            )}
+                        >
+                            <img
+                                className={cx('img-user')}
+                                src={user.avatar}
+                                alt={user.username}
+                                onClick={handleShowAction}
+                            />
+                        </Tippy>
                     </div>
                 ) : (
                     <div className={cx('actions')}>

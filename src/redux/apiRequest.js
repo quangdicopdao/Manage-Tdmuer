@@ -13,7 +13,7 @@ import {
     logoutFailed,
 } from './authSlice';
 import { baseURL } from '~/utils/api';
-import { createScheduleSuccess } from './scheduleSlice';
+import { createScheduleFailer, createScheduleSuccess } from './scheduleSlice';
 import { toast } from 'react-toastify';
 
 // apiRequest.js
@@ -53,5 +53,29 @@ export const createPost = async (data, dispatch, navigate, accessToken) => {
     } catch (error) {
         console.error('Error:', error.response.data);
         dispatch(createPostFailed(error.response.data));
+    }
+};
+
+export const createSchedule = async (data, dispatch, navigate, accessToken) => {
+    try {
+        const res = await axios.post(baseURL + 'schedule/api/create', data, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        dispatch(createScheduleSuccess(res.data));
+        navigate('/schedule');
+        toast.success('Tạo lịch thành công');
+    } catch (error) {
+        console.error('Error:', error.response.data);
+        toast.error('Lỗi khi tạo lịch');
+        dispatch(createScheduleFailer(error.response.data));
+    }
+};
+export const logoutUser = async (dispatch, navigate) => {
+    dispatch(logoutStart());
+    try {
+        dispatch(logoutSuccess());
+        navigate('/');
+    } catch (error) {
+        dispatch(logoutFailed());
     }
 };

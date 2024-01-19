@@ -16,7 +16,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { baseURL } from '~/utils/api';
 import axios from 'axios';
-import { toast } from 'react-toastify';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 const cx = classNames.bind(style);
@@ -121,10 +120,8 @@ function MyCalendar() {
             await createSchedule(newSchedule, dispatch, navigate, accsessToken);
             fetchSchedules();
             closeModal();
-            toast.success('Lịch đã được lưu thành công');
         } catch (error) {
             console.error('Error saving schedule:', error);
-            toast.error('Đã xảy ra lỗi khi lưu lịch');
         }
     };
 

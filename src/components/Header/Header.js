@@ -16,11 +16,7 @@ import Modal from '../Modal/Modal';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { loginUser } from '~/redux/apiRequest';
-import { baseURL } from '~/utils/api';
-import { Link } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { ToastContainer } from 'react-toastify';
+
 const cx = classNames.bind(style);
 
 function Header() {
@@ -71,7 +67,6 @@ function Header() {
         };
         loginUser(newUser, dispatch, navigate, closeModal);
     };
-
     // func for modal
     const openModal = () => {
         setModalOpen(true);
@@ -80,7 +75,6 @@ function Header() {
     const closeModal = () => {
         setModalOpen(false);
     };
-
     // have a current user login
     // search result
     useEffect(() => {
@@ -123,27 +117,9 @@ function Header() {
                 {user ? (
                     <div className={cx('current-user')}>
                         <FontAwesomeIcon className={cx('action-icon')} icon={faBell} />
-                        <Tippy
-                            visible={show}
-                            interactive
-                            render={(attrs) => (
-                                <div className={cx('wrap-action-avatar')} tabIndex="-1" {...attrs}>
-                                    <PopperWrapper>
-                                        <ul>
-                                            <li>Trang cá nhân</li>
-                                            <li>Đăng xuất</li>
-                                        </ul>
-                                    </PopperWrapper>
-                                </div>
-                            )}
-                        >
-                            <img
-                                className={cx('img-user')}
-                                src={user.avatar}
-                                alt={user.username}
-                                onClick={handleShowAction}
-                            />
-                        </Tippy>
+                        {/* <FontAwesomeIcon className={cx('action-icon')} icon={faFacebookMessenger} /> */}
+                        {/* <img className={cx('img-user')} src="" alt="name" /> */}
+                        <img className={cx('img-user')} src={user.avatar} alt={user.username} />
                     </div>
                 ) : (
                     <div className={cx('actions')}>

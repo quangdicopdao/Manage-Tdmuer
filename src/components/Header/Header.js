@@ -18,6 +18,7 @@ import { useNavigate } from 'react-router-dom';
 import { loginUser, logoutUser } from '~/redux/apiRequest';
 import { baseURL } from '~/utils/api';
 import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { Link } from 'react-router-dom';
 
 const cx = classNames.bind(style);

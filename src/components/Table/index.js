@@ -13,6 +13,7 @@ const cx = classNames.bind(style);
 function MyTable({ accsessToken }) {
     const [schedules, setSchedules] = useState([]);
     const [error, setError] = useState(null);
+
     const renderStatus = (data) => {
         switch (data) {
             case 0: {
@@ -116,7 +117,12 @@ function MyTable({ accsessToken }) {
                                         <input type="checkbox" />
                                     </td>
                                     <td>{index + 1}</td>
-                                    <td>{moment(data.dateEnd).format('DD/MM/YYYY HH:mm')}</td>
+                                    <td>
+                                        {' '}
+                                        {`${moment(data.start).format('DD/MM/YYYY HH:mm')} đến ${moment(
+                                            data.end,
+                                        ).format('DD/MM/YYYY HH:mm')}`}
+                                    </td>
                                     <td>{data.title}</td>
                                     <td>{data.description}</td>
                                     <td>

@@ -74,6 +74,7 @@ export const logoutUser = async (dispatch, navigate) => {
     dispatch(logoutStart());
     try {
         dispatch(logoutSuccess());
+        window.location.reload();
         navigate('/');
     } catch (error) {
         dispatch(logoutFailed());

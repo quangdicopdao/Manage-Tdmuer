@@ -10,10 +10,9 @@ import moment from 'moment';
 
 const cx = classNames.bind(style);
 
-function MyTable({ accsessToken }) {
+function MyTable({ accessToken, axiosJWT }) {
     const [schedules, setSchedules] = useState([]);
     const [error, setError] = useState(null);
-
     const renderStatus = (data) => {
         switch (data) {
             case 0: {
@@ -36,13 +35,11 @@ function MyTable({ accsessToken }) {
     useEffect(() => {
         const fetchSchedules = async () => {
             try {
-                const response = await axios.get(baseURL + 'schedule/api/show', {
+                const response = await axiosJWT.get(baseURL + 'schedule/api/show', {
                     headers: {
-                        Authorization: `Bearer ${accsessToken}`,
+                        Authorization: `Bearer ${accessToken}`,
                     },
                 });
-                console.log('Full API Response:', response);
-                console.log('Data from API:', response.data); // Kiểm tra dữ liệu nhận được từ API
                 setSchedules(response.data);
                 console.log('Dữ liệu:', schedules);
             } catch (error) {
@@ -51,10 +48,10 @@ function MyTable({ accsessToken }) {
             }
         };
 
-        if (accsessToken) {
+        if (accessToken) {
             fetchSchedules();
         }
-    }, [accsessToken]);
+    }, [accessToken]);
 
     return (
         <div className={cx('wrapper')}>

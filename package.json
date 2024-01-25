@@ -16,6 +16,7 @@
         "@tippyjs/react": "^4.2.6",
         "axios": "^1.6.5",
         "classnames": "^2.5.1",
+        "cookie-parser": "^1.4.6",
         "date-fns": "^3.2.0",
         "jwt-decode": "^4.0.0",
         "moment": "^2.30.1",

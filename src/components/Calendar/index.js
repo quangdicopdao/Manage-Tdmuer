@@ -127,22 +127,29 @@ function MyCalendar() {
                                     <div className={cx('modal-components')}>
                                         <FontAwesomeIcon icon={faCalendarDay} className={cx('icon')} />
                                         <DatePicker
+                                            calendarClassName={cx('date-picker')}
                                             selected={selectedStartDate}
                                             onChange={(date) => setSelectedStartDate(date)}
                                             className={cx('title')}
                                             showTimeSelect
+                                            selectsStart
+                                            startDate={selectedStartDate}
+                                            endDate={selectedEndDate}
                                             timeFormat="HH:mm"
                                             dateFormat="dd/MM/yyyy HH:mm"
                                             timezone="Asia/Ho_Chi_Minh"
                                         />
-                                    </div>
-                                    <div className={cx('modal-components')}>
-                                        <FontAwesomeIcon icon={faCalendarDay} className={cx('icon')} />
+                                        <span>-</span>
                                         <DatePicker
+                                            calendarClassName={cx('date-picker')}
                                             selected={selectedEndDate}
                                             onChange={(date) => setSelectedEndDate(date)}
                                             className={cx('title')}
                                             showTimeSelect
+                                            selectsEnd
+                                            startDate={selectedStartDate}
+                                            endDate={selectedEndDate}
+                                            minDate={selectedStartDate}
                                             timeFormat="HH:mm"
                                             dateFormat="dd/MM/yyyy HH:mm"
                                             timezone="Asia/Ho_Chi_Minh"

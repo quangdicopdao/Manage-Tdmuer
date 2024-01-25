@@ -16,7 +16,7 @@ import { baseURL } from '~/utils/api';
 import { createScheduleFailer, createScheduleSuccess } from './scheduleSlice';
 import { toast } from 'react-toastify';
 
-// apiRequest.js
+// authenication
 export const loginUser = async (user, dispatch, navigate, closeModal) => {
     dispatch(loginStart());
     try {
@@ -43,19 +43,31 @@ export const registerUser = async (user, dispatch, navigate, openModalLogin) => 
         dispatch(registerFailed());
     }
 };
+export const logoutUser = async (dispatch, navigate) => {
+    dispatch(logoutStart());
+    try {
+        dispatch(logoutSuccess());
+        // window.location.reload();
+        navigate('/');
+    } catch (error) {
+        dispatch(logoutFailed());
+    }
+};
+
+//post
 export const createPost = async (data, dispatch, navigate, accessToken) => {
     try {
         const res = await axios.post(baseURL + 'api/posts/create', data, {
             headers: { Authorization: `Bearer ${accessToken}` },
         });
         dispatch(createPostSuccess(res.data));
-        navigate('/');
+        navigate('/post');
     } catch (error) {
         console.error('Error:', error.response.data);
         dispatch(createPostFailed(error.response.data));
     }
 };
-
+//schedule
 export const createSchedule = async (data, dispatch, navigate, accessToken) => {
     try {
         const res = await axios.post(baseURL + 'schedule/api/create', data, {
@@ -68,15 +80,5 @@ export const createSchedule = async (data, dispatch, navigate, accessToken) => {
         console.error('Error:', error.response.data);
         toast.error('Lỗi khi tạo lịch');
         dispatch(createScheduleFailer(error.response.data));
-    }
-};
-export const logoutUser = async (dispatch, navigate) => {
-    dispatch(logoutStart());
-    try {
-        dispatch(logoutSuccess());
-        window.location.reload();
-        navigate('/');
-    } catch (error) {
-        dispatch(logoutFailed());
     }
 };

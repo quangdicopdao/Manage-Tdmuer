@@ -41,13 +41,10 @@ function PostDetail() {
                 </div>
                 <div className={cx('col-3')}>
                     <div className={cx('wrap-user')}>
-                        <img
-                            className={cx('img-user')}
-                            src="https://scontent.fsgn21-1.fna.fbcdn.net/v/t39.30808-1/378393423_1307195950164637_4310189808608344293_n.jpg?stp=dst-jpg_p320x320&_nc_cat=111&ccb=1-7&_nc_sid=5740b7&_nc_ohc=U09W18M-OjwAX_slAx0&_nc_ht=scontent.fsgn21-1.fna&oh=00_AfC1jP6GW7_QiyA41u2IbYRN_ieOoic9f09hdxTx8OGY9w&oe=659EC722"
-                        />
+                        <img className={cx('img-user')} src={post.userId.avatar} />
                         <div className={cx('wrap-info')}>
-                            <h3 className={cx('name-user')}>Đặng Việt Quang</h3>
-                            <h4 className={cx('date-post')}>2 năm trước</h4>
+                            <h3 className={cx('name-user')}>{post.userId.email}</h3>
+                            <h4 className={cx('date-post')}>{post.createdAt}</h4>
                         </div>
                     </div>
                     <div className={cx('wrap-action')}>

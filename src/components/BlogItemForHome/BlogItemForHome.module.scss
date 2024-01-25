@@ -1,49 +1,82 @@
-.wrap-all {
+.wrap-all-content {
     text-decoration: none;
     color: #000;
+    display: flex;
+    flex: 1;
 }
 .wrapper {
-    width: 300px;
-    height: 300px;
-    margin-right: 20px;
+    display: flex;
+    justify-self: center;
+    align-items: center;
+    width: 900px;
+    height: 150px;
     margin-top: 20px;
+    margin-right: 20px;
     border-radius: 10px;
     padding: 5px;
     cursor: pointer;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
     overflow: hidden;
+    background-color: #fff;
     &:hover {
-        .image-post {
-            transform: scale(1.1); // Đặt tỷ lệ zoom tùy ý, ở đây là 1.2
-        }
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        transition: ease-in-out 0.1s;
     }
 }
 .image-post {
-    width: 100%;
-    height: 200px;
+    width: 150px;
+    height: 150px;
+    border-radius: 10px;
     object-fit: cover;
-    transition: transform 0.3s;
 }
-.text-title {
-    font-size: 1.8rem;
-    margin-left: 5px;
-    margin-top: 10px;
+.wrap-content {
+    height: 100%;
+    margin-left: 10px;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    .wrap-title-content {
+        flex: 1;
+        .text-title {
+            font-size: 1.8rem;
+            margin-top: 10px;
+        }
+    }
 }
 
 .wrap-post-info {
     display: flex;
-    align-items: center;
+    height: 100%;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-end;
     margin-top: 10px;
-    margin-left: 5px;
-}
-.image-user {
-    width: 30px;
-    height: 30px;
-    border-radius: 100px;
     margin-right: 10px;
+
+    .icon-save {
+        font-size: 1.8rem;
+        color: #ccc;
+    }
+    // .image-user {
+    //     width: 30px;
+    //     height: 30px;
+    //     border-radius: 100px;
+    //     margin-right: 10px;
+    // }
+    // .text-username {
+    //     font-style: normal;
+    //     font-weight: 400;
+    //     font-size: 1.6rem;
+    // }
 }
-.text-username {
-    font-style: normal;
-    font-weight: 400;
-    font-size: 1.6rem;
+
+.wrap-filter {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    .title-type {
+        background-color: var(--input-color);
+        border-radius: 10px;
+        padding: 5px;
+        margin-right: 5px;
+        margin-top: 5px;
+    }
 }

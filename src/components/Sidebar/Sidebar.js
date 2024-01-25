@@ -1,20 +1,27 @@
 import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import classNames from 'classnames/bind';
 import styles from './Sidebar.module.scss';
 import { faHouse, faCalendar } from '@fortawesome/free-solid-svg-icons';
 import SidebarItem from './SidebarItem';
-import { faFacebookMessenger } from '@fortawesome/free-brands-svg-icons';
+import { faBlogger, faBloggerB, faFacebookMessenger } from '@fortawesome/free-brands-svg-icons';
 import { useSelector } from 'react-redux';
 
 const cx = classNames.bind(styles);
 
 const Sidebar = () => {
     const user = useSelector((state) => state.auth.login.currentUser);
+    const location = useLocation();
 
     const [activeTab, setActiveTab] = useState('Home');
 
     const handleTabClick = (tabName) => {
         setActiveTab(tabName);
+    };
+
+    // Hàm kiểm tra xem đường dẫn có trùng khớp với tab hay không
+    const isTabActive = (tabPath) => {
+        return location.pathname === tabPath;
     };
 
     return (
@@ -23,7 +30,7 @@ const Sidebar = () => {
                 <SidebarItem
                     icon={faHouse}
                     label="Trang chủ"
-                    isActive={activeTab === 'Home'}
+                    isActive={isTabActive('/')}
                     to={'/'}
                     onClick={() => handleTabClick('Home')}
                 />
@@ -32,16 +39,23 @@ const Sidebar = () => {
                         <SidebarItem
                             icon={faCalendar}
                             label="Lịch"
-                            isActive={activeTab === 'Schedule'}
+                            isActive={isTabActive('/schedule')}
                             to={'/schedule'}
                             onClick={() => handleTabClick('Schedule')}
                         />
                         <SidebarItem
                             icon={faFacebookMessenger}
                             label="Chat"
-                            isActive={activeTab === 'Message'}
+                            isActive={isTabActive('/message')}
                             to={'/message'}
                             onClick={() => handleTabClick('Message')}
+                        />
+                        <SidebarItem
+                            icon={faBloggerB}
+                            label="Bài viết"
+                            isActive={isTabActive('/post')}
+                            to={'/post'}
+                            onClick={() => handleTabClick('Post')}
                         />
                     </div>
                 )}

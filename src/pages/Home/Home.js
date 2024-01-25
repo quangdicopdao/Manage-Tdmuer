@@ -1,76 +1,83 @@
-import React, { useState, useEffect } from 'react';
-import BlogItemForHome from '~/components/BlogItemForHome/BlogItemForHome';
 import classNames from 'classnames/bind';
 import style from './Home.module.scss';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircleChevronRight, faPlus } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
-import { baseURL } from '~/utils/api';
-import Button from '../../components/Button';
+import { jwtDecode } from 'jwt-decode';
 import MyTable from '~/components/Table';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { baseURL } from '~/utils/api';
+import { loginSuccess } from '~/redux/authSlice';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 const cx = classNames.bind(style);
 
 function Home() {
-    const [posts, setPosts] = useState([]);
+    const user = useSelector((state) => state.auth.login?.currentUser);
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    let axiosJWT = axios.create();
 
-    const user = useSelector((state) => state.auth.login.currentUser);
-    let accsessToken = null;
+    const refreshToken = async () => {
+        try {
+            const res = await axios.post(baseURL + 'v1/auth/refresh', null, {
+                withCredentials: true,
+                headers: {
+                    Cookies: user?.accessToken,
+                },
+            });
+            console.log('token', res.data);
+            return res.data;
+        } catch (error) {
+            console.error(error);
+            throw error; // Re-throw the error for further handling if needed
+        }
+    };
 
-    if (user) {
-        accsessToken = user.accsessToken;
-    }
-    useEffect(() => {
-        const fetchPosts = async () => {
-            try {
-                const response = await axios.get(baseURL + 'api/posts');
-                console.log('Status Code:', response.status); // Log status code để kiểm tra
-                console.log('Data from API:', response.data.posts); // Log data để kiểm tra
-                setPosts(response.data.posts);
-            } catch (error) {
-                console.error('Error fetching posts:', error);
+    axiosJWT.interceptors.request.use(
+        async (config) => {
+            let date = new Date();
+            // Ensure that the accessToken is available before trying to decode it
+            if (user?.accessToken) {
+                const decodedToken = jwtDecode(user.accessToken);
+                console.log('time', date.getTime() / 1000);
+                if (decodedToken.exp < date.getTime() / 1000) {
+                    try {
+                        const data = await refreshToken();
+                        console.log('token', data);
+                        const refreshUser = {
+                            ...user,
+                            accessToken: data.accessToken,
+                        };
+                        console.log('token', data.accessToken);
+
+                        dispatch(loginSuccess(refreshUser));
+                        config.headers['Authorization'] = 'Bearer ' + data.accessToken;
+                    } catch (error) {
+                        // Handle refresh token error if needed
+                        console.error('Error refreshing token:', error);
+                    }
+                }
             }
-        };
+            return config;
+        },
+        (err) => {
+            return Promise.reject(err);
+        },
+    );
 
-        fetchPosts();
-    }, []); // useEffect sẽ chỉ gọi một lần khi component được mount
+    useEffect(() => {
+        if (!user) {
+            navigate('/');
+        }
+    }, [user, navigate]);
 
     return (
         <div className={cx('wrapper')}>
-            {/* <div className={cx('grid')}>
-                {user && (
-                    <div className={cx('wrap-action')}>
-                        <Button outline leftIcon={<FontAwesomeIcon icon={faPlus} />} to={'/blog/create'}>
-                            Tạo mới
-                        </Button>
-                    </div>
-                )}
-                <div className={cx('wrap-title')}>
-                    <h2 className={cx('post-title')}>Bài viết nổi bật</h2>
-                    <div className={cx('wrap-view-all')}>
-                        <a href="/" className={cx('text-link')}>
-                            Xem tất cả
-                        </a>
-                        <FontAwesomeIcon className={cx('text-link')} icon={faCircleChevronRight} />
-                    </div>
+            {user && (
+                <div className={cx('wrap-table')}>
+                    <MyTable accessToken={user.accessToken} axiosJWT={axiosJWT} />
                 </div>
-                <div className={cx('row')}>
-                    {posts.map((post) => (
-                        <div key={post._id} className={cx('col')}>
-                            <BlogItemForHome
-                                title={post.title}
-                                imageUser={post.userId.avatar}
-                                nameUser={post.userId.email}
-                                content={post.content}
-                                to={`/post/${post._id}`}
-                            />
-                        </div>
-                    ))}
-                </div>
-            </div> */}
-            <div className={cx('wrap-table')}>
-                <MyTable accsessToken={accsessToken} />
-            </div>
+            )}
         </div>
     );
 }

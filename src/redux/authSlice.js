@@ -10,15 +10,15 @@ const authSlice = createSlice({
             posts: [],
             error: false,
         },
-        register:{
+        register: {
             isFetching: false,
             error: false,
             success: false,
         },
-        logout:{
+        logout: {
             isFetching: false,
             error: false,
-        }
+        },
     },
     reducers: {
         loginStart: (state) => {
@@ -72,7 +72,8 @@ const authSlice = createSlice({
     },
 });
 
-export const { loginFailed, loginStart, loginSuccess, registerStart, registerSuccess, registerFailed } = authSlice.actions;
+export const { loginFailed, loginStart, loginSuccess, registerStart, registerSuccess, registerFailed } =
+    authSlice.actions;
 
-export const {  logoutStart, logoutSuccess, logoutFailed, createPostFailed, createPostSuccess } = authSlice.actions;
+export const { logoutStart, logoutSuccess, logoutFailed, createPostFailed, createPostSuccess } = authSlice.actions;
 export default authSlice.reducer;

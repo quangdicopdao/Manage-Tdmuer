@@ -5,6 +5,7 @@ const gravatar = require('gravatar');
 const jwt = require('jsonwebtoken');
 
 // controllers/AuthController.js
+let refreshTokens = [];
 class AuthController {
     //register
     async register(req, res) {
@@ -49,16 +50,17 @@ class AuthController {
                 return res.status(404).json('wrong password!');
             }
             if (user && valiPassword) {
-                const accsessToken = jwt.sign(
+                const accessToken = jwt.sign(
                     {
                         id: user._id,
                         admin: user.isAdmin,
                     },
                     process.env.JWT_ACCESS_KEY,
                     {
-                        expiresIn: '3h',
+                        expiresIn: '2m',
                     },
                 );
+
                 const refreshToken = jwt.sign(
                     {
                         id: user._id,
@@ -69,14 +71,16 @@ class AuthController {
                         expiresIn: '365d',
                     },
                 );
-                res.cookie('refreshToken', refreshToken, {
+                refreshTokens.push(refreshToken);
+
+                res.cookie('refresh_token', refreshToken, {
                     httpOnly: true,
                     secure: false,
                     path: '/',
                     sameSite: 'strict',
                 });
                 const { password, ...others } = user._doc;
-                res.status(200).json({ ...others, accsessToken });
+                res.status(200).json({ ...others, accessToken });
             }
         } catch (error) {
             console.error('Login error:', error);
@@ -86,14 +90,20 @@ class AuthController {
     }
     async requestRefreshToken(req, res) {
         // take refresh token from user
-        const refreshToken = req.cookie.refreshToken;
+        const refreshTokenCookieName = 'refresh_token';
+        const refreshToken = req.cookies[refreshTokenCookieName];
+
         if (!refreshToken) return res.status(401).json('You are not authenticated');
+        if (!refreshTokens.includes(refreshToken)) {
+            return res.status(403).json('Refresh token is not valid');
+        }
+
         jwt.verify(refreshToken, process.env.JWT_REFRESH_TOKEN, (err, user) => {
             if (err) {
                 console.log(err);
                 return res.status(401).json('Invalid refresh token');
             }
-
+            refreshTokens = refreshTokens.filter((token) => token !== refreshToken);
             const newAccessToken = jwt.sign(
                 {
                     id: user._id,
@@ -101,9 +111,10 @@ class AuthController {
                 },
                 process.env.JWT_ACCESS_KEY,
                 {
-                    expiresIn: '3h',
+                    expiresIn: '2m',
                 },
             );
+
             const newRefreshToken = jwt.sign(
                 {
                     id: user._id,
@@ -114,17 +125,20 @@ class AuthController {
                     expiresIn: '365d',
                 },
             );
+            refreshTokens.push(newRefreshToken);
+
             res.cookie('refresh_token', newRefreshToken, {
                 httpOnly: true,
                 secure: false,
                 path: '/',
                 sameSite: 'strict',
             });
-            res.status(200).json({ accsessToken: newAccessToken });
+            res.status(200).json({ accessToken: newAccessToken });
         });
     }
     async logout(req, res) {
-        res.clearCookie('refreshToken');
+        res.clearCookie('refresh_token');
+        refreshTokens = refreshTokens.filter((token) => token !== req.cookies.refreshToken);
         res.status(200).json('Logged out!');
     }
 }

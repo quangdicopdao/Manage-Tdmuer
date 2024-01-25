@@ -1,93 +1,116 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-import moment from 'moment';
+import moment from 'moment-timezone';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import TimePicker from 'react-time-picker';
-import 'react-time-picker/dist/TimePicker.css';
 import classNames from 'classnames/bind';
 import style from './Calendar.module.scss';
 import Modal from '../Modal/Modal';
 import Button from '../Button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faClock, faCalendarDay } from '@fortawesome/free-solid-svg-icons';
-
+import { faCalendarDay } from '@fortawesome/free-solid-svg-icons';
+import { createSchedule } from '~/redux/apiRequest';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { baseURL } from '~/utils/api';
+import axios from 'axios';
 const cx = classNames.bind(style);
 const localizer = momentLocalizer(moment);
-const myEventsList = [
-    {
-        start: new Date(2024, 0, 9, 10, 0),
-        end: new Date(2024, 0, 9, 12, 0),
-        title: 'Meeting with Client',
-        color: 'red',
-    },
-    {
-        start: new Date(2024, 0, 10, 14, 30),
-        end: new Date(2024, 0, 10, 16, 0),
-        title: 'Team Workshop',
-        color: 'blue',
-    },
-];
-
 function MyCalendar() {
     const [modalOpen, setModalOpen] = useState(false);
-    const [selectedSlot, setSelectedSlot] = useState(null);
-    const [selectedTitle, setSelectedTitle] = useState('');
+    const [title, setTitle] = useState('');
     const [selectedStartDate, setSelectedStartDate] = useState(new Date());
     const [selectedEndDate, setSelectedEndDate] = useState(new Date());
-    const [selectedStartTime, setSelectedStartTime] = useState(new Date());
-    const [selectedEndTime, setSelectedEndTime] = useState(new Date());
 
-    const openModal = (slotInfo) => {
-        setSelectedSlot(slotInfo);
-        setSelectedTitle('');
-        setSelectedStartDate(slotInfo.start || new Date());
-        setSelectedEndDate(slotInfo.end || new Date());
-        setSelectedStartTime(new Date());
-        setSelectedEndTime(new Date());
+    const [description, setDescription] = useState('');
+    const [schedules, setSchedules] = useState([]);
+    const calendarEvents = useMemo(() => schedules, [schedules]);
+
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const user = useSelector((state) => state.auth.login.currentUser);
+    const id = user._id;
+    const accessToken = user.accsessToken;
+    const openModal = () => {
         setModalOpen(true);
     };
 
     const closeModal = () => {
-        setSelectedSlot(null);
         setModalOpen(false);
     };
+    // save to db
+    const handleSave = async (e) => {
+        e.preventDefault();
 
-    const handleSave = () => {
-        // Add your logic to save the event
-        console.log({
-            title: selectedTitle,
-            start: selectedStartDate,
-            end: selectedEndDate,
-            startTime: selectedStartTime,
-            endTime: selectedEndTime,
-        });
-        closeModal();
+        const formattedStartDate = moment(selectedStartDate).utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ');
+        const formattedEndDate = moment(selectedEndDate).utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ');
+
+        const newSchedule = {
+            title,
+            start: formattedStartDate,
+            end: formattedEndDate,
+            description,
+            userId: id,
+        };
+
+        try {
+            await createSchedule(newSchedule, dispatch, navigate, accessToken);
+            closeModal();
+        } catch (error) {
+            console.error('Error saving schedule:', error);
+        }
     };
+
+    //call api shcedule
+    useEffect(() => {
+        const fetchSchedules = async () => {
+            try {
+                const response = await axios.get(baseURL + 'schedule/api/show', {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                });
+                convertData(response.data);
+            } catch (error) {
+                console.error('Error fetching schedules:', error);
+            }
+        };
+
+        fetchSchedules();
+    }, [accessToken, schedules]);
+
+    const convertData = useCallback(
+        (schedules) => {
+            if (schedules.length > 0) {
+                const events = schedules.map((item) => ({
+                    ...item,
+                    start: new Date(item.start),
+                    end: new Date(item.end),
+                }));
+                setSchedules(events);
+            }
+        },
+
+        [schedules],
+    );
 
     return (
         <div className={cx('wrapper')}>
             <Calendar
                 localizer={localizer}
-                events={myEventsList}
-                startAccessor="start"
-                endAccessor="end"
-                style={{ height: 550 }}
-                eventPropGetter={(event) => ({
-                    style: {
-                        backgroundColor: event.color,
-                    },
-                })}
-                onSelectEvent={() => openModal()}
+                events={calendarEvents}
+                style={{ height: 600, width: 1400, marginLeft: 10 }}
+                onSelectEvent={(event) => openModal(event)}
                 onSelectSlot={(slotInfo) => openModal(slotInfo)}
-                selectable={true} // Enable selection of entire days
+                selectable
             />
+
             {modalOpen && (
                 <Modal onClose={closeModal}>
                     <div className={cx('wrap-modal')}>
                         <div className={cx('modal-header')}>
-                            <h2>Thêm sự kiện vào {selectedStartDate && moment(selectedStartDate).format('L')}</h2>
+                            <h2>Thêm sự kiện </h2>
                         </div>
                         <div className={cx('modal-content')}>
                             <div className={cx('wrap-input-modal')}>
@@ -95,8 +118,8 @@ function MyCalendar() {
                                     type="text"
                                     placeholder="Nhập tiêu đề cho sự kiện"
                                     className={cx('input-modal')}
-                                    value={selectedTitle}
-                                    onChange={(e) => setSelectedTitle(e.target.value)}
+                                    value={title}
+                                    onChange={(e) => setTitle(e.target.value)}
                                 />
                             </div>
                             <div className={cx('wrap-more')}>
@@ -104,47 +127,42 @@ function MyCalendar() {
                                     <div className={cx('modal-components')}>
                                         <FontAwesomeIcon icon={faCalendarDay} className={cx('icon')} />
                                         <DatePicker
+                                            calendarClassName={cx('date-picker')}
                                             selected={selectedStartDate}
                                             onChange={(date) => setSelectedStartDate(date)}
-                                            dateFormat="dd/MM/yyyy"
                                             className={cx('title')}
+                                            showTimeSelect
+                                            selectsStart
+                                            startDate={selectedStartDate}
+                                            endDate={selectedEndDate}
+                                            timeFormat="HH:mm"
+                                            dateFormat="dd/MM/yyyy HH:mm"
+                                            timezone="Asia/Ho_Chi_Minh"
                                         />
-                                    </div>
-                                    <div className={cx('modal-components')}>
-                                        <FontAwesomeIcon icon={faCalendarDay} className={cx('icon')} />
+                                        <span>-</span>
                                         <DatePicker
+                                            calendarClassName={cx('date-picker')}
                                             selected={selectedEndDate}
                                             onChange={(date) => setSelectedEndDate(date)}
-                                            dateFormat="dd/MM/yyyy"
                                             className={cx('title')}
-                                        />
-                                    </div>
-                                </div>
-                                <div className={cx('wrap-option')}>
-                                    <div className={cx('modal-components')}>
-                                        <FontAwesomeIcon icon={faClock} className={cx('icon')} />
-                                        <TimePicker
-                                            onChange={(time) => setSelectedStartTime(time)}
-                                            value={selectedStartTime}
-                                            format="HH:mm"
-                                            clearIcon={null} // Hide the clear icon
-                                            className={cx('title')}
-                                        />
-                                    </div>
-                                    <div className={cx('modal-components')}>
-                                        <FontAwesomeIcon icon={faClock} className={cx('icon')} />
-                                        <TimePicker
-                                            onChange={(time) => setSelectedStartTime(time)}
-                                            value={selectedStartTime}
-                                            format="HH:mm"
-                                            clearIcon={null} // Hide the clear icon
-                                            className={cx('title')}
+                                            showTimeSelect
+                                            selectsEnd
+                                            startDate={selectedStartDate}
+                                            endDate={selectedEndDate}
+                                            minDate={selectedStartDate}
+                                            timeFormat="HH:mm"
+                                            dateFormat="dd/MM/yyyy HH:mm"
+                                            timezone="Asia/Ho_Chi_Minh"
                                         />
                                     </div>
                                 </div>
                                 <div className={cx('wrap-desciptiom')}>
                                     <h4 className={cx('title')}>Mô tả</h4>
-                                    <textarea className={cx('desciption')}></textarea>
+                                    <textarea
+                                        className={cx('desciption')}
+                                        value={description}
+                                        onChange={(e) => setDescription(e.target.value)}
+                                    ></textarea>
                                 </div>
                             </div>
                         </div>

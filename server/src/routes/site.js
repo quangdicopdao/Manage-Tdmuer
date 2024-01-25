@@ -7,4 +7,5 @@ const authMiddleware = require('../middlewares/authMiddleware');
 router.get('/api/posts', siteController.index);
 router.post('/api/posts/create', authMiddleware.verifyToken, siteController.create);
 router.get('/api/posts/:id', siteController.detail);
+router.get('/api/search', siteController.search);
 module.exports = router;

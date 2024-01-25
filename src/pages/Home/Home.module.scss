@@ -3,38 +3,11 @@
     margin-top: 10px;
 }
 
-.grid {
-    width: 1400px;
-}
-.col {
-    width: 25%;
-    box-sizing: border-box;
-}
-.row {
-    display: flex;
-    margin-top: 20px;
-    flex-wrap: wrap;
-}
-.wrap-action {
-    display: flex;
-    margin-top: 10px;
-    margin-bottom: 10px;
-}
-.wrap-title {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-.post-title {
-    font-style: bold;
-}
-.text-link {
-    color: #1494cb;
-    text-decoration: none;
-    margin-right: 10px;
-    cursor: pointer;
-}
-.wrap-view-all {
-    display: flex;
-    align-items: center;
+//table
+.wrap-table {
+    width: 90%;
+    margin: auto;
+    padding: 5px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
 }

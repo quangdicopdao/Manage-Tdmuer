@@ -1,5 +1,6 @@
 // controllers/SiteController.js
 const Posts = require('../models/Posts.js');
+const User = require('../models/User.js');
 
 // controllers/SiteController.js
 class SiteController {
@@ -71,6 +72,28 @@ class SiteController {
         } catch (error) {
             console.error(error);
             res.status(500).json({ message: 'Lỗi server' });
+        }
+    }
+    async search(req, res) {
+        const query = req.query.q.toLowerCase();
+
+        try {
+            const userResults = (await User.find({ username: { $regex: query, $options: 'i' } })) || [];
+            const postResults =
+                (await Posts.find({
+                    $or: [{ title: { $regex: query, $options: 'i' } }, { content: { $regex: query, $options: 'i' } }],
+                })) || [];
+
+            const combinedResults = [...userResults, ...postResults];
+
+            if (combinedResults.length === 0) {
+                return res.status(404).json({ error: 'No results found' });
+            }
+
+            res.json(combinedResults);
+        } catch (error) {
+            console.error('Error searching:', error);
+            res.status(500).json({ error: 'Internal Server Error' });
         }
     }
 }

@@ -1,0 +1,98 @@
+.wrapper {
+    width: 100%;
+
+    table,
+    th,
+    td {
+        border-top: 1px solid #ccc;
+        border-bottom: 1px solid #ccc;
+    }
+    table {
+        border-collapse: collapse;
+        border-left: 1px solid #ccc;
+        border-right: 1px solid #ccc;
+    }
+    .table {
+        width: 90%;
+        margin: 10px auto;
+        .table-header {
+            height: 60px;
+        }
+        .table-body {
+            tr {
+                height: 60px;
+                border-bottom: 1px solid #ddd;
+                td {
+                    font-size: 1.6rem;
+                    font-weight: 400;
+                    line-height: 30px;
+                    padding: 10px;
+                    text-align: center;
+                    .action-btn {
+                        width: 50px;
+                        height: 50px;
+                        background-color: transparent;
+                        cursor: pointer;
+                        .icon-btn {
+                            font-size: 1.8rem;
+                        }
+                        .icon-edit {
+                            color: #102a83;
+                        }
+                        .icon-delete {
+                            color: red;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+.work-status {
+    padding: 10px;
+    border-radius: 10px;
+    white-space: nowrap;
+}
+
+.work-status-pending {
+    color: rgba(255, 0, 0, 1);
+    background-color: rgba(255, 0, 0, 0.2);
+    font-weight: 600;
+}
+.work-status-upcoming {
+    color: rgba(255, 165, 0, 1);
+    background-color: rgba(255, 165, 0, 0.2);
+    font-weight: 600;
+}
+.work-status-done {
+    color: rgb(104, 204, 4);
+    background-color: rgba(124, 252, 0, 0.2);
+    font-weight: 600;
+}
+.work-status-overdue {
+    color: rgba(255, 0, 255, 1);
+    background-color: rgba(255, 0, 255, 0.2);
+    font-weight: 600;
+}
+.wrap-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    .wrap-input {
+        width: 250px;
+        height: 20px;
+        background-color: var(--input-color);
+        padding: 10px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        margin-left: 62px;
+        .input-search {
+            background-color: transparent;
+            flex: 1;
+        }
+    }
+    .wrap-btn {
+        margin-right: 62px;
+    }
+}

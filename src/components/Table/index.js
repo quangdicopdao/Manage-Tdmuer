@@ -48,9 +48,9 @@ function MyTable({ accessToken, axiosJWT }) {
             }
         };
 
-        if (accessToken) {
+       
             fetchSchedules();
-        }
+        
     }, [accessToken]);
 
     return (

@@ -8,4 +8,11 @@ router.get('/api/posts', siteController.index);
 router.post('/api/posts/create', authMiddleware.verifyToken, siteController.create);
 router.get('/api/posts/:id', siteController.detail);
 router.get('/api/search', siteController.search);
+
+
+router.post('/api/chats/create', authMiddleware.verifyToken, siteController.createChat);
+
+router.get('/get/chats/:user1Id/:user2Id', siteController.getChat);
+
+
 module.exports = router;

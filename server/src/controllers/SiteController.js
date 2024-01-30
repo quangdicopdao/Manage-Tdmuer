@@ -1,7 +1,7 @@
 // controllers/SiteController.js
 const Posts = require('../models/Posts.js');
 const User = require('../models/User.js');
-
+const Chat = require('../models/Chat.js')
 // controllers/SiteController.js
 class SiteController {
     // async index(req, res, next) {
@@ -94,6 +94,40 @@ class SiteController {
         } catch (error) {
             console.error('Error searching:', error);
             res.status(500).json({ error: 'Internal Server Error' });
+        }
+    }
+    
+    async createChat (req, res){
+        try {
+            const {from , to , message} = req.body;
+            const newChat = await Chat.create({
+                message: message,
+                Chatusers:[from, to],
+                Sender:from
+            })
+            return res.status(200).json(newChat);
+        } catch (error) {
+            return res.status(500).json('Intenal server error')
+        }
+    }
+    async getChat(req, res){
+        try {
+            const from = req.params.user1Id;
+            const to = req.params.user2Id;
+            const newChat = await Chat.find({
+                Chatusers:{
+                    $all: [from, to],
+                }
+            }).sort({updateAt:-1});
+            const allmessage = newChat.map((msg)=>{
+                return {
+                    myself: msg.Sender.toString()===from,
+                    message: msg.message
+                }
+            })
+            return res.status(200).json(allmessage);
+        } catch (error) {
+            return res.status(500).json('Intenal server error')
         }
     }
 }

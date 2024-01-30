@@ -73,11 +73,12 @@ class AuthController {
                 );
                 refreshTokens.push(refreshToken);
 
-                res.cookie('refresh_token', refreshToken, {
-                    httpOnly: true,
+                res.cookie('accessToken', accessToken, {
+                    maxAge:4*24*3600*1000,
+                    httpOnly: false,
                     secure: false,
-                    path: '/',
-                    sameSite: 'strict',
+                    // path: '/',
+                    // sameSite: 'strict',
                 });
                 const { password, ...others } = user._doc;
                 res.status(200).json({ ...others, accessToken });
@@ -127,11 +128,12 @@ class AuthController {
             );
             refreshTokens.push(newRefreshToken);
 
-            res.cookie('refresh_token', newRefreshToken, {
-                httpOnly: true,
+            res.cookie('accessToken', accessToken, {
+                maxAge:4*24*3600*1000,
+                httpOnly: false,
                 secure: false,
-                path: '/',
-                sameSite: 'strict',
+                // path: '/',
+                // sameSite: 'strict',
             });
             res.status(200).json({ accessToken: newAccessToken });
         });
@@ -141,6 +143,8 @@ class AuthController {
         refreshTokens = refreshTokens.filter((token) => token !== req.cookies.refreshToken);
         res.status(200).json('Logged out!');
     }
+    //get user
+    
 }
 
 module.exports = new AuthController();

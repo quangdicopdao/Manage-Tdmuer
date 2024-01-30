@@ -8,7 +8,6 @@ import { faPaperPlane, faPaperclip, faSearch, faUserPlus, faUsers } from '@forta
 import Modal from '../Modal/Modal';
 import Button from '../Button';
 import Tippy from '@tippyjs/react/headless';
-import debounce from 'lodash/debounce';
 import 'tippy.js/dist/tippy.css'; // optional
 import { Wrapper as PopperWrapper } from '~/components/Popper';
 import UserGroup from '../User/UserGroup';
@@ -20,7 +19,7 @@ function ChatBox() {
     const [selectedUserId, setSelectedUserId] = useState(null);
 
     //user add null
-    const [arrUsers, setArrUsers] = useState([]);
+    //const [arrUsers, setArrUsers] = useState([]);
     const [arrUsersAdded, setArrUsersAdded] = useState([]);
     const [keywords, setKeywords] = useState('');
     const [keywordsGroup, setKeywordsGroup] = useState('');
@@ -46,21 +45,13 @@ function ChatBox() {
             name: 'Nguyễn Nhân',
             url: 'https://scontent-xsp1-2.xx.fbcdn.net/v/t1.6435-1/102326557_658139238246076_1608374780314545293_n.jpg?stp=dst-jpg_p320x320&_nc_cat=110&ccb=1-7&_nc_sid=2b6aad&_nc_eui2=AeFlu3bTPshZoyT0GglCApcdemJ9vLmBp6t6Yn28uYGnq8RpuvhFUMEXHrR64AnRQUsz5qKLfWAyyF5v6084Mrdq&_nc_ohc=UulVeIPC5pIAX9fWENu&_nc_ht=scontent-xsp1-2.xx&oh=00_AfCsUWmfRn8GqxkXI0fFKfj7zhKZHvauc16nF-FvKnpLgg&oe=65C2EA95',
         },
-        // {
-        //     id: 4,
-        //     name: 'Trần Nguyễn Gia Phúc',
-        //     url: 'https://scontent-xsp1-3.xx.fbcdn.net/v/t39.30808-1/273888485_1330651314101959_2643757613876285297_n.jpg?stp=dst-jpg_p320x320&_nc_cat=100&ccb=1-7&_nc_sid=5740b7&_nc_eui2=AeGa0V5cBTGn3qY-4u-QJ7lGeVWYCRoxlM55VZgJGjGUzvpcwzrjPQnXd3ehlwWzRvV4FqMZyqbo8nHM1uOHFec3&_nc_ohc=ljr5SIXEmGEAX9s_Mo2&_nc_ht=scontent-xsp1-3.xx&oh=00_AfDTyblS5_ZoN5pTushMjHplPxn3ayt1WUDgeuh_onQwhQ&oe=65A1561D',
-        // },
-        // {
-        //     id: 5,
-        //     name: 'Nguyễn Đức Nhân',
-        //     url: 'https://scontent.fsgn21-1.fna.fbcdn.net/v/t39.30808-1/378393423_1307195950164637_4310189808608344293_n.jpg?stp=dst-jpg_p320x320&_nc_cat=111&ccb=1-7&_nc_sid=5740b7&_nc_ohc=qidZAFIJwWMAX91ujIV&_nc_oc=AQkn_EYpnJOyZI1QRuDQ1Fn6G3Cekfumfr-g4PLK5xca1AZik2eiKWo7kwlFxhP_l8o&_nc_ht=scontent.fsgn21-1.fna&oh=00_AfCgVGSawwBMnZC7cZGq0f3zBJuXeX7mYxjemzLLpDBlZA&oe=659AD2A2',
-        // },
-        // {
-        //     id: 6,
-        //     name: 'Nguyễn Thúy An',
-        //     url: 'https://scontent-xsp1-2.xx.fbcdn.net/v/t39.30808-1/416323643_762292415939747_877860037475857663_n.jpg?stp=dst-jpg_s320x320&_nc_cat=102&ccb=1-7&_nc_sid=5740b7&_nc_eui2=AeFWssJp4uxPB3vRGzh1p4nR9PSZoO3b1_D09Jmg7dvX8CRVzrjyN13gJDO3HaNhEwYIGRjNH4oso8Y1tlBFk16X&_nc_ohc=zOtzvj6KOL0AX_p-uHs&_nc_ht=scontent-xsp1-2.xx&oh=00_AfAaKSAD89luloxCAVHkeSq68xi2r1rDgNXFyNkLUKuONw&oe=65A0F558',
-        // },
+        {
+            id: 4,
+            name: 'Trần Nguyễn Gia Phúc',
+            url: 'https://scontent.fsgn16-1.fna.fbcdn.net/v/t39.30808-1/273888485_1330651314101959_2643757613876285297_n.jpg?stp=dst-jpg_p320x320&_nc_cat=100&ccb=1-7&_nc_sid=5740b7&_nc_eui2=AeHQxzu4My4S7ETTKrnnOYKEeVWYCRoxlM55VZgJGjGUzvfQA-aVFObQ6phouf2h1B3WAc-SjzuW_Y6K09xZkRkm&_nc_ohc=5uO0zEaPDAIAX9XLymo&_nc_ht=scontent.fsgn16-1.fna&oh=00_AfDgVrsqMnjNZ-TEbJVhVWd2upcA6y7_MpSylDKK90P4Iw&oe=65BB0B5D'
+        },
+        
+        
     ];
     const [filteredUsers, setFilteredUsers] = useState(users);
     const [filteredUsersGroup, setFilteredUsersGroup] = useState(users);
@@ -173,9 +164,6 @@ function ChatBox() {
     const closeModal = () => {
         setModalOpen(false);
     };
-    const handleClick = () => {
-        setIsActive(!isActive);
-    };
     //test giao diện
     const [selectedUser, setSelectedUser] = useState({
         name: 'Đặng Việt Quang',
@@ -264,6 +252,7 @@ function ChatBox() {
                 </div>
                 
             </div>
+            {/**Chat */}
             <div className={cx('right-side-chat-box')}>
                 {selectedUser && (
                     <div className={cx('header-chat')}>
@@ -271,24 +260,39 @@ function ChatBox() {
                         <h2 className={cx('name-header-chat')}>{selectedUser.name}</h2>
                     </div>
                 )}
-                <div className={cx('content-chat')}>
-                    {messages.map((message) => (
-                        <div key={message.id} className={cx('message')}>
-                            <div className={cx('sender-details')}>
-                                <img
-                                    className={cx('img-sender')}
-                                    src={message.sender.imageUrl}
-                                    alt={`${message.sender.name}'s avatar`}
-                                />
-                                <span className={cx('name-sender')}>{message.sender.name}</span>
-                                <div className={cx('sender-info')}>
-                                    {`Sent ${formatDistanceToNow(message.timestamp, { addSuffix: true })}`}
-                                </div>
-                            </div>
-                            {message.content}
-                        </div>
-                    ))}
+                {/** Content-Chat */}
+                <div className={cx('content-message')}>
+                    <div className={cx('content-chat')}>
+                        <img src='https://scontent-xsp1-2.xx.fbcdn.net/v/t1.6435-1/102326557_658139238246076_1608374780314545293_n.jpg?stp=dst-jpg_p320x320&_nc_cat=110&ccb=1-7&_nc_sid=2b6aad&_nc_eui2=AeFlu3bTPshZoyT0GglCApcdemJ9vLmBp6t6Yn28uYGnq8RpuvhFUMEXHrR64AnRQUsz5qKLfWAyyF5v6084Mrdq&_nc_ohc=UulVeIPC5pIAX9fWENu&_nc_ht=scontent-xsp1-2.xx&oh=00_AfCsUWmfRn8GqxkXI0fFKfj7zhKZHvauc16nF-FvKnpLgg&oe=65C2EA95' className={cx('userprofile')} alt=''></img>
+                        <p className={cx('chat-text')}>
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua
+                        </p>
+                    </div>
+                    <div className={cx('content-chat')}>
+                        <img src='https://scontent-xsp1-2.xx.fbcdn.net/v/t1.6435-1/102326557_658139238246076_1608374780314545293_n.jpg?stp=dst-jpg_p320x320&_nc_cat=110&ccb=1-7&_nc_sid=2b6aad&_nc_eui2=AeFlu3bTPshZoyT0GglCApcdemJ9vLmBp6t6Yn28uYGnq8RpuvhFUMEXHrR64AnRQUsz5qKLfWAyyF5v6084Mrdq&_nc_ohc=UulVeIPC5pIAX9fWENu&_nc_ht=scontent-xsp1-2.xx&oh=00_AfCsUWmfRn8GqxkXI0fFKfj7zhKZHvauc16nF-FvKnpLgg&oe=65C2EA95' className={cx('userprofile')} alt=''></img>
+                        <p className={cx('chat-text')}>
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua
+                        </p>
+                    </div>
+                    <div className={cx('content-chat')} style={{marginLeft:500}}> 
+                        <p className={cx('chat-text')}>
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua
+                        </p>
+                    </div>
+                    <div className={cx('content-chat')}>
+                        <img src='https://scontent-xsp1-2.xx.fbcdn.net/v/t1.6435-1/102326557_658139238246076_1608374780314545293_n.jpg?stp=dst-jpg_p320x320&_nc_cat=110&ccb=1-7&_nc_sid=2b6aad&_nc_eui2=AeFlu3bTPshZoyT0GglCApcdemJ9vLmBp6t6Yn28uYGnq8RpuvhFUMEXHrR64AnRQUsz5qKLfWAyyF5v6084Mrdq&_nc_ohc=UulVeIPC5pIAX9fWENu&_nc_ht=scontent-xsp1-2.xx&oh=00_AfCsUWmfRn8GqxkXI0fFKfj7zhKZHvauc16nF-FvKnpLgg&oe=65C2EA95' className={cx('userprofile')} alt=''></img>
+                        <p className={cx('chat-text')}>
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua
+                        </p>
+                    </div>
+                    <div className={cx('content-chat')} style={{marginLeft:500}}>
+                        <p className={cx('chat-text')}>
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua
+                        </p>
+                    </div>
                 </div>
+                
+                {/**Footer-Chat */}
                 <div className={cx('footer-chat')}>
                     <button className={cx('btn-footer')}>
                         <FontAwesomeIcon icon={faPaperclip} />
@@ -306,6 +310,8 @@ function ChatBox() {
                     </button>
                 </div>
             </div>
+
+            {/**Thêm nhóm chat */}
             {modalOpen && (
                 <Modal onClose={closeModal}>
                     <div className={cx('wrap-modal')}>

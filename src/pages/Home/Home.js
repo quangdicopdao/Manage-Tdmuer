@@ -19,11 +19,8 @@ function Home() {
 
     const refreshToken = async () => {
         try {
-            const res = await axios.post(baseURL + 'v1/auth/refresh', null, {
+            const res = await axios.post(baseURL + 'v1/auth/refresh', {
                 withCredentials: true,
-                headers: {
-                    Cookies: user?.accessToken,
-                },
             });
             console.log('token', res.data);
             return res.data;
@@ -43,18 +40,18 @@ function Home() {
                 if (decodedToken.exp < date.getTime() / 1000) {
                     try {
                         const data = await refreshToken();
-                        console.log('token', data);
+                        console.log('token', data.accessToken);
                         const refreshUser = {
                             ...user,
                             accessToken: data.accessToken,
                         };
                         console.log('token', data.accessToken);
-
+    
                         dispatch(loginSuccess(refreshUser));
-                        config.headers['Authorization'] = 'Bearer ' + data.accessToken;
+                        config.headers["Authorization"] = "Bearer " + data.accessToken;
                     } catch (error) {
-                        // Handle refresh token error if needed
-                        console.error('Error refreshing token:', error);
+                        console.error("Error refreshing token:", error);
+                        // Handle error as needed
                     }
                 }
             }
@@ -64,6 +61,7 @@ function Home() {
             return Promise.reject(err);
         },
     );
+    
 
     useEffect(() => {
         if (!user) {

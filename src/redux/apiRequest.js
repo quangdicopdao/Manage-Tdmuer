@@ -13,16 +13,25 @@ import {
     logoutFailed,
 } from './authSlice';
 import { baseURL } from '~/utils/api';
-import { createScheduleFailer, createScheduleSuccess } from './scheduleSlice';
+import {
+    createScheduleFailer,
+    createScheduleSuccess,
+    getScheduleFailer,
+    getScheduleStart,
+    getScheduleSuccess,
+} from './scheduleSlice';
 import { toast } from 'react-toastify';
 
 // authenication
 export const loginUser = async (user, dispatch, navigate, closeModal) => {
     dispatch(loginStart());
     try {
-        const res = await axios.post(baseURL + 'v1/auth/login', user);
+        const res = await axios.post(baseURL + 'v1/auth/login', user, {
+            withCredentials: true,
+        });
         console.log('Login success:', res.data);
         dispatch(loginSuccess(res.data));
+
         navigate('/');
         toast.success('Đăng nhập thành công');
         closeModal();
@@ -47,7 +56,6 @@ export const logoutUser = async (dispatch, navigate) => {
     dispatch(logoutStart());
     try {
         dispatch(logoutSuccess());
-        // window.location.reload();
         navigate('/');
     } catch (error) {
         dispatch(logoutFailed());
@@ -68,9 +76,9 @@ export const createPost = async (data, dispatch, navigate, accessToken) => {
     }
 };
 //schedule
-export const createSchedule = async (data, dispatch, navigate, accessToken) => {
+export const createSchedule = async (data, dispatch, navigate, accessToken, axiosJWT) => {
     try {
-        const res = await axios.post(baseURL + 'schedule/api/create', data, {
+        const res = await axiosJWT.post(baseURL + 'schedule/api/create', data, {
             headers: { Authorization: `Bearer ${accessToken}` },
         });
         dispatch(createScheduleSuccess(res.data));
@@ -80,5 +88,17 @@ export const createSchedule = async (data, dispatch, navigate, accessToken) => {
         console.error('Error:', error.response.data);
         toast.error('Lỗi khi tạo lịch');
         dispatch(createScheduleFailer(error.response.data));
+    }
+};
+
+export const showSchedule = async (dispatch, axiosJWT, accessToken) => {
+    dispatch(getScheduleStart());
+    try {
+        const res = await axiosJWT.get(baseURL + 'schedule/api/show', {
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        dispatch(getScheduleSuccess(res.data));
+    } catch (error) {
+        dispatch(getScheduleFailer(error));
     }
 };

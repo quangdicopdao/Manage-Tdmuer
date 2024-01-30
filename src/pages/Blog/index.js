@@ -14,11 +14,7 @@ function Blog() {
     const [posts, setPosts] = useState([]);
 
     const user = useSelector((state) => state.auth.login.currentUser);
-    let accsessToken = null;
 
-    if (user) {
-        accsessToken = user.accsessToken;
-    }
     useEffect(() => {
         const fetchPosts = async () => {
             try {

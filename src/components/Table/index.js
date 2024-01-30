@@ -4,15 +4,28 @@ import style from './table.module.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faPlus, faSearch, faTrash } from '@fortawesome/free-solid-svg-icons';
 import Button from '../Button';
-import { baseURL } from '~/utils/api';
-import axios from 'axios';
+import { useDispatch, useSelector } from 'react-redux';
 import moment from 'moment';
+import { loginSuccess } from '~/redux/authSlice';
+import { createInstance } from '~/utils/createInstance';
+
+import { showSchedule } from '~/redux/apiRequest';
 
 const cx = classNames.bind(style);
 
-function MyTable({ accessToken, axiosJWT }) {
-    const [schedules, setSchedules] = useState([]);
-    const [error, setError] = useState(null);
+function MyTable() {
+    const dispatch = useDispatch();
+    const user = useSelector((state) => state.auth.login?.currentUser);
+    const schedules = useSelector((state) => state.schedule.arrSchedules?.newSchedule);
+
+    let axiosJWT = createInstance(user, dispatch, loginSuccess);
+
+    console.log('schedules', schedules);
+    useEffect(() => {
+        if (user?.accessToken) {
+            showSchedule(dispatch, axiosJWT, user.accessToken);
+        }
+    }, [user?.accessToken]);
     const renderStatus = (data) => {
         switch (data) {
             case 0: {
@@ -32,26 +45,6 @@ function MyTable({ accessToken, axiosJWT }) {
             }
         }
     };
-    useEffect(() => {
-        const fetchSchedules = async () => {
-            try {
-                const response = await axiosJWT.get(baseURL + 'schedule/api/show', {
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                });
-                setSchedules(response.data);
-                console.log('Dữ liệu:', schedules);
-            } catch (error) {
-                console.error('Error fetching schedules:', error);
-                setError(error);
-            }
-        };
-
-        if (accessToken) {
-            fetchSchedules();
-        }
-    }, [accessToken]);
 
     return (
         <div className={cx('wrapper')}>

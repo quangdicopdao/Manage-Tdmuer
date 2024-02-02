@@ -14,15 +14,34 @@ class ScheduleController {
 
             // Truy vấn lịch theo ID người dùng đã đăng nhập
             const userId = req.user.id;
-            const userSchedule = await Schedule.find({ userId });
+            const { statusWork, page, pageSize } = req.query;
 
-            res.json(userSchedule);
-            console.log(userSchedule);
+            if (statusWork === undefined || statusWork === null || statusWork === '') {
+                return res.status(400).json({ message: 'StatusWork is required' });
+            }
+
+            const skip = (page - 1) * pageSize;
+
+            const userSchedule = await Schedule.find({ userId, statusWork })
+                .skip(skip)
+                .limit(pageSize)
+                .sort({ end: 'desc' });
+
+            const total = await Schedule.countDocuments({ userId, statusWork });
+            const total_pages = Math.ceil(total / pageSize);
+
+            res.status(200).json({
+                page: parseInt(page),
+                per_page: parseInt(pageSize),
+                total: total,
+                total_pages: total_pages,
+                data: userSchedule,
+            });
         } catch (error) {
-            console.error('Error fetching user schedule:', error);
             next(error);
         }
     }
+
     async create(req, res, next) {
         const { title, start, end, description } = req.body;
         if (!req.user) {
@@ -47,51 +66,37 @@ class ScheduleController {
             next();
         }
     }
+
     async updateStatusWork() {
         try {
             const currentDate = moment(); // Lấy ngày hiện tại
-            const oneDayAhead = currentDate.clone().add(1, 'day'); // Lấy ngày hiện tại cộng thêm 1 ngày
-            const oneDayAgo = currentDate.clone().subtract(1, 'day'); // Lấy ngày hiện tại trừ đi 1 ngày
 
             // Tìm tất cả công việc có ngày kết thúc cách ngày hiện tại 1 ngày
-            const allSchedules = await Schedule.find({
-                end: { $lt: oneDayAhead.toDate(), $gte: oneDayAgo.toDate() },
-            });
+            const oneDayAhead = currentDate.clone().add(1, 'day');
 
-            // Lọc ra những công việc chưa hoàn thành và là ngày hôm qua, là ngày mai, hoặc cách 2 ngày trở đi
-            const schedulesToUpdate = allSchedules.filter((schedule) => {
-                const isYesterday = moment(schedule.end).isSame(oneDayAgo, 'day');
-                const isTomorrow = moment(schedule.end).isSame(oneDayAhead, 'day');
-                const isMoreThanOneDayBehind = moment(schedule.end).isBefore(
-                    currentDate.clone().subtract(1, 'day'),
-                    'day',
-                );
+            const query = {
+                end: { $lt: oneDayAhead.toDate() },
+            };
 
-                return (
-                    schedule.statusWork !== '2' && // Chưa hoàn thành
-                    (isYesterday || isTomorrow || isMoreThanOneDayBehind)
-                );
-            });
+            // Tìm và cập nhật công việc có statusWork khác 2
+            const schedulesToUpdate = await Schedule.find({ ...query, statusWork: { $ne: 2 } });
 
-            // Cập nhật trạng thái công việc
+            // Cập nhật statusWork của các công việc
             for (const schedule of schedulesToUpdate) {
-                // Kiểm tra nếu công việc chưa hoàn thành và là ngày hôm qua, cập nhật trạng thái thành '3'
-                if (moment(schedule.end).isSame(oneDayAgo, 'day')) {
-                    schedule.statusWork = '3'; // Quá hạn
-                }
-                // Kiểm tra nếu công việc chưa hoàn thành và là ngày mai, cập nhật trạng thái thành '1'
-                else if (moment(schedule.end).isSame(oneDayAhead, 'day')) {
-                    schedule.statusWork = '1'; // Sắp tới hạn
-                }
-                // Kiểm tra nếu công việc chưa hoàn thành và cách hơn 1 ngày, cập nhật trạng thái thành '3'
-                else {
-                    schedule.statusWork = '3'; // Quá hạn
+                const isOverdue = moment(schedule.end).isBefore(currentDate, 'day');
+
+                if (isOverdue) {
+                    // Nếu quá hạn và statusWork không phải là 2, cập nhật thành 3
+                    schedule.statusWork = 3;
+                } else {
+                    // Ngược lại, cập nhật statusWork thành 1
+                    schedule.statusWork = 1;
                 }
 
                 await schedule.save();
             }
 
-            console.log('Updated schedules:', schedulesToUpdate);
+            console.log(`Updated ${schedulesToUpdate.length} schedules`);
         } catch (error) {
             console.error('Error updating statusWork:', error);
         }

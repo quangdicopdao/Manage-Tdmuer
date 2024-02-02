@@ -7,7 +7,6 @@ const authSlice = createSlice({
         login: {
             currentUser: null,
             isFetching: false,
-            posts: [],
             error: false,
         },
         register: {
@@ -47,15 +46,7 @@ const authSlice = createSlice({
             state.register.error = true;
             state.register.success = false;
         },
-        createPostSuccess: (state, action) => {
-            state.login.isFetching = false;
-            state.login.posts.push(action.payload); // Thêm bài viết mới vào mảng posts
-            state.login.error = false;
-        },
-        createPostFailed: (state) => {
-            state.login.isFetching = false;
-            state.login.error = true;
-        },
+
         logoutSuccess: (state, action) => {
             state.logout.isFetching = false;
             state.login.currentUser = null;
@@ -72,8 +63,16 @@ const authSlice = createSlice({
     },
 });
 
-export const { loginFailed, loginStart, loginSuccess, registerStart, registerSuccess, registerFailed } =
-    authSlice.actions;
+export const {
+    loginFailed,
+    loginStart,
+    loginSuccess,
+    registerStart,
+    registerSuccess,
+    registerFailed,
+    logoutStart,
+    logoutSuccess,
+    logoutFailed,
+} = authSlice.actions;
 
-export const { logoutStart, logoutSuccess, logoutFailed, createPostFailed, createPostSuccess } = authSlice.actions;
 export default authSlice.reducer;

@@ -7,28 +7,17 @@ import { faPlus, faSearch } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import { baseURL } from '~/utils/api';
 import Button from '../../components/Button';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { showPosts } from '~/redux/apiRequest';
 
 const cx = classNames.bind(style);
 function Blog() {
-    const [posts, setPosts] = useState([]);
-
+    const posts = useSelector((state) => state.post.arrPosts?.newPost.posts);
     const user = useSelector((state) => state.auth.login.currentUser);
-
+    const dispatch = useDispatch();
     useEffect(() => {
-        const fetchPosts = async () => {
-            try {
-                const response = await axios.get(baseURL + 'api/posts');
-                console.log('Status Code:', response.status); // Log status code để kiểm tra
-                console.log('Data from API:', response.data.posts); // Log data để kiểm tra
-                setPosts(response.data.posts);
-            } catch (error) {
-                console.error('Error fetching posts:', error);
-            }
-        };
-
-        fetchPosts();
-    }, []); // useEffect sẽ chỉ gọi một lần khi component được mount
+        showPosts(dispatch);
+    }, [posts]); // useEffect sẽ chỉ gọi một lần khi component được mount
     return (
         <div className={cx('wrapper')}>
             {user && (

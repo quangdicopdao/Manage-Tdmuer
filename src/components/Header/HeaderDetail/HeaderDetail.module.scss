@@ -22,4 +22,15 @@
         height: 50px;
         margin-right: 10px;
     }
+    .btn-action {
+        width: 100px;
+        height: 40px;
+        background-color: transparent;
+        .text-link {
+            text-decoration: none;
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: #000;
+        }
+    }
 }

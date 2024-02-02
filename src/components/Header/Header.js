@@ -132,9 +132,15 @@ function Header() {
                             interactive
                             render={(attrs) => (
                                 <div className={cx('wrap-action-avatar')} tabIndex="-1" {...attrs}>
-                                    <ul>
-                                        <li>Trang cá nhân</li>
-                                        <li onClick={handleLogout}>Đăng xuất</li>
+                                    <ul className={cx('list-action')}>
+                                        <li className={cx('item-action')}>
+                                            <Link to={'/me'} className={cx('text-link')}>
+                                                Trang cá nhân
+                                            </Link>
+                                        </li>
+                                        <li onClick={handleLogout} className={cx('item-action')}>
+                                            Đăng xuất
+                                        </li>
                                     </ul>
                                 </div>
                             )}

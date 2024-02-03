@@ -9,14 +9,14 @@ const siteRoutes = require('./routes/site');
 const authRoutes = require('./routes/auth');
 const scheduleRoutes = require('./routes/schedule');
 const ScheduleController = require('./controllers/ScheduleController');
-
 require('dotenv').config();
 
 const app = express();
+// Cấu hình Keep-Alive trên server
 const port = process.env.PORT || 5000;
 const corsOptions = {
-    origin: 'http://localhost:3000', // Thay đổi địa chỉ trang web của bạn
-    credentials: true, // Bật chế độ sử dụng cookies
+    origin: 'http://localhost:3000',
+    credentials: true,
 };
 app.use(bodyParser.json());
 app.use(cookieParser());
@@ -29,7 +29,12 @@ db.connect()
         const server = http.createServer(app);
 
         // Thêm WebSocket server
-        const io = socketIo(server);
+        const io = socketIo(server,{
+            cors:{
+                origin:'http://localhost:3000',
+                credentials:true
+            }
+        });
 
         // Middleware để thêm biến io vào req
         app.use((req, res, next) => {
@@ -37,12 +42,21 @@ db.connect()
             next();
         });
 
+        global.onlineUsers = new Map();
         // Lắng nghe kết nối mới từ client
         io.on('connection', (socket) => {
-            console.log('A user connected');
+            global.chatsocket = socket;
+            socket.on("addUser",(id)=>{
+                onlineUsers.set(id, socket.id);
+            })
 
-            // Gửi tin nhắn test khi có người dùng mới kết nối
-            socket.emit('message', 'Hello from server!');
+            socket.on("send-mess", (data)=>{
+                const sendUserSocket = onlineUsers.get(data.to);
+                if(sendUserSocket){
+                    socket.to(sendUserSocket).emit("mess-receive", data.message);
+                }
+            })
+          
         });
 
         // Home
@@ -65,3 +79,4 @@ db.connect()
     });
 
 ///
+

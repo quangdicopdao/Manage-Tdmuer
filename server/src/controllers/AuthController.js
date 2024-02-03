@@ -3,6 +3,7 @@ const User = require('../models/User.js');
 const bcrypt = require('bcrypt');
 const gravatar = require('gravatar');
 const jwt = require('jsonwebtoken');
+const cookie = require('cookie');
 
 // controllers/AuthController.js
 let refreshTokens = [];
@@ -57,7 +58,7 @@ class AuthController {
                     },
                     process.env.JWT_ACCESS_KEY,
                     {
-                        expiresIn: '2m',
+                        expiresIn: '2h',
                     },
                 );
 
@@ -77,8 +78,8 @@ class AuthController {
                     maxAge:4*24*3600*1000,
                     httpOnly: false,
                     secure: false,
-                    // path: '/',
-                    // sameSite: 'strict',
+                    path: '/',
+                    sameSite: 'Strict',
                 });
                 const { password, ...others } = user._doc;
                 res.status(200).json({ ...others, accessToken });
@@ -100,6 +101,7 @@ class AuthController {
         }
 
         jwt.verify(refreshToken, process.env.JWT_REFRESH_TOKEN, (err, user) => {
+            console.log('user:', user);
             if (err) {
                 console.log(err);
                 return res.status(401).json('Invalid refresh token');
@@ -107,19 +109,19 @@ class AuthController {
             refreshTokens = refreshTokens.filter((token) => token !== refreshToken);
             const newAccessToken = jwt.sign(
                 {
-                    id: user._id,
-                    admin: user.isAdmin,
+                    id: user.id,
+                    admin: user.admin,
                 },
                 process.env.JWT_ACCESS_KEY,
                 {
-                    expiresIn: '2m',
+                    expiresIn: '2h',
                 },
             );
 
             const newRefreshToken = jwt.sign(
                 {
-                    id: user._id,
-                    admin: user.isAdmin,
+                    id: user.id,
+                    admin: user.admin,
                 },
                 process.env.JWT_REFRESH_TOKEN,
                 {
@@ -132,19 +134,28 @@ class AuthController {
                 maxAge:4*24*3600*1000,
                 httpOnly: false,
                 secure: false,
-                // path: '/',
-                // sameSite: 'strict',
+                path: '/',
+                sameSite: 'Strict',
             });
             res.status(200).json({ accessToken: newAccessToken });
+            console.log('access token', newAccessToken);
         });
     }
     async logout(req, res) {
         res.clearCookie('refresh_token');
+        const refreshToken = req.cookies['refresh_token'];
         refreshTokens = refreshTokens.filter((token) => token !== req.cookies.refreshToken);
         res.status(200).json('Logged out!');
     }
     //get user
-    
+    async getUser(req, res){
+        try {
+            const users = await User.find({});
+            res.json(users);
+        } catch (error) {
+            res.status(500).json({ err: 'Lỗi cơ sở dữ liệu!' });
+        }
+    }
 }
 
 module.exports = new AuthController();

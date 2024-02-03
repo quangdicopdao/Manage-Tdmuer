@@ -10,14 +10,14 @@ import Modal from '../Modal/Modal';
 import Button from '../Button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendarDay } from '@fortawesome/free-solid-svg-icons';
-import { createSchedule } from '~/redux/apiRequest';
+import { createSchedule, showSchedule } from '~/redux/apiRequest';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { baseURL } from '~/utils/api';
 import axios from 'axios';
 const cx = classNames.bind(style);
 const localizer = momentLocalizer(moment);
-function MyCalendar() {
+function MyCalendar({ axiosJWT }) {
     const [modalOpen, setModalOpen] = useState(false);
     const [title, setTitle] = useState('');
     const [selectedStartDate, setSelectedStartDate] = useState(new Date());
@@ -29,9 +29,7 @@ function MyCalendar() {
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const user = useSelector((state) => state.auth.login.currentUser);
-    const id = user._id;
-    const accessToken = user.accsessToken;
+    const user = useSelector((state) => state.auth.login?.currentUser);
     const openModal = () => {
         setModalOpen(true);
     };
@@ -51,11 +49,11 @@ function MyCalendar() {
             start: formattedStartDate,
             end: formattedEndDate,
             description,
-            userId: id,
+            userId: user?._id,
         };
 
         try {
-            await createSchedule(newSchedule, dispatch, navigate, accessToken);
+            await createSchedule(newSchedule, dispatch, navigate, user?.accessToken);
             closeModal();
         } catch (error) {
             console.error('Error saving schedule:', error);
@@ -64,21 +62,10 @@ function MyCalendar() {
 
     //call api shcedule
     useEffect(() => {
-        const fetchSchedules = async () => {
-            try {
-                const response = await axios.get(baseURL + 'schedule/api/show', {
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                });
-                convertData(response.data);
-            } catch (error) {
-                console.error('Error fetching schedules:', error);
-            }
-        };
-
-        fetchSchedules();
-    }, [accessToken, schedules]);
+        if (user?.accessToken) {
+            showSchedule(dispatch, axiosJWT, user?.accessToken);
+        }
+    }, [user?.accessToken, schedules]);
 
     const convertData = useCallback(
         (schedules) => {

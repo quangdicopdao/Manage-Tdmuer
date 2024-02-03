@@ -118,7 +118,7 @@ class SiteController {
                 Chatusers:{
                     $all: [from, to],
                 }
-            }).sort({updateAt:-1});
+            }).sort({updateAt:1});
             const allmessage = newChat.map((msg)=>{
                 return {
                     myself: msg.Sender.toString()===from,

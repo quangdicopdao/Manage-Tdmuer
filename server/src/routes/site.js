@@ -11,7 +11,6 @@ router.get('/api/search', siteController.search);
 
 
 router.post('/api/chats/create', authMiddleware.verifyToken, siteController.createChat);
-
 router.get('/get/chats/:user1Id/:user2Id', siteController.getChat);
 
 

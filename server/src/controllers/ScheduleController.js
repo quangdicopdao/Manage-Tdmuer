@@ -17,6 +17,7 @@ class ScheduleController {
             const userSchedule = await Schedule.find({ userId });
 
             res.json(userSchedule);
+            console.log(userSchedule);
         } catch (error) {
             console.error('Error fetching user schedule:', error);
             next(error);

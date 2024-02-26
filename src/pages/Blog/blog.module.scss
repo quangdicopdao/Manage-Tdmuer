@@ -2,15 +2,15 @@
     min-height: 700px;
     margin: 10px 20px;
     background-color: #fff;
-    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2);
     border-radius: 10px;
 }
 .grid {
     display: flex;
-    width: 1400px;
+    width: 1300px;
 }
 .col-7 {
-    width: 1000px;
+    width: 800px;
+    margin-left: 50px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -21,6 +21,7 @@
     width: 400px;
     height: 400px;
     background-color: #fff;
+
     border-radius: 10px;
     align-self: stretch;
 }
@@ -34,6 +35,9 @@
     margin-bottom: 10px;
     margin-left: 20px;
     margin-top: 10px;
+    .btn-create {
+        text-decoration: none;
+    }
 }
 .wrap-title {
     display: flex;
@@ -96,4 +100,7 @@
             }
         }
     }
+}
+.wrap-page-number {
+    flex: 1;
 }

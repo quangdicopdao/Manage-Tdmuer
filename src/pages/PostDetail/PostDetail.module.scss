@@ -68,19 +68,122 @@
 }
 .wrap-action {
     margin-top: 10px;
+    margin-left: 100px;
     height: 50px;
+    width: 50%;
     // background-color: #ccc;
     display: flex;
+    justify-content: space-between;
+    .wrap-btn {
+        display: flex;
+        align-items: center;
+        .btn-icon {
+            color: #ccc;
+            width: 20px;
+            height: 20px;
+            font-weight: 300;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+        .btn-icon.liked {
+            color: red;
+        }
+        .count {
+            font-size: 1.6rem;
+            font-weight: 500;
+            color: #999;
+            margin-left: 10px;
+        }
+    }
+}
+
+// modal
+.modal {
+    width: 700px;
+    height: 100%;
+    position: fixed;
+    right: 0; /* Đặt modal ở phía bên phải */
+    animation: slideInFromRight 0.3s ease forwards; /* forwards để giữ modal ở trạng thái cuối cùng của animation sau khi kết thúc */
+    .comment-root,
+    .comment-chilren {
+        margin-top: 30px;
+        width: 100%;
+        display: flex;
+        .img-user {
+            width: 40px;
+            height: 40px;
+            border-radius: 1000px;
+            object-fit: cover;
+            margin-left: 10px;
+        }
+        .wrap-content-comment {
+            padding: 5px;
+            height: auto; // Thiết lập chiều cao tự động
+            background-color: #f2f3f5;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            .name-comment {
+                font-size: 1.6rem;
+                font-weight: 600;
+                margin-left: 10px;
+            }
+
+            .content-comment {
+                font-size: 1.4rem;
+                margin-top: 10px;
+                margin-left: 10px;
+                margin-right: 10px;
+                word-wrap: break-word; /* Xuống hàng nếu văn bản vượt quá chiều ngang */
+            }
+        }
+    }
+    .comment-chilren {
+        margin-left: 70px;
+        border-left: 1px solid var(--primary-color);
+        padding: 10px 10px;
+        margin-top: 10px;
+    }
+}
+.wrap-all-info {
+    margin-left: 10px;
+}
+.action-comment {
+    margin-top: 5px;
+    width: 100px;
+    display: flex;
     justify-content: space-around;
-    .btn-icon {
-        color: #999;
-    }
-    .btn-action {
-        background-color: transparent;
-    }
-    .count {
+
+    .like,
+    .comment {
         font-size: 1.4rem;
-        font-weight: 500;
-        color: #999;
+        color: var(--primary-color);
+        cursor: pointer;
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}
+.more-comment {
+    width: 150px;
+    display: flex;
+    align-items: center;
+    margin-top: 5px;
+    margin-left: 74px;
+    .hide-show {
+        font-size: 1.4rem;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    .icon-hide-show {
+        margin-left: 5px;
+    }
+}
+@keyframes slideInFromRight {
+    from {
+        transform: translateX(100%) scaleX(0);
+    }
+    to {
+        transform: translateX(0) scaleX(1);
     }
 }

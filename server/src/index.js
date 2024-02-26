@@ -5,9 +5,14 @@ const cors = require('cors');
 const http = require('http');
 const socketIo = require('socket.io'); // Thêm thư viện socket.io
 const db = require('./config/db');
+
+//route
 const siteRoutes = require('./routes/site');
 const authRoutes = require('./routes/auth');
+const profileRoutes = require('./routes/profile');
 const scheduleRoutes = require('./routes/schedule');
+const postRoutes = require('./routes/post');
+
 const ScheduleController = require('./controllers/ScheduleController');
 require('dotenv').config();
 
@@ -48,12 +53,16 @@ db.connect()
         // Home
         app.use('/', siteRoutes);
 
+        //Post
+        app.use('/post', postRoutes);
         // Schedule
         app.use('/schedule', scheduleRoutes);
 
         // Register
         app.use('/v1/auth', authRoutes);
-        // Kết nối đến MongoDB thành công, bắt đầu cập nhật trạng thái công việc định kỳ
+
+        // Profile
+        app.use('/profile', profileRoutes);
         // Start the server
         server.listen(port, () => {
             console.log(`Server is running on port ${port}`);

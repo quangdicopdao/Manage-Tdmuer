@@ -7,16 +7,16 @@ import 'react-datepicker/dist/react-datepicker.css';
 import classNames from 'classnames/bind';
 import style from './Calendar.module.scss';
 import Modal from '../Modal/Modal';
-import Button from '../Button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendarDay } from '@fortawesome/free-solid-svg-icons';
-import { createSchedule, showSchedule } from '~/redux/apiRequest';
+import { createSchedule, overviewSchedule } from '~/redux/apiRequest';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { baseURL } from '~/utils/api';
 import axios from 'axios';
 const cx = classNames.bind(style);
 const localizer = momentLocalizer(moment);
+
 function MyCalendar({ axiosJWT }) {
     const [modalOpen, setModalOpen] = useState(false);
     const [title, setTitle] = useState('');
@@ -24,19 +24,17 @@ function MyCalendar({ axiosJWT }) {
     const [selectedEndDate, setSelectedEndDate] = useState(new Date());
 
     const [description, setDescription] = useState('');
+    //set schedule = data
     const [schedules, setSchedules] = useState([]);
     const calendarEvents = useMemo(() => schedules, [schedules]);
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const user = useSelector((state) => state.auth.login?.currentUser);
-    const openModal = () => {
-        setModalOpen(true);
+    const changstateModal = () => {
+        setModalOpen(!modalOpen);
     };
 
-    const closeModal = () => {
-        setModalOpen(false);
-    };
     // save to db
     const handleSave = async (e) => {
         e.preventDefault();
@@ -53,52 +51,56 @@ function MyCalendar({ axiosJWT }) {
         };
 
         try {
-            await createSchedule(newSchedule, dispatch, navigate, user?.accessToken);
-            closeModal();
+            await createSchedule(newSchedule, dispatch, user?.accessToken, changstateModal());
         } catch (error) {
             console.error('Error saving schedule:', error);
         }
     };
+    const convertData = useCallback((response) => {
+        if (response && response.schedules && Array.isArray(response.schedules)) {
+            const events = response.schedules.map((item) => ({
+                ...item,
+                start: new Date(item.start),
+                end: new Date(item.end),
+            }));
+            setSchedules(events);
+        }
+    }, []);
 
     //call api shcedule
     useEffect(() => {
         if (user?.accessToken) {
-            showSchedule(dispatch, axiosJWT, user?.accessToken);
+            const fetchSchedule = async () => {
+                try {
+                    const res = await axios.get(baseURL + 'schedule/api/overview', {
+                        headers: { Authorization: `Bearer ${user?.accessToken}` },
+                    });
+                    console.log('API Response:', res.data); // Log phản hồi từ API
+                    convertData(res.data); // Gọi hàm convertData để chuyển đổi dữ liệu
+                } catch (error) {
+                    console.log(error);
+                }
+            };
+
+            fetchSchedule();
+            // overviewSchedule(dispatch, axiosJWT, user?.accessToken, convertData);
         }
-    }, [user?.accessToken, schedules]);
-
-    const convertData = useCallback(
-        (schedules) => {
-            if (schedules.length > 0) {
-                const events = schedules.map((item) => ({
-                    ...item,
-                    start: new Date(item.start),
-                    end: new Date(item.end),
-                }));
-                setSchedules(events);
-            }
-        },
-
-        [schedules],
-    );
+    }, [user?.accessToken, convertData]);
 
     return (
         <div className={cx('wrapper')}>
             <Calendar
                 localizer={localizer}
-                events={calendarEvents}
+                events={schedules}
                 style={{ height: 600, width: 1400, marginLeft: 10 }}
-                onSelectEvent={(event) => openModal(event)}
-                onSelectSlot={(slotInfo) => openModal(slotInfo)}
+                onSelectEvent={(event) => changstateModal(event)}
+                onSelectSlot={(slotInfo) => changstateModal(slotInfo)}
                 selectable
             />
 
             {modalOpen && (
-                <Modal onClose={closeModal}>
+                <Modal onClose={changstateModal} titleModal={'Thêm sự kiện'} titleBtn={'Lưu'} onSave={handleSave}>
                     <div className={cx('wrap-modal')}>
-                        <div className={cx('modal-header')}>
-                            <h2>Thêm sự kiện </h2>
-                        </div>
                         <div className={cx('modal-content')}>
                             <div className={cx('wrap-input-modal')}>
                                 <input
@@ -152,11 +154,6 @@ function MyCalendar({ axiosJWT }) {
                                     ></textarea>
                                 </div>
                             </div>
-                        </div>
-                        <div className={cx('modal-footer')}>
-                            <Button primary className={cx('btn-footer')} onClick={handleSave}>
-                                Lưu
-                            </Button>
                         </div>
                     </div>
                 </Modal>

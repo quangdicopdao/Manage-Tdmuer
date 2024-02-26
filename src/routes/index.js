@@ -5,11 +5,13 @@ import PostDetail from '~/pages/PostDetail';
 import BlogCreate from '~/pages/Blog/create';
 import Post from '~/pages/Blog';
 import Me from '~/pages/Me';
+import Spending from '~/pages/Spending';
 import { DetailLayout } from '~/Layout';
 
 const publicRoute = [
     { path: '/', component: Home },
-    { path: '/me', component: Me, Layout: DetailLayout },
+    { path: '/spending', component: Spending },
+    { path: '/profile/:userId', component: Me, Layout: DetailLayout },
     { path: '/blog/create', component: BlogCreate, Layout: DetailLayout },
     { path: '/post/:postId', component: PostDetail },
     { path: '/post', component: Post },

@@ -8,11 +8,10 @@ const cx = classNames.bind(styles);
 
 function BlogItem({ searchResults }) {
     const limitedResults = searchResults.slice(0, 4);
-    console.log(limitedResults); // Kiểm tra dữ liệu ở đây
 
     return (
         <div>
-            <ul>
+            <ul className={cx('list-item')}>
                 {limitedResults.map((result) => (
                     <li key={result.id}>
                         <div className={cx('wrapper')}>

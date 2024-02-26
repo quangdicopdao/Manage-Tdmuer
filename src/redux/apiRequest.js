@@ -17,7 +17,13 @@ import {
     getScheduleFailer,
     getScheduleStart,
     getScheduleSuccess,
+    getMyScheduleFailer,
+    getMyScheduleStart,
+    getMyScheduleSuccess,
 } from './scheduleSlice';
+
+import { getProfileFailer, getProfileStart, getProfileSuccess } from './profileSlice';
+
 import { createPostFailer, createPostSuccess, getPostFailer, getPostStart, getPostSuccess } from './postSlice';
 import { toast } from 'react-toastify';
 
@@ -62,10 +68,12 @@ export const logoutUser = async (dispatch, navigate) => {
 };
 
 //post
-export const showPosts = async (dispatch) => {
+export const showPosts = async (dispatch, data) => {
     dispatch(getPostStart());
     try {
-        const res = await axios.get(baseURL + 'api/posts');
+        const res = await axios.get(baseURL + 'post', {
+            params: data,
+        });
         dispatch(getPostSuccess(res.data));
     } catch (error) {
         console.error('Error fetching posts:', error);
@@ -74,7 +82,7 @@ export const showPosts = async (dispatch) => {
 };
 export const createPost = async (data, dispatch, navigate, accessToken) => {
     try {
-        const res = await axios.post(baseURL + 'api/posts/create', data, {
+        const res = await axios.post(baseURL + 'post/create', data, {
             headers: { Authorization: `Bearer ${accessToken}` },
         });
         dispatch(createPostSuccess(res.data));
@@ -85,14 +93,34 @@ export const createPost = async (data, dispatch, navigate, accessToken) => {
     }
 };
 
-//schedule
-export const createSchedule = async (data, dispatch, navigate, accessToken, axiosJWT) => {
+export const searchPost = async (query) => {
     try {
-        const res = await axiosJWT.post(baseURL + 'schedule/api/create', data, {
+        const res = await axios.get(baseURL + `post/search?q=${query}`);
+        return res.data;
+    } catch (error) {
+        console.error('Error searching:', error);
+    }
+};
+
+export const savedPosts = async (data) => {
+    try {
+        const res = await axios.post(baseURL + 'post/save-post', data);
+        toast.success('Lưu bài viết thành công');
+        return res;
+    } catch (error) {
+        console.error('Error saving post:', error);
+        toast.error('Lưu bài viết thất bại');
+    }
+};
+
+//schedule
+export const createSchedule = async (data, dispatch, accessToken, closeModal) => {
+    try {
+        const res = await axios.post(baseURL + 'schedule/api/create', data, {
             headers: { Authorization: `Bearer ${accessToken}` },
         });
         dispatch(createScheduleSuccess(res.data));
-        navigate('/schedule');
+        closeModal();
         toast.success('Tạo lịch thành công');
     } catch (error) {
         console.error('Error:', error.response.data);
@@ -112,5 +140,29 @@ export const showSchedule = async (dispatch, axiosJWT, data, accessToken) => {
         dispatch(getScheduleSuccess(res.data));
     } catch (error) {
         dispatch(getScheduleFailer(error));
+    }
+};
+
+export const overviewSchedule = async (dispatch, axiosJWT, accessToken, convert) => {
+    dispatch(getMyScheduleStart());
+    try {
+        const res = await axiosJWT.get(baseURL + 'schedule/api/overview', {
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        dispatch(getMyScheduleSuccess(convert(res.data)));
+    } catch (error) {
+        dispatch(getMyScheduleFailer(error));
+    }
+};
+//profile
+export const getMyPost = async (dispatch, axiosJWT, accessToken, userId) => {
+    dispatch(getProfileStart());
+    try {
+        const res = await axiosJWT.get(baseURL + `profile/posts/${userId}`, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        dispatch(getProfileSuccess(res.data));
+    } catch (error) {
+        dispatch(getProfileFailer(error));
     }
 };

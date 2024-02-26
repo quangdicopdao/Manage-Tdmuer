@@ -8,21 +8,14 @@
     display: flex;
     justify-self: center;
     align-items: center;
-    width: 900px;
-    height: 150px;
+    width: 750px;
+    height: 240px;
     margin-top: 20px;
-    margin-right: 20px;
     border-radius: 10px;
     padding: 5px;
-    cursor: pointer;
     overflow: hidden;
     background-color: #fff;
-    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2);
-    border: 2px solid transparent;
-    &:hover {
-        border: 2px solid var(--primary-color);
-        transition: ease-in-out 0.1s;
-    }
+    border: 2px solid #e8e8e8;
 }
 .image-post {
     width: 150px;
@@ -33,42 +26,49 @@
 .wrap-content {
     height: 100%;
     margin-left: 10px;
+    margin-right: 10px;
     display: flex;
     flex: 1;
     flex-direction: column;
     .wrap-title-content {
+        margin-right: 10px;
         flex: 1;
         .text-title {
-            font-size: 1.8rem;
+            font-size: 2.4rem;
             margin-top: 10px;
+            margin-bottom: 20px;
         }
     }
 }
-
-.wrap-post-info {
+.wrap-info {
     display: flex;
-    height: 100%;
-    flex-direction: column;
+    align-items: center;
     justify-content: space-between;
-    align-items: flex-end;
-    margin-top: 10px;
-    margin-right: 10px;
-
+    height: 40px;
+    .wrap-name-img {
+        display: flex;
+        align-items: center;
+        .img-user {
+            width: 30px;
+            height: 30px;
+            border-radius: 1000px;
+            margin-right: 10px;
+        }
+    }
     .icon-save {
         font-size: 1.8rem;
         color: #ccc;
+        cursor: pointer;
+        &:hover {
+            color: #000;
+            opacity: 0.5;
+            transition: ease-in 0.2s;
+        }
     }
-    // .image-user {
-    //     width: 30px;
-    //     height: 30px;
-    //     border-radius: 100px;
-    //     margin-right: 10px;
-    // }
-    // .text-username {
-    //     font-style: normal;
-    //     font-weight: 400;
-    //     font-size: 1.6rem;
-    // }
+    .icon-save.saved {
+        cursor: pointer;
+        color: var(--input-color); // Màu vàng
+    }
 }
 
 .wrap-filter {
@@ -80,5 +80,14 @@
         padding: 5px;
         margin-right: 5px;
         margin-top: 5px;
+        cursor: pointer;
+        &:hover {
+            opacity: 0.8;
+            transition: 0.2s ease;
+        }
     }
+}
+.time {
+    font-size: 1.4rem;
+    font-weight: 400;
 }

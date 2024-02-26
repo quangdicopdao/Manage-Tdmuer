@@ -134,7 +134,7 @@ function Header() {
                                 <div className={cx('wrap-action-avatar')} tabIndex="-1" {...attrs}>
                                     <ul className={cx('list-action')}>
                                         <li className={cx('item-action')}>
-                                            <Link to={'/me'} className={cx('text-link')}>
+                                            <Link to={`/profile/${user?._id}`} className={cx('text-link')}>
                                                 Trang cá nhân
                                             </Link>
                                         </li>

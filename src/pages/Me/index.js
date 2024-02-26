@@ -1,16 +1,25 @@
 import classNames from 'classnames/bind';
 import style from './Me.moudule.scss';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEnvelope, faPen, faVoicemail } from '@fortawesome/free-solid-svg-icons';
+import { faEnvelope, faPen } from '@fortawesome/free-solid-svg-icons';
 import imgbg from '../../assets/background-img.jpeg';
-import Button from '~/components/Button';
 import BlogItemForHome from '~/components/BlogItemForHome/BlogItemForHome';
+import { useEffect } from 'react';
+import { getMyPost } from '~/redux/apiRequest';
+import { createInstance } from '~/utils/createInstance';
 
 const cx = classNames.bind(style);
 function Me() {
     const user = useSelector((state) => state.auth.login?.currentUser);
-    const posts = useSelector((state) => state.post.arrPosts.newPost.posts);
+    const posts = useSelector((state) => state.profile.myProfile.profiles.myPosts);
+    const dispatch = useDispatch();
+    let axiosJWT = createInstance();
+    useEffect(() => {
+        if (user) {
+            getMyPost(dispatch, axiosJWT, user?.accessToken, user?._id);
+        }
+    }, [dispatch, user?.accessToken]);
     return (
         <div className={cx('wrapper')}>
             <div className={cx('wrap-header')}>
@@ -21,9 +30,6 @@ function Me() {
                     <div className={cx('wrap-avatar')}>
                         <img src={user?.avatar} alt="" className={cx('img-avatar')} />
                         <h3 className={cx('display-name')}>{user?.displayName || user?.username}</h3>
-                        <Button leftIcon={<FontAwesomeIcon icon={faPen} />} primary className={cx('btn-avatar')}>
-                            Chỉnh sửa thông tin
-                        </Button>
                     </div>
                     <button className={cx('btn')}>Theo dõi</button>
                 </div>
@@ -32,7 +38,12 @@ function Me() {
                 <div className={cx('row')}>
                     <div className={cx('col-3')}>
                         <div className={cx('wrap-info-list')}>
-                            <h3 className={cx('title')}>Thông tin cá nhân</h3>
+                            <div className={cx('wrap-title')}>
+                                <h3 className={cx('title')}>Thông tin cá nhân</h3>
+                                <button className={cx('btn-icon')}>
+                                    <FontAwesomeIcon icon={faPen} />
+                                </button>
+                            </div>
                             <div className={cx('wrap-list-item')}>
                                 <span className={cx('wrap-item')}>
                                     <FontAwesomeIcon icon={faEnvelope} className={cx('icon-item')} />

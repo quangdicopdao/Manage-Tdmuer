@@ -14,7 +14,7 @@ function Header() {
                 <div className={cx('logo')}>
                     <img className={cx('img')} src={logo} alt="logo tdmu" />
                     <button className={cx('btn-action')}>
-                        <Link to={'/'}>
+                        <Link to={'/'} className={cx('text-link')}>
                             <FontAwesomeIcon icon={faChevronLeft} />
                             <span> Quay lại</span>
                         </Link>

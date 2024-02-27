@@ -92,7 +92,11 @@ function Header() {
             setSearchResult([]);
         }, 0);
     }, []);
-
+    // Truyền thông tin người dùng khi click vào AccountItem
+    const handleAccountItemClick = (userData) => {
+        // Chuyển hướng đến trang Me và truyền dữ liệu người dùng
+        navigate('/me', { state: { userData } });
+    };
     return (
         <div className={cx('wrapper-all')}>
             <ToastContainer autoClose={3000} />
@@ -111,7 +115,7 @@ function Header() {
                         <div className={cx('search-result')} tabIndex="-1" {...attrs}>
                             <PopperWrapper>
                                 <h4 className={cx('search-title')}>Accounts</h4>
-                                <AccountItem searchResults={searchResult} />
+                                <AccountItem searchResults={searchResult} onAccountItemClick={handleAccountItemClick} />
                                 <h4 className={cx('search-title')}>Blogs</h4>
                                 <BlogItem searchResults={searchResult} />
                             </PopperWrapper>
@@ -132,9 +136,15 @@ function Header() {
                             interactive
                             render={(attrs) => (
                                 <div className={cx('wrap-action-avatar')} tabIndex="-1" {...attrs}>
-                                    <ul>
-                                        <li>Trang cá nhân</li>
-                                        <li onClick={handleLogout}>Đăng xuất</li>
+                                    <ul className={cx('list-action')}>
+                                        <li className={cx('item-action')}>
+                                            <Link to={'/me'} className={cx('text-link')}>
+                                                Trang cá nhân
+                                            </Link>
+                                        </li>
+                                        <li onClick={handleLogout} className={cx('item-action')}>
+                                            Đăng xuất
+                                        </li>
                                     </ul>
                                 </div>
                             )}

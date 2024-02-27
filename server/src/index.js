@@ -6,6 +6,7 @@ const http = require('http');
 const socketIo = require('socket.io'); // Thêm thư viện socket.io
 const db = require('./config/db');
 const siteRoutes = require('./routes/site');
+const chatRoutes = require('./routes/chat');
 const authRoutes = require('./routes/auth');
 const scheduleRoutes = require('./routes/schedule');
 const ScheduleController = require('./controllers/ScheduleController');
@@ -45,18 +46,37 @@ db.connect()
         global.onlineUsers = new Map();
         // Lắng nghe kết nối mới từ client
         io.on('connection', (socket) => {
-            global.chatsocket = socket;
-            socket.on("addUser",(id)=>{
+            // Lắng nghe sự kiện addUser khi người dùng đăng nhập
+            socket.on("addUser", (id) => {
+                // Thêm người dùng vào danh sách onlineUsers với id của socket
                 onlineUsers.set(id, socket.id);
-            })
-
-            socket.on("send-mess", (data)=>{
-                const sendUserSocket = onlineUsers.get(data.to);
-                if(sendUserSocket){
-                    socket.to(sendUserSocket).emit("mess-receive", data.message);
+            });
+        
+            // Lắng nghe sự kiện send-mess khi người dùng gửi tin nhắn
+            socket.on("send-mess", (data) => {
+                // Kiểm tra xem người nhận có phải là người dùng hay nhóm chat
+                if (data.groupId) {
+                    // Nếu là nhóm chat, gửi tin nhắn đến tất cả các thành viên trong nhóm
+                    const groupMembers = data.groupMembers; // Danh sách id của các thành viên trong nhóm
+                    groupMembers.forEach(memberId => {
+                        const memberSocket = onlineUsers.get(memberId);
+                        if (memberSocket && memberSocket !== socket.id) {
+                            const messageData = {
+                                message: data.message,
+                                senderAvatar: data.senderAvatar,
+                                namesend: data.namesend
+                            };
+                            socket.to(memberSocket).emit("mess-receive", messageData);
+                        }
+                    });
+                } else {
+                    // Nếu là người dùng, gửi tin nhắn đến socket của người đó
+                    const receiverSocket = onlineUsers.get(data.to);
+                    if (receiverSocket && receiverSocket !== socket.id) {
+                        socket.to(receiverSocket).emit("mess-receive", data.message);
+                    }
                 }
-            })
-          
+            });
         });
 
         // Home
@@ -67,6 +87,8 @@ db.connect()
 
         // Register
         app.use('/v1/auth', authRoutes);
+        app.use('/chat', chatRoutes);
+
         // Kết nối đến MongoDB thành công, bắt đầu cập nhật trạng thái công việc định kỳ
         // Start the server
         server.listen(port, () => {

@@ -3,8 +3,6 @@ import {
     loginFailed,
     loginStart,
     loginSuccess,
-    createPostFailed,
-    createPostSuccess,
     registerFailed,
     registerStart,
     registerSuccess,
@@ -20,6 +18,7 @@ import {
     getScheduleStart,
     getScheduleSuccess,
 } from './scheduleSlice';
+import { createPostFailer, createPostSuccess, getPostFailer, getPostStart, getPostSuccess } from './postSlice';
 import { toast } from 'react-toastify';
 
 // authenication
@@ -63,6 +62,16 @@ export const logoutUser = async (dispatch, navigate) => {
 };
 
 //post
+export const showPosts = async (dispatch) => {
+    dispatch(getPostStart());
+    try {
+        const res = await axios.get(baseURL + 'api/posts');
+        dispatch(getPostSuccess(res.data));
+    } catch (error) {
+        console.error('Error fetching posts:', error);
+        dispatch(getPostFailer(error));
+    }
+};
 export const createPost = async (data, dispatch, navigate, accessToken) => {
     try {
         const res = await axios.post(baseURL + 'api/posts/create', data, {
@@ -72,9 +81,10 @@ export const createPost = async (data, dispatch, navigate, accessToken) => {
         navigate('/post');
     } catch (error) {
         console.error('Error:', error.response.data);
-        dispatch(createPostFailed(error.response.data));
+        dispatch(createPostFailer(error.response.data));
     }
 };
+
 //schedule
 export const createSchedule = async (data, dispatch, navigate, accessToken, axiosJWT) => {
     try {
@@ -90,11 +100,13 @@ export const createSchedule = async (data, dispatch, navigate, accessToken, axio
         dispatch(createScheduleFailer(error.response.data));
     }
 };
+// filter show schedule by status
 
-export const showSchedule = async (dispatch, axiosJWT, accessToken) => {
+export const showSchedule = async (dispatch, axiosJWT, data, accessToken) => {
     dispatch(getScheduleStart());
     try {
         const res = await axiosJWT.get(baseURL + 'schedule/api/show', {
+            params: data,
             headers: { Authorization: `Bearer ${accessToken}` },
         });
         dispatch(getScheduleSuccess(res.data));
@@ -102,4 +114,26 @@ export const showSchedule = async (dispatch, axiosJWT, accessToken) => {
         dispatch(getScheduleFailer(error));
     }
 };
+
+export const followUser = (userId, followingUserId) => async dispatch => {
+    try {
+        // Thêm followingUserId vào mảng following của người dùng có userId
+        const response1 = await axios.post(baseURL+`chat/api/follow/${userId}`, { followingUserId });
+        console.log(response1.data); // Log phản hồi từ server (nếu cần)
+        
+        // Thêm userId vào mảng following của người dùng có followingUserId
+        const response2 = await axios.post(baseURL+`chat/api/follow/${followingUserId}`, { followingUserId: userId });
+        console.log(response2.data); // Log phản hồi từ server (nếu cần)
+        
+        // Cập nhật state Redux hoặc hiển thị thông báo "Theo dõi thành công"
+        dispatch({ type: 'FOLLOW_USER_SUCCESS', payload: response1.data });
+        toast.success('Theo dõi thành công');
+    } catch (error) {
+        console.error('Error following user:', error);
+        // Xử lý lỗi nếu có
+        dispatch({ type: 'FOLLOW_USER_FAILURE', error: error.message });
+        toast.error('Lỗi khi theo dõi người dùng');
+    }
+};
+
 

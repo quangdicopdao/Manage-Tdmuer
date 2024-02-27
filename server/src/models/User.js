@@ -9,6 +9,9 @@ const userSchema = new mongoose.Schema(
         email: { type: String, unique: true },
         avatar: { type: String },
         isAdmin: { type: Boolean, default: false },
+        following:{
+            type: Array,
+        },
     },
     { timestamps: true },
 );

@@ -77,13 +77,13 @@ class SiteController {
         const query = req.query.q.toLowerCase();
 
         try {
-            const userResults = (await User.find({ username: { $regex: query, $options: 'i' } })) || [];
-            const postResults =
-                (await Posts.find({
-                    $or: [{ title: { $regex: query, $options: 'i' } }, { content: { $regex: query, $options: 'i' } }],
-                })) || [];
+            const userResults = await User.find({ username: { $regex: query, $options: 'i' } });
+            const postResults = await Posts.find({
+                $or: [{ title: { $regex: query, $options: 'i' } }, { content: { $regex: query, $options: 'i' } }],
+            });
 
-            const combinedResults = [...userResults, ...postResults];
+            const modifiedUserResults = userResults.map(({ password, ...other }) => other);
+            const combinedResults = [...modifiedUserResults, ...postResults];
 
             if (combinedResults.length === 0) {
                 return res.status(404).json({ error: 'No results found' });

@@ -14,7 +14,7 @@ class ScheduleController {
 
             // Truy vấn lịch theo ID người dùng đã đăng nhập
             const userId = req.user.id;
-            const { statusWork, page, pageSize } = req.query;
+            const { statusWork, page, pageSize = 5 } = req.query;
 
             if (statusWork === undefined || statusWork === null || statusWork === '') {
                 return res.status(400).json({ message: 'StatusWork is required' });
@@ -41,7 +41,22 @@ class ScheduleController {
             next(error);
         }
     }
+    async overview(req, res, next) {
+        try {
+            // Kiểm tra xem người dùng đã đăng nhập chưa
+            if (!req.user) {
+                return res.status(401).json({ message: 'Unauthorized' });
+            }
 
+            // Truy vấn lịch theo ID người dùng đã đăng nhập
+            const userId = req.user.id;
+            const schedules = await Schedule.find({ userId });
+            return res.status(200).json({ schedules });
+        } catch (error) {
+            next(error);
+        }
+    }
+    //create a new schedule
     async create(req, res, next) {
         const { title, start, end, description } = req.body;
         if (!req.user) {
@@ -66,7 +81,19 @@ class ScheduleController {
             next();
         }
     }
+    //edit the schedule
+    // async edit(req, res, next) {
 
+    // }
+    //update the content of the schedule
+    async update(req, res, next) {
+        try {
+            Schedule.updateOne({ _id: req.params.id }, req.body);
+        } catch (error) {
+            next(error);
+        }
+    }
+    // auto update status of schedule
     async updateStatusWork() {
         try {
             const currentDate = moment(); // Lấy ngày hiện tại

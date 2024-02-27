@@ -10,6 +10,7 @@ import { loginSuccess } from '~/redux/authSlice';
 import { createInstance } from '~/utils/createInstance';
 import { showSchedule } from '~/redux/apiRequest';
 import Pagination from '~/components/Pagination';
+import Modal from '../Modal/Modal';
 
 const cx = classNames.bind(style);
 
@@ -23,12 +24,21 @@ function MyTable() {
     const [selectedDropDown, setSelectedDropDown] = useState('Sắp tới hạn');
     const [value, setValue] = useState(1);
     //pagination
-    const [currentPage, setCurrentPage] = useState(getData.page);
+    const [currentPage, setCurrentPage] = useState(getData?.page);
     const pageSize = getData.per_page;
     const totalPages = getData.total_pages;
+<<<<<<< HEAD
 
     console.log('total pages: ' + totalPages);
     //console.log('schedules.length: ' + schedules.length);
+=======
+    // status modal
+    const [show, setShow] = useState(false);
+    //func for show/close modal
+    const toggleModal = () => {
+        setShow(!show);
+    };
+>>>>>>> 6523241514395d6ff5ecb2e4232c09dc7f8e99da
 
     const setTiltle = (value, title) => {
         setSelectedDropDown(title);
@@ -172,7 +182,7 @@ function MyTable() {
                                             </span>
                                         </td>
                                         <td>
-                                            <button className={cx('action-btn')}>
+                                            <button className={cx('action-btn')} onClick={() => toggleModal()}>
                                                 <FontAwesomeIcon
                                                     icon={faEdit}
                                                     className={cx('icon-btn', 'icon-edit')}
@@ -197,6 +207,8 @@ function MyTable() {
                 </table>
             </div>
             <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+
+            {/* <Modal titleModal={'Sửa lịch trình'} titleBtn={'Lưu'} onClose={toggleModal}></Modal> */}
         </div>
     );
 }

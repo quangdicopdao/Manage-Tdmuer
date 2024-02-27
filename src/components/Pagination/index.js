@@ -15,7 +15,7 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
     return (
         <div className={cx('wrapper')}>
             <button onClick={() => onPageChange(currentPage - 1)} disabled={currentPage === 1}>
-                Prev
+                Trước
             </button>
             {pages.map((page) => (
                 <button key={page} onClick={() => onPageChange(page)} className={cx({ active: page === currentPage })}>
@@ -23,7 +23,7 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
                 </button>
             ))}
             <button onClick={() => onPageChange(currentPage + 1)} disabled={currentPage === totalPages}>
-                Next
+                Sau
             </button>
         </div>
     );

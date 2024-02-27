@@ -1,17 +1,59 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import classNames from 'classnames/bind';
 import style from './BlogItemForHome.module.scss';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBookmark } from '@fortawesome/free-regular-svg-icons';
-
+import { faBookmark } from '@fortawesome/free-solid-svg-icons';
+import { faBookmark as faBookmarkRegular } from '@fortawesome/free-regular-svg-icons';
+import moment from 'moment';
+import { useSelector } from 'react-redux';
 const cx = classNames.bind(style);
+
 function stripHTML(htmlString) {
     var doc = new DOMParser().parseFromString(htmlString, 'text/html');
     return doc.body.textContent || '';
 }
 
-function BlogItemForHome({ title, imageUser, nameUser, content, to, createAt }) {
+function BlogItemForHome({ title, imageUser, nameUser, postId, content, to, createAt, savePost }) {
+    console.log('data', imageUser, nameUser);
+    const [isSaved, setIsSaved] = useState(false);
+    const user = useSelector((state) => state.auth.login.currentUser);
+    const arrSavedPosts = user?.savedPosts;
+    // format date post blog
+    // format date post blog
+    const formatPostDate = (date) => {
+        const postDate = moment(date);
+        const currentDate = moment();
+        const diffDays = currentDate.diff(postDate, 'days');
+        const diffMonths = currentDate.diff(postDate, 'months');
+        const diffYears = currentDate.diff(postDate, 'years');
+
+        if (diffDays < 1) {
+            return 'Hôm nay';
+        } else if (diffDays === 1) {
+            return 'Hôm qua';
+        } else if (diffDays < 30) {
+            return `${diffDays} ngày trước`;
+        } else if (diffMonths < 12) {
+            return `${diffMonths} tháng trước`;
+        } else {
+            return `${diffYears} năm trước`;
+        }
+    };
+    useEffect(() => {
+        // Kiểm tra xem id của post có trong mảng arrSavedPosts không
+        if (arrSavedPosts) {
+            setIsSaved(arrSavedPosts.includes(postId));
+        }
+    }, [arrSavedPosts, postId]);
+
+    console.log('setIsSaved', arrSavedPosts);
+
+    const toggleSavePost = () => {
+        setIsSaved(!isSaved);
+        savePost(); // Gọi hàm lưu bài viết
+    };
+
     function limitCharsPerLine(inputString, charsPerLine) {
         const words = inputString.split(/\s+/);
         let currentLineChars = 0;
@@ -31,6 +73,7 @@ function BlogItemForHome({ title, imageUser, nameUser, content, to, createAt }) 
 
         return result;
     }
+
     const extractImageURL = (content) => {
         // Sử dụng biểu thức chính quy để tìm kiếm và trích xuất URL
         const regex = /<img.*?src=["'](https:\/\/i\.ibb\.co.*?)["']/;
@@ -44,30 +87,41 @@ function BlogItemForHome({ title, imageUser, nameUser, content, to, createAt }) 
 
     const renderTextContent = (htmlString) => {
         const contentWithoutHTML = stripHTML(htmlString);
-        return limitCharsPerLine(contentWithoutHTML, 150); // Adjust the character limit as needed
+        return limitCharsPerLine(contentWithoutHTML, 200); // Adjust the character limit as needed
     };
+
+    // // format date time
+    // const formatDateTime = (dateDB) => {
+    //     const date = moment(dateDB).format('DD/MM/YYYY');
+    //     return date;
+    // };
+
     return (
         <div className={cx('wrapper')}>
-            <Link to={to} className={cx('wrap-all-content')}>
-                <img className={cx('image-post')} src={imageURL} alt="" />
-                <div className={cx('wrap-content')}>
+            <div className={cx('wrap-content')}>
+                <div className={cx('wrap-info')}>
+                    <div className={cx('wrap-name-img')}>
+                        <img src={imageUser} alt={nameUser} className={cx('img-user')} />
+                        <span className={cx('name-user')}>{nameUser}</span>
+                    </div>
+                    <FontAwesomeIcon
+                        icon={isSaved ? faBookmark : faBookmarkRegular}
+                        className={cx('icon-save', { saved: isSaved })}
+                        onClick={toggleSavePost}
+                    />
+                </div>
+                <Link to={to} className={cx('wrap-all-content')}>
                     <div className={cx('wrap-title-content')}>
                         <h2 className={cx('text-title')}>{limitCharsPerLine(title, 30)}</h2>
                         <p className={cx('text-description')}>{renderTextContent(content)}</p>
                     </div>
-                    <div className={cx('wrap-filter')}>
-                        <span className={cx('title-type')}>Quân sự</span>
-                        <span className={cx('title-type')}>Quân sự</span>
-                        <span className={cx('title-type')}>Quân sự</span>
-                        <span className={cx('title-type')}>Quân sự</span>
-                    </div>
+                    <img className={cx('image-post')} src={imageURL} alt="" />
+                </Link>
+
+                <div className={cx('wrap-filter')}>
+                    <span className={cx('title-type')}>Quân sự</span>
+                    <span className={cx('time')}>{formatPostDate(createAt)}</span>
                 </div>
-            </Link>
-            <div className={cx('wrap-post-info')}>
-                {/* <img className={cx('image-user')} src={imageUser} alt={nameUser} />
-                    <h4 className={cx('text-username')}>{nameUser}</h4> */}
-                <FontAwesomeIcon icon={faBookmark} className={cx('icon-save')} />
-                <span className={cx('time')}>{createAt}</span>
             </div>
         </div>
     );

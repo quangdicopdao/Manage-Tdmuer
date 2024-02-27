@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import classNames from 'classnames/bind';
 import styles from './Sidebar.module.scss';
-import { faHouse, faCalendar } from '@fortawesome/free-solid-svg-icons';
+import { faHouse, faCalendar, faFileInvoiceDollar } from '@fortawesome/free-solid-svg-icons';
 import SidebarItem from './SidebarItem';
-import { faBlogger, faBloggerB, faFacebookMessenger } from '@fortawesome/free-brands-svg-icons';
+import { faBloggerB, faFacebookMessenger } from '@fortawesome/free-brands-svg-icons';
 import { useSelector } from 'react-redux';
 
 const cx = classNames.bind(styles);
@@ -56,6 +56,13 @@ const Sidebar = () => {
                             isActive={isTabActive('/post')}
                             to={'/post'}
                             onClick={() => handleTabClick('Post')}
+                        />
+                        <SidebarItem
+                            icon={faFileInvoiceDollar}
+                            label="Chi tiêu"
+                            isActive={isTabActive('/spending')}
+                            to={'/spending'}
+                            onClick={() => handleTabClick('Spending')}
                         />
                     </div>
                 )}

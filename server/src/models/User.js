@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema(
         password: { type: String, required: true, minLength: 6 },
         email: { type: String, unique: true },
         avatar: { type: String },
+        savedPosts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Posts' }],
         isAdmin: { type: Boolean, default: false },
         following:{
             type: Array,

@@ -5,21 +5,35 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faPen } from '@fortawesome/free-solid-svg-icons';
 import imgbg from '../../assets/background-img.jpeg';
 import BlogItemForHome from '~/components/BlogItemForHome/BlogItemForHome';
-import { useEffect } from 'react';
-import { getMyPost } from '~/redux/apiRequest';
+import { useEffect, useState } from 'react';
+import { getMyPost, getProfile } from '~/redux/apiRequest';
+import { useParams } from 'react-router-dom';
+
 import { createInstance } from '~/utils/createInstance';
 
 const cx = classNames.bind(style);
 function Me() {
+    const { userId } = useParams(); // Nhận id từ đường dẫn
+    console.log('userId', userId);
     const user = useSelector((state) => state.auth.login?.currentUser);
     const posts = useSelector((state) => state.profile.myProfile.profiles.myPosts);
+
+    const [dataProfile, setDataProfile] = useState([]);
+    console.log('setDataProfile', dataProfile);
     const dispatch = useDispatch();
-    let axiosJWT = createInstance();
+    // let axiosJWT = createInstance();
     useEffect(() => {
-        if (user) {
-            getMyPost(dispatch, axiosJWT, user?.accessToken, user?._id);
-        }
+        const fetchData = async () => {
+            if (user) {
+                // getMyPost(dispatch, user?.accessToken, user?._id);
+                await getMyPost(dispatch, user?.accessToken, userId);
+                const data = await getProfile(userId);
+                setDataProfile(data);
+            }
+        };
+        fetchData();
     }, [dispatch, user?.accessToken]);
+
     return (
         <div className={cx('wrapper')}>
             <div className={cx('wrap-header')}>
@@ -28,8 +42,8 @@ function Me() {
                 </div>
                 <div className={cx('wrap-info')}>
                     <div className={cx('wrap-avatar')}>
-                        <img src={user?.avatar} alt="" className={cx('img-avatar')} />
-                        <h3 className={cx('display-name')}>{user?.displayName || user?.username}</h3>
+                        <img src={dataProfile?.avatar} alt="" className={cx('img-avatar')} />
+                        <h3 className={cx('display-name')}>{dataProfile?.displayName || dataProfile?.username}</h3>
                     </div>
                     <button className={cx('btn')}>Theo dõi</button>
                 </div>
@@ -47,7 +61,7 @@ function Me() {
                             <div className={cx('wrap-list-item')}>
                                 <span className={cx('wrap-item')}>
                                     <FontAwesomeIcon icon={faEnvelope} className={cx('icon-item')} />
-                                    <span className={cx('title-item')}>{user?.email}</span>
+                                    <span className={cx('title-item')}>{dataProfile?.email}</span>
                                 </span>
                             </div>
                         </div>

@@ -32,7 +32,7 @@
         .money {
             font-size: 1.6rem;
             font-weight: 500;
-            color: var(--primary-color);
+            color: #73a656;
         }
     }
 }
@@ -63,11 +63,23 @@
             cursor: pointer;
         }
     }
-    .title-spend {
-        margin-left: 20px;
-        font-size: 2rem;
-    }
-    .content-spend {
-        margin-left: 20px;
+    .wrap-content {
+        margin-top: 10px;
+        display: flex;
+        .wrap-header {
+            flex: 1;
+            .title-spend {
+                margin-left: 20px;
+                font-size: 2rem;
+            }
+            .content-spend {
+                margin-left: 20px;
+            }
+        }
+        .money-spend {
+            font-size: 3rem;
+            color: red;
+            margin-right: 10px;
+        }
     }
 }

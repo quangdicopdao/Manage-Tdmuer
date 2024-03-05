@@ -7,21 +7,22 @@ const cx = classNames.bind(styles);
 // BlogItem.jsx
 
 function BlogItem({ searchResults }) {
-    const limitedResults = searchResults.slice(0, 4);
-
+    const limitedResults = searchResults && searchResults.slice(0, 4);
+    console.log('limitedResults', limitedResults);
     return (
         <div>
             <ul className={cx('list-item')}>
-                {limitedResults.map((result) => (
-                    <li key={result.id}>
-                        <div className={cx('wrapper')}>
-                            <img className={cx('avatar')} src={result.imageURL} alt="title" />
-                            <div className={cx('content')}>
-                                <h4 className={cx('username')}>{result.title}</h4>
+                {limitedResults &&
+                    limitedResults.map((result) => (
+                        <li key={result.id}>
+                            <div className={cx('wrapper')}>
+                                <img className={cx('avatar')} src={result.imageURL} alt="title" />
+                                <div className={cx('content')}>
+                                    <h4 className={cx('username')}>{result.title}</h4>
+                                </div>
                             </div>
-                        </div>
-                    </li>
-                ))}
+                        </li>
+                    ))}
             </ul>
         </div>
     );

@@ -22,9 +22,12 @@ function Spending() {
                             <FontAwesomeIcon icon={faPenToSquare} className={cx('icon-edit')} />
                             <FontAwesomeIcon icon={faTrash} className={cx('icon-trash')} />
                         </div>
-                        <div>
-                            <h3 className={cx('title-spend')}>Tiền cho sugar baby</h3>
-                            <span className={cx('content-spend')}>Chi cho thằng Nhân bede</span>
+                        <div className={cx('wrap-content')}>
+                            <div className={cx('wrap-header')}>
+                                <h3 className={cx('title-spend')}>Tiền cho sugar baby</h3>
+                                <span className={cx('content-spend')}>Chi cho thằng Nhân bede</span>
+                            </div>
+                            <span className={cx('money-spend')}>- 200.000 đ</span>
                         </div>
                     </div>
                 </div>

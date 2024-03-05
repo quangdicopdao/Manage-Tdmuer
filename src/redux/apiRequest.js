@@ -88,8 +88,7 @@ export const createPost = async (data, dispatch, navigate, accessToken) => {
         dispatch(createPostSuccess(res.data));
         navigate('/post');
     } catch (error) {
-        console.error('Error:', error.response.data);
-        dispatch(createPostFailer(error.response.data));
+        dispatch(createPostFailer(error));
     }
 };
 
@@ -113,6 +112,55 @@ export const savedPosts = async (data) => {
     }
 };
 
+export const likePosts = async (data) => {
+    try {
+        const res = await axios.post(baseURL + 'post/like-post', data);
+        return res;
+    } catch (error) {
+        console.error('Error saving post:', error);
+    }
+};
+export const unlikePosts = async (data) => {
+    try {
+        const res = await axios.post(baseURL + 'post/unlike-post', data);
+        return res;
+    } catch (error) {
+        console.error('Error saving post:', error);
+    }
+};
+export const checkLike = async (data) => {
+    try {
+        console.log('Checking', data);
+        const res = await axios.get(baseURL + 'post/check-like', { params: data });
+        return res.data; // Trả về dữ liệu từ phản hồi
+    } catch (error) {
+        console.error('Error checking like:', error);
+        throw error; // Ném lỗi để xử lý ở các thành phần gọi hàm này
+    }
+};
+
+export const createComment = async (data) => {
+    try {
+        const res = await axios.post(baseURL + 'post/comment-post', data);
+        return res.data;
+    } catch (error) {
+        console.error('Error checking like:', error);
+        throw error; // Ném lỗi để xử lý ở các thành phần gọi hàm này
+    }
+};
+
+export const getAllComments = async (postId) => {
+    console.log('Getting comments', postId);
+    try {
+        const res = await axios.get(baseURL + 'post/get-comment', {
+            params: { postId },
+        });
+        return res.data;
+    } catch (error) {
+        console.error('Error checking like:', error);
+        throw error; // Ném lỗi để xử lý ở các thành phần gọi hàm này
+    }
+};
 //schedule
 export const createSchedule = async (data, dispatch, accessToken, closeModal) => {
     try {
@@ -155,14 +203,23 @@ export const overviewSchedule = async (dispatch, axiosJWT, accessToken, convert)
     }
 };
 //profile
-export const getMyPost = async (dispatch, axiosJWT, accessToken, userId) => {
+export const getMyPost = async (dispatch, accessToken, userId) => {
     dispatch(getProfileStart());
     try {
-        const res = await axiosJWT.get(baseURL + `profile/posts/${userId}`, {
+        const res = await axios.get(baseURL + `profile/posts/${userId}`, {
             headers: { Authorization: `Bearer ${accessToken}` },
+            params: { userId },
         });
         dispatch(getProfileSuccess(res.data));
     } catch (error) {
         dispatch(getProfileFailer(error));
+    }
+};
+export const getProfile = async (userId) => {
+    try {
+        const res = await axios.get(baseURL + `profile/${userId}`, userId);
+        return res.data;
+    } catch (error) {
+        console.log(error);
     }
 };

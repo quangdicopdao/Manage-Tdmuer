@@ -103,12 +103,17 @@
     height: 100%;
     position: fixed;
     right: 0; /* Đặt modal ở phía bên phải */
+    overflow-y: auto;
+    overflow-x: hidden;
     animation: slideInFromRight 0.3s ease forwards; /* forwards để giữ modal ở trạng thái cuối cùng của animation sau khi kết thúc */
     .comment-root,
     .comment-chilren {
         margin-top: 30px;
         width: 100%;
         display: flex;
+        .wrap-all-comment {
+            display: flex;
+        }
         .img-user {
             width: 40px;
             height: 40px;
@@ -138,11 +143,14 @@
             }
         }
     }
+    .comment-root {
+        display: flex;
+        flex-direction: column;
+    }
     .comment-chilren {
         margin-left: 70px;
-        border-left: 1px solid var(--primary-color);
         padding: 10px 10px;
-        margin-top: 10px;
+        margin-top: -8px;
     }
 }
 .wrap-all-info {
@@ -177,6 +185,7 @@
     }
     .icon-hide-show {
         margin-left: 5px;
+        cursor: pointer;
     }
 }
 @keyframes slideInFromRight {
@@ -185,5 +194,66 @@
     }
     to {
         transform: translateX(0) scaleX(1);
+    }
+}
+
+.wrap-input-comment {
+    max-height: 100px;
+    display: flex;
+    flex-direction: column;
+
+    .img-user-input {
+        border-radius: 10000px;
+        width: 40px;
+        height: 40px;
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+    .wrap-img-input {
+        display: flex;
+    }
+    .wrap-input {
+        padding: 10px;
+        border-radius: 10px;
+        background-color: var(--input-color);
+        width: 500px;
+        .input-comment {
+            width: 500px;
+            max-height: 100px;
+            background-color: transparent;
+            overflow-y: hidden;
+            display: flex;
+            flex-direction: column;
+            resize: none;
+            border: none;
+            outline: none;
+        }
+
+        .icon-send-comment {
+            opacity: 0.5;
+            float: right;
+            margin-right: 10px;
+            cursor: pointer;
+            &:hover {
+                opacity: 0.2;
+            }
+        }
+    }
+}
+.wrap-btn {
+    display: flex;
+    justify-content: flex-end;
+    margin-right: 120px;
+    .btn-cancle {
+        margin-top: 10px;
+        height: 40px;
+    }
+    .btn-submit {
+        margin-top: 10px;
+        height: 40px;
+        font-size: 1.4rem;
+        background-color: var(--primary-color);
+        color: #fff;
+        margin-left: 0px;
     }
 }

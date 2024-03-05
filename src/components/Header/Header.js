@@ -28,6 +28,11 @@ function Header() {
     const [modalOpen, setModalOpen] = useState(false);
     const [isForm, setIsForm] = useState(true);
 
+    console.log('header', searchResult);
+
+    const userInfo = searchResult?.userInfo;
+    const postInfo = searchResult?.postsInfo;
+    console.log('userInfo', userInfo);
     //open and close from avatar
     const [show, setShow] = useState(false);
     const handleShowAction = () => {
@@ -56,6 +61,7 @@ function Header() {
         try {
             const response = await fetch(baseURL + `api/search?q=${query}`);
             const data = await response.json();
+            console.log('data', data);
             setSearchResult(data);
         } catch (error) {
             console.error('Error searching:', error);
@@ -105,16 +111,26 @@ function Header() {
                     <h4>Quản lý hoạt động cá nhân</h4>
                 </div>
                 <Tippy
-                    visible={searchResult.length > 0}
+                    visible={Object.keys(searchResult).length > 0}
                     interactive
                     render={(attrs) => (
                         <div className={cx('search-result')} tabIndex="-1" {...attrs}>
-                            <PopperWrapper>
-                                <h4 className={cx('search-title')}>Accounts</h4>
-                                <AccountItem searchResults={searchResult} />
-                                <h4 className={cx('search-title')}>Blogs</h4>
-                                <BlogItem searchResults={searchResult} />
-                            </PopperWrapper>
+                            {searchResult !== undefined && (
+                                <PopperWrapper>
+                                    {userInfo && (
+                                        <>
+                                            <h4 className={cx('search-title')}>Accounts</h4>
+                                            <AccountItem searchResults={userInfo} />
+                                        </>
+                                    )}
+                                    {postInfo && (
+                                        <>
+                                            <h4 className={cx('search-title')}>Blogs</h4>
+                                            <BlogItem searchResults={postInfo} />
+                                        </>
+                                    )}
+                                </PopperWrapper>
+                            )}
                         </div>
                     )}
                 >

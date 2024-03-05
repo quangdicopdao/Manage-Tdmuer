@@ -12,7 +12,8 @@ function CreateBlog() {
     const [content, setContent] = useState('');
     const user = useSelector((state) => state.auth.login.currentUser);
     const id = user._id;
-    const accsessToken = user.accsessToken;
+    const accsessToken = user.accessToken;
+    console.log('accsessToken: ' + accsessToken);
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const handleTitleChange = (e) => {
@@ -29,7 +30,8 @@ function CreateBlog() {
             content,
             id,
         };
-        createPost(data, dispatch, navigate, accsessToken);
+        console.log('data: ' + data);
+        await createPost(data, dispatch, navigate, accsessToken);
     };
 
     return (

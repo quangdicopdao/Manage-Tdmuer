@@ -15,8 +15,15 @@ const postSlice = createSlice({
         },
         createPostSuccess: (state, action) => {
             state.arrPosts.isFetching = false;
-            state.arrPosts.newPost.push(action.payload);
+            // Kiểm tra xem action.payload có phải là mảng không
+            if (Array.isArray(action.payload)) {
+                state.arrPosts.newPost = [...state.arrPosts.newPost, ...action.payload];
+            } else {
+                // Xử lý trường hợp action.payload không phải là mảng
+                console.error('Invalid payload:', action.payload);
+            }
         },
+
         createPostFailer: (state) => {
             state.arrPosts.isFetching = false;
             state.arrPosts.error = true;

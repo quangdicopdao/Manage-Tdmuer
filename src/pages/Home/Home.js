@@ -2,7 +2,7 @@ import classNames from 'classnames/bind';
 import style from './Home.module.scss';
 import MyTable from '~/components/Table';
 import { useSelector } from 'react-redux';
-
+import MyCustomCalendar from '~/components/Calendar/MyCustomCalendar';
 const cx = classNames.bind(style);
 
 function Home() {
@@ -13,6 +13,7 @@ function Home() {
             <div className={cx('wrap-table')}>
                 <MyTable />
             </div>
+            {/* <MyCustomCalendar /> */}
         </div>
     ) : null;
 }

@@ -1,0 +1,66 @@
+.calendar {
+    width: 100%; /* Điều chỉnh kích thước của lịch */
+    margin: 0 auto;
+
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+
+        button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+    }
+
+    .days-of-week {
+        margin-left: 60px;
+        display: flex;
+        align-items: center;
+
+        .day {
+            text-align: center;
+            font-weight: bold; /* Để làm cho ngày to hơn */
+            .day-info {
+                width: 195px;
+                .day-number {
+                    font-size: 3rem;
+                }
+            }
+        }
+    }
+
+    .days {
+        display: grid;
+        grid-template-columns: 60px repeat(7, 1fr);
+
+        .empty-day {
+            flex: 1;
+        }
+
+        .day {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            border: 1px solid #ccc;
+            cursor: pointer;
+
+            &:hover {
+                background-color: #f0f0f0;
+            }
+        }
+    }
+
+    .timeline {
+        display: flex;
+        flex-direction: column;
+
+        .hour {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+    }
+}

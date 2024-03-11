@@ -1,0 +1,50 @@
+.customTable {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #ccc;
+
+    th,
+    td {
+        padding: 10px;
+        border: 1px solid #ccc;
+    }
+}
+
+.actionButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    margin-right: 5px;
+}
+
+/* Điều chỉnh độ rộng của các ô trong bảng */
+.customTable th {
+    width: auto; /* Độ rộng tùy theo nội dung */
+}
+
+.customTable td {
+    white-space: nowrap; /* Tránh quá trình trống với nội dung dài */
+    overflow: hidden; /* Ẩn nội dung dài */
+    text-overflow: ellipsis; /* Hiển thị dấu ba chấm (...) nếu nội dung quá dài */
+}
+
+/* Định dạng các biểu tượng trong nút hành động */
+.actionButton svg {
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+}
+.wrap-actions {
+    display: flex;
+    justify-content: space-around;
+    .view-icon {
+        color: green;
+    }
+    .edit-icon {
+        color: rgb(7, 7, 118);
+    }
+    .delete-icon {
+        color: red;
+    }
+}

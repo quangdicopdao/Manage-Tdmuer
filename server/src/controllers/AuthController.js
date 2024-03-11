@@ -74,8 +74,9 @@ class AuthController {
                 );
                 refreshTokens.push(refreshToken);
 
-                res.cookie('refresh_token', refreshToken, {
-                    httpOnly: true,
+                res.cookie('accessToken', accessToken, {
+                    maxAge:4*24*3600*1000,
+                    httpOnly: false,
                     secure: false,
                     path: '/',
                     sameSite: 'Strict',
@@ -129,8 +130,9 @@ class AuthController {
             );
             refreshTokens.push(newRefreshToken);
 
-            res.cookie('refresh_token', newRefreshToken, {
-                httpOnly: true,
+            res.cookie('accessToken', accessToken, {
+                maxAge:4*24*3600*1000,
+                httpOnly: false,
                 secure: false,
                 path: '/',
                 sameSite: 'Strict',
@@ -144,6 +146,15 @@ class AuthController {
         const refreshToken = req.cookies['refresh_token'];
         refreshTokens = refreshTokens.filter((token) => token !== req.cookies.refreshToken);
         res.status(200).json('Logged out!');
+    }
+    //get user
+    async getUser(req, res){
+        try {
+            const users = await User.find({});
+            res.json(users);
+        } catch (error) {
+            res.status(500).json({ err: 'Lỗi cơ sở dữ liệu!' });
+        }
     }
 }
 

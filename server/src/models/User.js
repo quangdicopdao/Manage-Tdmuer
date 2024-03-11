@@ -10,6 +10,9 @@ const userSchema = new mongoose.Schema(
         avatar: { type: String },
         savedPosts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Posts' }],
         isAdmin: { type: Boolean, default: false },
+        following:{
+            type: Array,
+        },
     },
     { timestamps: true },
 );

@@ -29,5 +29,4 @@ function AccountItem({ searchResults }) {
         </div>
     );
 }
-
 export default AccountItem;

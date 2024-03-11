@@ -1,7 +1,6 @@
 // controllers/SiteController.js
 const Posts = require('../models/Posts.js');
 const User = require('../models/User.js');
-
 // controllers/SiteController.js
 class SiteController {
     async index(req, res, next) {

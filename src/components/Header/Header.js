@@ -38,7 +38,6 @@ function Header() {
     const handleShowAction = () => {
         setShow(!show);
     };
-
     // display user information
     const user = useSelector((state) => state.auth.login.currentUser);
 
@@ -98,7 +97,11 @@ function Header() {
             setSearchResult([]);
         }, 0);
     }, []);
-
+    // Truyền thông tin người dùng khi click vào AccountItem
+    const handleAccountItemClick = (userData) => {
+        // Chuyển hướng đến trang Me và truyền dữ liệu người dùng
+        navigate('/me', { state: { userData } });
+    };
     return (
         <div className={cx('wrapper-all')}>
             <ToastContainer autoClose={3000} />
@@ -149,9 +152,14 @@ function Header() {
                             render={(attrs) => (
                                 <div className={cx('wrap-action-avatar')} tabIndex="-1" {...attrs}>
                                     <ul className={cx('list-action')}>
-                                        <li className={cx('item-action')}>
+                                        <li className={cx('item-action')} onClick={handleShowAction}>
                                             <Link to={`/profile/${user?._id}`} className={cx('text-link')}>
                                                 Trang cá nhân
+                                            </Link>
+                                        </li>
+                                        <li className={cx('item-action')} onClick={handleShowAction}>
+                                            <Link to={`/post/manage-post`} className={cx('text-link')}>
+                                                Quản lý bài viết
                                             </Link>
                                         </li>
                                         <li onClick={handleLogout} className={cx('item-action')}>

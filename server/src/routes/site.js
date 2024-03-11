@@ -5,4 +5,5 @@ const siteController = require('../controllers/SiteController');
 // Add a leading slash to the route path
 
 router.get('/api/search', siteController.search);
+
 module.exports = router;

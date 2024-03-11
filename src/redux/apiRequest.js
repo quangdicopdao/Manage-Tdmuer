@@ -190,6 +190,61 @@ export const showSchedule = async (dispatch, axiosJWT, data, accessToken) => {
         dispatch(getScheduleFailer(error));
     }
 };
+export const deleteSchedule = async (scheduleId, accessToken) => {
+    try {
+        const res = await axios.delete(baseURL + `schedule/api/delete/${scheduleId}`, {
+            params: { scheduleId },
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        return res;
+    } catch (error) {
+        console.error(error);
+    }
+};
+export const editSchedule = async (scheduleId, data, accessToken, closeModal) => {
+    try {
+        const res = await axios.post(baseURL + `schedule/api/edit/${scheduleId}`, data, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        return res.data;
+        closeModal();
+    } catch (error) {
+        console.error(error);
+    }
+};
+export const updateStatus = async (scheduleId, accessToken) => {
+    console.log('access', accessToken);
+    try {
+        const res = await axios.post(baseURL + `schedule/api/update-status/${scheduleId}`, scheduleId, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        return res.data;
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+// chat
+export const followUser = (userId, followingUserId) => async (dispatch) => {
+    try {
+        // Thêm followingUserId vào mảng following của người dùng có userId
+        const response1 = await axios.post(baseURL + `chat/api/follow/${userId}`, { followingUserId });
+        console.log(response1.data); // Log phản hồi từ server (nếu cần)
+
+        // Thêm userId vào mảng following của người dùng có followingUserId
+        const response2 = await axios.post(baseURL + `chat/api/follow/${followingUserId}`, { followingUserId: userId });
+        console.log(response2.data); // Log phản hồi từ server (nếu cần)
+
+        // Cập nhật state Redux hoặc hiển thị thông báo "Theo dõi thành công"
+        dispatch({ type: 'FOLLOW_USER_SUCCESS', payload: response1.data });
+        toast.success('Theo dõi thành công');
+    } catch (error) {
+        console.error('Error following user:', error);
+        // Xử lý lỗi nếu có
+        dispatch({ type: 'FOLLOW_USER_FAILURE', error: error.message });
+        toast.error('Lỗi khi theo dõi người dùng');
+    }
+};
 
 export const overviewSchedule = async (dispatch, axiosJWT, accessToken, convert) => {
     dispatch(getMyScheduleStart());
@@ -203,16 +258,15 @@ export const overviewSchedule = async (dispatch, axiosJWT, accessToken, convert)
     }
 };
 //profile
-export const getMyPost = async (dispatch, accessToken, userId) => {
-    dispatch(getProfileStart());
+export const getMyPost = async (accessToken, userId) => {
     try {
         const res = await axios.get(baseURL + `profile/posts/${userId}`, {
             headers: { Authorization: `Bearer ${accessToken}` },
             params: { userId },
         });
-        dispatch(getProfileSuccess(res.data));
+        return res.data;
     } catch (error) {
-        dispatch(getProfileFailer(error));
+        console.error(error);
     }
 };
 export const getProfile = async (userId) => {

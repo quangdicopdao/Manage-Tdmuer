@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import classNames from 'classnames/bind';
 import style from './ChatBox.module.scss';
 import UserChatComp from './UserChat/UserChatComp';
@@ -11,78 +11,158 @@ import Tippy from '@tippyjs/react/headless';
 import 'tippy.js/dist/tippy.css'; // optional
 import { Wrapper as PopperWrapper } from '~/components/Popper';
 import UserGroup from '../User/UserGroup';
+import { useSelector } from 'react-redux';
+import axios from 'axios';
+import { baseURL } from '~/utils/api';
+import {io} from 'socket.io-client'
 const cx = classNames.bind(style);
 
 function ChatBox() {
-    const [isActive, setIsActive] = useState(false);
+    //const userDetails = useSelector((state)=>state.user) 
+    const user = useSelector((state) => state.auth.login.currentUser);
+    let id = user._id;
+    const accessToken = user.accessToken;
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedUserId, setSelectedUserId] = useState(null);
 
+    const [arrivalMessage, setarrivalMessage] = useState(null);
+    //
+    const [users, setusers] = useState();
+    //const [currentChatUser, setcurrentChatUser] = useState(user);
+    //load dữ liệu users
+    useEffect(()=>{
+        const getUser = async ()=>{
+            try {
+                const res = await axios.get(baseURL + `chat/following/${id}`);
+                setusers(res.data);
+                setFilteredUsers(res.data);
+                setFilteredUsersGroup(res.data);
+            } catch (error) {
+                
+            }
+        }
+        getUser();
+    },[]);
     //user add null
-    const [arrUsers, setArrUsers] = useState([]);
     const [arrUsersAdded, setArrUsersAdded] = useState([]);
     const [keywords, setKeywords] = useState('');
+    const [keywordsGroup, setKeywordsGroup] = useState('');
     const [groupName, setGroupName] = useState('');
-
+    const [groupChats, setGroupChats] = useState([]);
+    //new
+    
+    console.log("arrayuser:", users)
     //search for modal: dữ liệu mẫu
-    const users = [
-        {
-            id: 1,
-            name: 'Đặng Việt Quang',
-            url: 'https://scontent.fsgn21-1.fna.fbcdn.net/v/t39.30808-1/378393423_1307195950164637_4310189808608344293_n.jpg?stp=dst-jpg_p320x320&_nc_cat=111&ccb=1-7&_nc_sid=5740b7&_nc_ohc=qidZAFIJwWMAX91ujIV&_nc_oc=AQkn_EYpnJOyZI1QRuDQ1Fn6G3Cekfumfr-g4PLK5xca1AZik2eiKWo7kwlFxhP_l8o&_nc_ht=scontent.fsgn21-1.fna&oh=00_AfCgVGSawwBMnZC7cZGq0f3zBJuXeX7mYxjemzLLpDBlZA&oe=659AD2A2',
-        },
-        {
-            id: 2,
-            name: 'Trần Thành Nam',
-            url: 'https://scontent-xsp1-1.xx.fbcdn.net/v/t1.30497-1/143086968_2856368904622192_1959732218791162458_n.png?_nc_cat=1&ccb=1-7&_nc_sid=2b6aad&_nc_eui2=AeENu2ttvDjT_gtjEq4oiER6so2H55p0AlGyjYfnmnQCUXaVpbzFVNwqGQoLRzNiOJ4aRzEjVAXyZhSy4TRZ4f9R&_nc_ohc=KFZOL86TwZkAX-5B922&_nc_ht=scontent-xsp1-1.xx&oh=00_AfBR7eBVMOUIFZF039eEzbBVevg6GmIEVuiUXJW0oUUWwg&oe=65C2F138',
-        },
-        {
-            id: 3,
-            name: 'Nguyễn Hữu Nhân',
-            url: 'https://scontent-xsp1-2.xx.fbcdn.net/v/t1.6435-1/102326557_658139238246076_1608374780314545293_n.jpg?stp=dst-jpg_p320x320&_nc_cat=110&ccb=1-7&_nc_sid=2b6aad&_nc_eui2=AeFlu3bTPshZoyT0GglCApcdemJ9vLmBp6t6Yn28uYGnq8RpuvhFUMEXHrR64AnRQUsz5qKLfWAyyF5v6084Mrdq&_nc_ohc=UulVeIPC5pIAX9fWENu&_nc_ht=scontent-xsp1-2.xx&oh=00_AfCsUWmfRn8GqxkXI0fFKfj7zhKZHvauc16nF-FvKnpLgg&oe=65C2EA95',
-        },
-        {
-            id: 4,
-            name: 'Trần Nguyễn Gia Phúc',
-            url: 'https://scontent-xsp1-3.xx.fbcdn.net/v/t39.30808-1/273888485_1330651314101959_2643757613876285297_n.jpg?stp=dst-jpg_p320x320&_nc_cat=100&ccb=1-7&_nc_sid=5740b7&_nc_eui2=AeGa0V5cBTGn3qY-4u-QJ7lGeVWYCRoxlM55VZgJGjGUzvpcwzrjPQnXd3ehlwWzRvV4FqMZyqbo8nHM1uOHFec3&_nc_ohc=ljr5SIXEmGEAX9s_Mo2&_nc_ht=scontent-xsp1-3.xx&oh=00_AfDTyblS5_ZoN5pTushMjHplPxn3ayt1WUDgeuh_onQwhQ&oe=65A1561D',
-        },
-        {
-            id: 5,
-            name: 'Nguyễn Đức Nhân',
-            url: 'https://scontent.fsgn21-1.fna.fbcdn.net/v/t39.30808-1/378393423_1307195950164637_4310189808608344293_n.jpg?stp=dst-jpg_p320x320&_nc_cat=111&ccb=1-7&_nc_sid=5740b7&_nc_ohc=qidZAFIJwWMAX91ujIV&_nc_oc=AQkn_EYpnJOyZI1QRuDQ1Fn6G3Cekfumfr-g4PLK5xca1AZik2eiKWo7kwlFxhP_l8o&_nc_ht=scontent.fsgn21-1.fna&oh=00_AfCgVGSawwBMnZC7cZGq0f3zBJuXeX7mYxjemzLLpDBlZA&oe=659AD2A2',
-        },
-        {
-            id: 6,
-            name: 'Nguyễn Thúy An',
-            url: 'https://scontent-xsp1-2.xx.fbcdn.net/v/t39.30808-1/416323643_762292415939747_877860037475857663_n.jpg?stp=dst-jpg_s320x320&_nc_cat=102&ccb=1-7&_nc_sid=5740b7&_nc_eui2=AeFWssJp4uxPB3vRGzh1p4nR9PSZoO3b1_D09Jmg7dvX8CRVzrjyN13gJDO3HaNhEwYIGRjNH4oso8Y1tlBFk16X&_nc_ohc=zOtzvj6KOL0AX_p-uHs&_nc_ht=scontent-xsp1-2.xx&oh=00_AfAaKSAD89luloxCAVHkeSq68xi2r1rDgNXFyNkLUKuONw&oe=65A0F558',
-        },
-    ];
-
+    
+    const [filteredUsers, setFilteredUsers] = useState([]);
+    console.log('user:',filteredUsers)
+    const [filteredUsersGroup, setFilteredUsersGroup] = useState([]);
+    console.log('usergroup:',filteredUsersGroup);
     // function search user
-    const searchUsers = () => {
-        const filteredUsers = users.filter((user) => {
-            // Kiểm tra xem người dùng không có trong arrUsersAdded
-            return (
-                !arrUsersAdded.find((addedUser) => addedUser.id === user.id) &&
-                user.name.toLowerCase().includes(keywords.toLowerCase())
-            );
-        });
-        setArrUsers(filteredUsers);
+    const searchUsers = (keywords) => {
+        if (!users) {
+            // Nếu dữ liệu users chưa được tải lên từ API, không thực hiện tìm kiếm
+            return;
+        }
+        if (keywords.trim() !== '') {
+            const filteredUsers = users.filter((user) => {
+                return (
+                    user.username.toLowerCase().includes(keywords.toLowerCase()) ||
+                    user.username.toLowerCase().startsWith(keywords.toLowerCase())
+                );
+            });
+            setFilteredUsers(filteredUsers);
+        } else {
+            // Nếu không có từ khóa, hiển thị toàn bộ danh sách người dùng
+            setFilteredUsers(users);
+        }
+    };
+    
+    // Thay đổi phần cập nhật filteredUsersGroup
+    const searchUsersGroup = (keywords) => {
+        if (!users) {
+            // Nếu dữ liệu users chưa được tải lên từ API, không thực hiện tìm kiếm
+            return;
+        }
+    
+        if (keywords.trim() !== '') {
+            const filteredUsersGroup = users.filter((user) => {
+                return (
+                    user.username.toLowerCase().includes(keywords.toLowerCase()) ||
+                    user.username.toLowerCase().startsWith(keywords.toLowerCase())
+                );
+            });
+            setFilteredUsersGroup(filteredUsersGroup);
+        } else {
+            // Nếu không có từ khóa, hiển thị toàn bộ danh sách người dùng
+            setFilteredUsersGroup(users);
+        }
     };
 
-    // add users to list
+    // Thêm người dùng vào danh sách đã thêm
     const addToArrUsersAdded = (user) => {
         setArrUsersAdded((prevArrUsersAdded) => [...prevArrUsersAdded, user]);
-        setKeywords('');
+        setFilteredUsersGroup((prevFilteredUsersGroup) => prevFilteredUsersGroup.filter((u) => u.id !== user.id)); // Loại bỏ người dùng đã thêm khỏi danh sách tìm kiếm
+        setKeywordsGroup(''); // Đặt từ khóa tìm kiếm về trạng thái ban đầu
     };
-    //deleted user added
+
+    // Xóa người dùng khỏi danh sách đã thêm
     const removeFromArrUsersAdded = (user) => {
         setArrUsersAdded((prevArrUsersAdded) => prevArrUsersAdded.filter((u) => u.id !== user.id));
+        if (keywordsGroup.trim() !== '') {
+            // Nếu có từ khóa tìm kiếm, cập nhật danh sách tìm kiếm để bao gồm người dùng đã xóa
+            setFilteredUsersGroup((prevFilteredUsersGroup) => [...prevFilteredUsersGroup, user]);
+        }
     };
 
     const handleInputChange = (e) => {
-        setKeywords(e.target.value);
-        searchUsers();
+        const { value } = e.target;
+        setKeywords(value);
+        // Gọi hàm tìm kiếm với debounce
+
+    };
+    const handleInputChangeGroup = (e) => {
+        const { value } = e.target;
+        setKeywordsGroup(value);
+        searchUsersGroup(value); // Gọi hàm searchUsersGroup với từ khóa mới
+    };
+
+
+    // Tạo nhóm chat
+    const createGroupChat = async () => {
+        try {
+            if (!groupName.trim()) {
+                console.error('Tên nhóm không được để trống');
+                return;
+            }
+    
+            // Thêm thông tin của người tạo nhóm vào danh sách arrUsersAdded
+            const currentUser = {
+                _id: user._id,
+            };
+            const updatedArrUsersAdded = [currentUser, ...arrUsersAdded];
+    
+            const response = await axios.post(baseURL + 'chat/api/creategroup', {
+                name: groupName,
+                members: updatedArrUsersAdded.map(user => user._id)
+            });
+    
+            if (response.data) {
+                // Yêu cầu tạo nhóm chat thành công
+                // Cập nhật giao diện người dùng hoặc thực hiện các hành động khác
+                console.log('Nhóm chat đã được tạo:', response.data);
+                // Ví dụ: Cập nhật danh sách nhóm chat hoặc hiển thị thông báo thành công
+            }
+            await fetchGroupChats();
+            // Đóng modal và làm sạch trạng thái
+            setModalOpen(false);
+            setArrUsersAdded([]);
+            setKeywords('');
+            setGroupName('');
+        } catch (error) {
+            console.error('Lỗi khi tạo nhóm chat:', error);
+            // Xử lý lỗi và thông báo cho người dùng (có thể sử dụng Modal hoặc toast notification)
+        }
     };
 
     // modal
@@ -93,97 +173,278 @@ function ChatBox() {
     const closeModal = () => {
         setModalOpen(false);
     };
-    const handleClick = () => {
-        setIsActive(!isActive);
-    };
-    //test giao diện
-    const [selectedUser, setSelectedUser] = useState({
-        name: 'Đặng Việt Quang',
-        imageUrl:
-            'https://scontent.fsgn21-1.fna.fbcdn.net/v/t39.30808-1/378393423_1307195950164637_4310189808608344293_n.jpg?stp=dst-jpg_p320x320&_nc_cat=111&ccb=1-7&_nc_sid=5740b7&_nc_ohc=qidZAFIJwWMAX91ujIV&_nc_oc=AQkn_EYpnJOyZI1QRuDQ1Fn6G3Cekfumfr-g4PLK5xca1AZik2eiKWo7kwlFxhP_l8o&_nc_ht=scontent.fsgn21-1.fna&oh=00_AfCgVGSawwBMnZC7cZGq0f3zBJuXeX7mYxjemzLLpDBlZA&oe=659AD2A2',
-    });
-
+    //
+    const [selectedUser, setSelectedUser] = useState(null);
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
+
+    // nhập tin nhắn và bấm entert
     const handleKeyPress = (e) => {
         if (e.key === 'Enter') {
-            e.preventDefault(); // Ngăn chặn việc thêm dòng mới vào input
+            e.preventDefault();
             handleSendMessage();
         }
     };
-    const handleSendMessage = () => {
-        if (newMessage.trim() !== '') {
-            const newMessageObj = {
-                id: String(Date.now()),
-                content: newMessage,
-                timestamp: new Date().getTime(),
-                sender: {
-                    name: 'Đặng Việt Quang',
-                    imageUrl:
-                        'https://scontent.fsgn21-1.fna.fbcdn.net/v/t39.30808-1/378393423_1307195950164637_4310189808608344293_n.jpg?stp=dst-jpg_p320x320&_nc_cat=111&ccb=1-7&_nc_sid=5740b7&_nc_ohc=qidZAFIJwWMAX91ujIV&_nc_oc=AQkn_EYpnJOyZI1QRuDQ1Fn6G3Cekfumfr-g4PLK5xca1AZik2eiKWo7kwlFxhP_l8o&_nc_ht=scontent.fsgn21-1.fna&oh=00_AfCgVGSawwBMnZC7cZGq0f3zBJuXeX7mYxjemzLLpDBlZA&oe=659AD2A2',
-                },
-            };
-
-            setMessages((prevMessages) => [...prevMessages, newMessageObj]);
-            setNewMessage('');
+    // //click vào user
+    // const handleUserSelect = (user) => {
+    //     setSelectedUser(user);
+    //     setcurrentChatUser(user);
+    //     setSelectedUserId(user._id);
+    // };
+    
+    // Khai báo hàm getMessages trước useEffect
+    const getMessages = async (item) => {
+        try {
+            let response = await axios.get(baseURL + `chat/getchat/${id}/${selectedUser._id}`);
+            setMessages(response.data);
+        } catch (error) {
+            console.error('Error fetching messages:', error);
         }
     };
-    const handleUserSelect = (user) => {
-        setSelectedUser(user);
-        setSelectedUserId(user.id);
-    };
 
+    const handleUserOrGroupSelect = (item) => {
+        setSelectedUser(item);
+    
+    };
+    console.log("Selected:", selectedUser)
+
+    //load dữ liệu chat
+    useEffect(() => {
+        if (selectedUser) { // Kiểm tra selectedUser có tồn tại hay không
+            getMessages(selectedUser);
+        }
+    }, [selectedUser]); 
+        
+    
+    //socket
+    
+    const socket = useRef();
+    useEffect(() => {
+        if (id) {
+            socket.current = io(baseURL);
+            socket.current.emit('addUser', id);
+        }
+    }, [id]);
+    // khi nhập tin nhắn mới sẽ tự scroll xuống cuối
+    const scrollRef = useRef();
+    useEffect(()=>{
+        scrollRef.current?.scrollIntoView({behavior:"smooth"})
+    },[messages])
+
+    // const handleSendMessage = () => {
+    //     const messageschat = {
+    //         myself: true,
+    //         message: newMessage
+    //     }
+    //     socket.current.emit("send-mess",{
+    //         to: currentChatUser._id,
+    //         from: id,
+    //         message: newMessage
+    //     });
+    //     fetch(baseURL+`chat/api/create`,{method:"POST", headers:{'Content-Type':'application/JSON', Authorization: `Bearer ${accessToken}`},body:JSON.stringify({
+    //         from: id,
+    //         to: currentChatUser._id,
+    //         message: newMessage
+    //     })});
+    //     setMessages(messages.concat(messageschat));
+    //     setNewMessage('');
+    // };
+
+    const handleSendMessage = async () => {
+        if (!newMessage.trim()) {
+            return;
+        }
+    
+        try {
+            let requestData;
+            if (selectedUser.hasOwnProperty('members')) {
+                // Tin nhắn cho nhóm chat
+                requestData = {
+                    from: id,
+                    groupId: selectedUser._id,
+                    message: newMessage
+                };
+            } else {
+                // Tin nhắn cho người dùng đơn
+                requestData = {
+                    from: id,
+                    to: selectedUser._id,
+                    message: newMessage
+                };
+            }
+    
+            const response = await axios.post(
+                baseURL + 'chat/api/create',
+                requestData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`
+                    }
+                }
+            );
+    
+            if (response.data) {
+                if (selectedUser.hasOwnProperty('members')) {
+                    // Tin nhắn cho nhóm chat
+                    socket.current.emit('send-mess', { groupId: selectedUser._id, message: newMessage, groupMembers: selectedUser.members, senderAvatar: user.avatar, namesend: user.username });
+                } else {
+                    // Tin nhắn cho người dùng đơn
+                    socket.current.emit('send-mess', { to: selectedUser._id, message: newMessage });
+                }
+    
+                // Thêm tin nhắn mới vào danh sách tin nhắn
+                setMessages(prevMessages => [...prevMessages, { myself: true, message: newMessage }]);
+                // Xóa nội dung tin nhắn khỏi input
+                setNewMessage('');
+            } else {
+                console.error('Failed to create message.');
+            }
+        } catch (error) {
+            console.error('Error sending message:', error);
+        }
+    };
+    
+    useEffect(() => {
+        if (socket.current) {
+            socket.current.on('mess-receive', (msg) => {
+                console.log('msg:', msg);
+                if (selectedUser && selectedUser.hasOwnProperty('members')) {
+                    const { message, senderAvatar, namesend } = msg;
+                    const receivedMessage = { myself: false, message, senderAvatar, namesend }; // Tạo đối tượng tin nhắn mới với các giá trị đã trích xuất
+                    setarrivalMessage(receivedMessage); // Cập nhật tin nhắn nhận được
+                } else {
+                    setarrivalMessage({ myself: false, message: msg });
+                }
+            });
+        }
+        // Thêm hàm cleanup để ngăn chặn việc gắn kết nhiều lần cho cùng một sự kiện
+        return () => {
+            if (socket.current) {
+                socket.current.off('mess-receive');
+            }
+        };
+    }, [selectedUser]); // Thêm selectedUser vào dependency array để useEffect re-run khi selectedUser thay đổi
+    
+    
+    // Sau đó, bạn cần cập nhật danh sách tin nhắn với tin nhắn nhận được trong useEffect khác
+    useEffect(() => {
+        arrivalMessage && setMessages(prev => [...prev, arrivalMessage]);
+    }, [arrivalMessage]);
+    
+
+    //group chat
+    const fetchGroupChats = async () => {
+            try {
+                const response = await axios.get(baseURL+`chat/api/getgroup/${id}`); // Thay đổi đường dẫn API tương ứng
+                setGroupChats(response.data);
+            } catch (error) {
+                console.error('Error fetching group chats:', error);
+            }
+        };
+    useEffect(() => {
+    
+        fetchGroupChats();
+    }, []);
     return (
         <div className={cx('wrapper')}>
             <div className={cx('left-side-box-chat')}>
                 <h2>Đoạn chat</h2>
                 <div className={cx('wrap-btn')}>
-                    <div className={cx('wrap-search')}>
-                        <FontAwesomeIcon icon={faSearch} className={cx('icon-search')} />
-                        <input className={cx('input-search')} type="text" placeholder="Tìm kiếm" />
-                    </div>
+                <div className={cx('wrap-search')}>
+                <FontAwesomeIcon icon={faSearch} className={cx('icon-search')} />
+                <input
+                    className={cx('input-search')}
+                    type="text"
+                    placeholder="Tìm kiếm người dùng..."
+                    value={keywords}
+                    onChange={(e) => {
+                        handleInputChange(e);
+                        searchUsers(e.target.value);
+                    }}
+                />
+                
+                </div>
                     <button className={cx('btn-plus')} onClick={openModal}>
                         <FontAwesomeIcon icon={faUserPlus} />
                     </button>
                 </div>
+
                 <div className={cx('wrap-all-user')}>
-                    {users.map((user) => (
+                    {/* Hiển thị danh sách người dùng */}
+                    {filteredUsers?.map((user) => (
                         <UserChatComp
-                            key={user.id}
-                            imageUrl={user.url}
-                            name={user.name}
+                            key={user._id}
+                            imageUrl={user.avatar}
+                            name={user.username}
                             lastMessage={'Chúc ngủ ngon'}
-                            onUserClick={() => handleUserSelect(user)}
-                            isActive={user.id === selectedUserId}
+                            onUserClick={() => handleUserOrGroupSelect(user)}
+                            isActive={user._id === selectedUserId}
+                        />
+                    ))}
+
+                    {/* Hiển thị danh sách nhóm chat */}
+                    {groupChats?.map((groupChat) => (
+                        <UserChatComp
+                            key={groupChat._id} // Đảm bảo key là duy nhất
+                            imageUrl={groupChat.avatar} // Sử dụng avatar của thành viên đầu tiên làm hình ảnh nhóm
+                            name={groupChat.name}
+                            lastMessage={`Nhóm mới tạo: ${groupChat.members.length} thành viên`}
+                            onUserClick={()=> handleUserOrGroupSelect(groupChat)}
+                            //isActive={isGroupCreated && groupChat.id === groupChats[groupChats.length - 1].id}
                         />
                     ))}
                 </div>
+                
             </div>
+            {/**Chat */}
             <div className={cx('right-side-chat-box')}>
                 {selectedUser && (
                     <div className={cx('header-chat')}>
-                        <img className={cx('img-header-chat')} src={selectedUser.imageUrl} alt="" />
-                        <h2 className={cx('name-header-chat')}>{selectedUser.name}</h2>
+                        <img className={cx('img-header-chat')} src={selectedUser.avatar} alt="" />
+                        <h2 className={cx('name-header-chat')}>
+                            {selectedUser.hasOwnProperty('members') ? selectedUser.name : selectedUser.username}
+                        </h2>
                     </div>
                 )}
-                <div className={cx('content-chat')}>
-                    {messages.map((message) => (
-                        <div key={message.id} className={cx('message')}>
-                            <div className={cx('sender-details')}>
-                                <img
-                                    className={cx('img-sender')}
-                                    src={message.sender.imageUrl}
-                                    alt={`${message.sender.name}'s avatar`}
-                                />
-                                <span className={cx('name-sender')}>{message.sender.name}</span>
-                                <div className={cx('sender-info')}>
-                                    {`Sent ${formatDistanceToNow(message.timestamp, { addSuffix: true })}`}
-                                </div>
+                {/** Content-Chat */}
+                <div className={cx('content-message')}>
+                {messages.map((item, index) => (
+                    <div ref={scrollRef}>
+                        {item.myself === false ? (
+                            <div key={index} className={cx('content-chat')}>
+                                {selectedUser.hasOwnProperty('members') ? (
+                                    <div>
+                                        <img src={`${item.senderAvatar}`} className={cx('userprofile')} alt='' />
+                                <p>
+                                    {item?.namesend}
+                                </p>
+                                    </div>
+                                
+                                )
+                                 : (
+                                    <img src={`${selectedUser.avatar}`} className={cx('userprofile')} alt='' />
+                                 )
+                                 }
+                                
+                                <p className={cx('chat-text')}>
+                                    
+                                    {item?.message}
+                                </p>
                             </div>
-                            {message.content}
-                        </div>
-                    ))}
+                        ) : (
+                            <div className={cx('content-chat')} style={{ marginLeft: 620 }}>
+                                <p className={cx('chat-text')}>
+                                    {item?.message}
+                                </p>
+                            </div>
+                        )}
+                    </div>
+                ))}
+
+
                 </div>
+                
+                {/**Footer-Chat */}
                 <div className={cx('footer-chat')}>
                     <button className={cx('btn-footer')}>
                         <FontAwesomeIcon icon={faPaperclip} />
@@ -201,22 +462,24 @@ function ChatBox() {
                     </button>
                 </div>
             </div>
+
+            {/**Thêm nhóm chat */}
             {modalOpen && (
                 <Modal onClose={closeModal}>
                     <div className={cx('wrap-modal')}>
                         <h2 className={cx('title')}>Thêm nhóm chat mới</h2>
                         <Tippy
-                            visible={keywords.length > 0}
+                            visible={keywordsGroup.length > 0}
                             interactive
                             placement="bottom"
                             render={(attrs) => (
                                 <div className={cx('search-result')} tabIndex="-1" {...attrs}>
                                     <PopperWrapper>
-                                        {arrUsers.map((user) => (
+                                        {filteredUsersGroup?.map((user) => (
                                             <UserGroup
-                                                key={user.id}
-                                                imgURL={user.url}
-                                                name={user.name}
+                                                key={user._id}
+                                                imgURL={user.avatar}
+                                                name={user.username}
                                                 onAdd={() => addToArrUsersAdded(user)}
                                             />
                                         ))}
@@ -225,11 +488,15 @@ function ChatBox() {
                             )}
                         >
                             <div className={cx('modal-wrap-input')}>
-                                <FontAwesomeIcon icon={faSearch} className={cx('icon-search')} />
+                                <FontAwesomeIcon icon={faSearch} className={cx('icon-search')} onClick={searchUsersGroup}/>
                                 <input
                                     type="text"
-                                    value={keywords}
-                                    onChange={handleInputChange}
+                                    value={keywordsGroup}
+                                    //onChange={handleInputChangeGroup}
+                                    onChange={(e) => {
+                                        handleInputChangeGroup(e);
+                                        searchUsersGroup(e.target.value);
+                                    }}
                                     placeholder="Nhập người dùng muốn thêm"
                                     className={cx('input-search')}
                                 />
@@ -239,9 +506,9 @@ function ChatBox() {
                         <div className={cx('wrap-user-added')}>
                             {arrUsersAdded.map((user) => (
                                 <UserGroup
-                                    key={user.id}
-                                    imgURL={user.url}
-                                    name={user.name}
+                                    key={user._id}
+                                    imgURL={user.avatar}
+                                    name={user.username}
                                     btn
                                     isAdded
                                     onDelete={() => removeFromArrUsersAdded(user)}
@@ -253,12 +520,12 @@ function ChatBox() {
                             <input
                                 type="text"
                                 value={groupName}
-                                onChange={(text) => setGroupName()}
+                                onChange={(e) => setGroupName(e.target.value)} 
                                 placeholder="Nhập tên nhóm mới"
                                 className={cx('input-search')}
                             />
                         </div>
-                        <Button outline className={cx('btn-submit')}>
+                        <Button outline className={cx('btn-submit')} onClick={createGroupChat}>
                             Tạo nhóm
                         </Button>
                     </div>

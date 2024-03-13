@@ -46,6 +46,42 @@ export const loginUser = async (user, dispatch, navigate, closeModal) => {
         dispatch(loginFailed(error.response.data));
     }
 };
+export const loginUserWithFacebook = async (user, dispatch, navigate, closeModal) => {
+    dispatch(loginStart());
+    try {
+        const res = await axios.post(baseURL + 'v1/auth/login/facebook', user, {
+            withCredentials: true,
+        });
+        console.log('Login with Facebook success:', res.data);
+        dispatch(loginSuccess(res.data));
+
+        navigate('/');
+        toast.success('Đăng nhập thành công');
+        closeModal();
+    } catch (error) {
+            toast.error('Đăng nhập bằng Facebook thất bại');
+            console.log('Login with Facebook failed:', error.response.data);
+            dispatch(loginFailed(error.response.data));
+    }
+};
+export const loginUserWithGoogle = async (user, dispatch, navigate, closeModal) => {
+    dispatch(loginStart());
+    try {
+        const res = await axios.post(baseURL + 'v1/auth/login/google', user, {
+            withCredentials: true,
+        });
+        console.log('Login with Google success:', res.data);
+        dispatch(loginSuccess(res.data));
+
+        navigate('/');
+        toast.success('Đăng nhập thành công');
+        closeModal();
+    } catch (error) {
+            toast.error('Đăng nhập bằng Google thất bại');
+            console.log('Login with Google failed:', error.response.data);
+            dispatch(loginFailed(error.response.data));
+    }
+};
 export const registerUser = async (user, dispatch, navigate, openModalLogin) => {
     dispatch(registerStart());
     try {
@@ -143,7 +179,6 @@ export const showSchedule = async (dispatch, axiosJWT, data, accessToken) => {
     }
 };
 
-<<<<<<< HEAD
 export const followUser = (userId, followingUserId) => async dispatch => {
     try {
         // Thêm followingUserId vào mảng following của người dùng có userId
@@ -165,8 +200,6 @@ export const followUser = (userId, followingUserId) => async dispatch => {
     }
 };
 
-
-=======
 export const overviewSchedule = async (dispatch, axiosJWT, accessToken, convert) => {
     dispatch(getMyScheduleStart());
     try {
@@ -190,4 +223,4 @@ export const getMyPost = async (dispatch, axiosJWT, accessToken, userId) => {
         dispatch(getProfileFailer(error));
     }
 };
->>>>>>> 6523241514395d6ff5ecb2e4232c09dc7f8e99da
+

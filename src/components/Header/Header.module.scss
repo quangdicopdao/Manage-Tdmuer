@@ -106,6 +106,37 @@
 }
 .wrap-action {
     margin-top: 10px;
+    display: flex;
+    align-items: center; /* Căn giữa theo chiều dọc */
+    justify-content: space-between; /* Canh giữa theo chiều ngang */
+    /* For Google Login Button */
+    .google-login-btn {
+        
+        margin-right: 10px;
+        
+    }
+    
+    .google-login-btn:hover {
+        background-color: #f1f1f1;
+    }
+    
+    /* For Facebook Login Button */
+    .facebook-login-btn {
+        flex: 1;    
+        background-color: #4267B2;
+        color: #ffffff;
+        border: none;
+        padding: 10px 20px;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+        border-radius: 4px;
+        height: 45px;
+    }
+    
+    .facebook-login-btn:hover {
+        background-color: #385898;
+    }
 }
 .btn-action {
     width: 300px;
@@ -212,3 +243,6 @@
     margin-left: 5px;
     cursor: pointer;
 }
+
+
+  

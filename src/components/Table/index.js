@@ -27,18 +27,15 @@ function MyTable() {
     const [currentPage, setCurrentPage] = useState(getData?.page);
     const pageSize = getData.per_page;
     const totalPages = getData.total_pages;
-<<<<<<< HEAD
 
     console.log('total pages: ' + totalPages);
     //console.log('schedules.length: ' + schedules.length);
-=======
     // status modal
     const [show, setShow] = useState(false);
     //func for show/close modal
     const toggleModal = () => {
         setShow(!show);
     };
->>>>>>> 6523241514395d6ff5ecb2e4232c09dc7f8e99da
 
     const setTiltle = (value, title) => {
         setSelectedDropDown(title);

@@ -85,64 +85,46 @@
         font-weight: 700;
     }
 }
-.content-message{
+.content-message {
     height: 70vh;
     overflow: hidden;
-    overflow-y: scroll;
-    .content-chat {
-        //flex: 1;
-        // max-height: 600px;
-        // margin-top: 10px;
-        // overflow-y: auto;
-        // border-radius: 10px;
-        // padding: 10px;
-    
-        // .message {
-        //     margin-bottom: 10px;
-        //     word-break: break-word;
-        //     position: relative;
-        //     padding: 5px;
-        //     border-radius: 8px;
-    
-        //     .sender-details {
-        //         display: flex;
-        //         align-items: center;
-    
-        //         .img-sender {
-        //             height: 20px;
-        //             width: 20px;
-        //             border-radius: 50%;
-        //             margin-right: 5px;
-        //         }
-    
-        //         .name-sender {
-        //             font-size: 14px;
-        //             font-weight: bold;
-        //         }
-        //         .sender-info {
-        //             font-size: 12px;
-        //             color: #888;
-        //             margin-left: 10px;
-        //         }
-        //     }
-        // }
+    overflow-y: auto;
+    .member-content-chat {
         display: flex;
         align-items: center;
         margin-left: 10px;
         padding: 10px;
-        width: 45%;
         margin-top: 10px;
-        .chat-text{
-            margin-left:10px;
+
+        .chat-text {
+            margin-left: 10px;
             text-align: start;
-            background-color: blue;
+            max-width: 50%;
+
+            background-color: var(--primary-color);
             padding: 10px;
             color: #f0f0f0;
             border-radius: 20px;
         }
     }
+    .my-content-chat {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        margin-left: 10px;
+        margin-top: 10px;
+        .chat-text {
+            margin-left: 10px;
+            text-align: start;
+            background-color: #ccc;
+            padding: 10px;
+            max-width: 50%;
+            margin-right: 10px;
+            color: #000;
+            border-radius: 20px;
+        }
+    }
 }
-
 
 .footer-chat {
     display: flex;
@@ -250,8 +232,29 @@
         background-color: #f1f1f1; /* Màu nền của phần track thanh cuộn */
     }
 }
-.userprofile {
-    width: 45px;
-    height: 45px;
+.img-user-chat {
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
+    cursor: pointer;
+}
+.user-profile {
+    position: relative;
+    display: inline-block; /* Đảm bảo phần tử không chiếm toàn bộ hàng */
+}
+.username-overlay {
+    position: absolute;
+    bottom: -30px; /* Hiển thị tên phía dưới ảnh */
+    left: 140%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 20px; /* Làm tròn góc của hộp chứa tên */
+    opacity: 0; /* Ẩn tên ban đầu */
+    transition: opacity 0.3s ease-in-out; /* Hiệu ứng khi hiển thị */
+}
+
+.user-profile:hover .username-overlay {
+    opacity: 1; /* Hiển thị tên khi hover vào user-profile */
 }

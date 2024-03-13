@@ -94,15 +94,15 @@ db.connect()
 
         // Register
         app.use('/v1/auth', authRoutes);
-<<<<<<< HEAD
+
         app.use('/chat', chatRoutes);
 
         // Kết nối đến MongoDB thành công, bắt đầu cập nhật trạng thái công việc định kỳ
-=======
+
 
         // Profile
         app.use('/profile', profileRoutes);
->>>>>>> 6523241514395d6ff5ecb2e4232c09dc7f8e99da
+
         // Start the server
         server.listen(port, () => {
             console.log(`Server is running on port ${port}`);

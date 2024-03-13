@@ -125,37 +125,25 @@ class ChatController {
     async createGroupChat(req, res){
         try {
             const { name, members } = req.body;
-            const avatar = gravatar.url(name, { s: '200', r: 'pg', d: 'identicon' }); // Adjust the parameters as needed
-
+            const avatar = gravatar.url(name, { s: '200', r: 'pg', d: 'identicon' });
+    
             // Tạo một bản ghi mới cho nhóm chat
             const newGroupChat = new Group({
                 name: name,
                 members: members,
                 avatar: avatar,
             });
-//
+    
             // Lưu nhóm chat vào cơ sở dữ liệu
             const savedGroupChat = await newGroupChat.save();
-
-            // Lấy id của nhóm chat vừa tạo
-            const groupId = savedGroupChat._id;
-
-            // Cập nhật trường groupIds trong các bản ghi User
-            await Promise.all(members.map(async (memberId) => {
-                const user = await User.findById(memberId);
-                if (user) {
-                    user.groupIds.push(groupId); // Thêm groupId vào mảng groupIds của User
-                    await user.save();
-                }
-            }));
-
             // Trả về nhóm chat đã được lưu trong cơ sở dữ liệu
             return res.status(201).json(savedGroupChat);
         } catch (error) {
-            console.error(error);
+            console.error(error); // In ra thông báo lỗi
             return res.status(500).json({ error: 'Internal server error' });
         }
     };
+    
     async getGroup(req, res) {
         try {
             const { userId } = req.params;

@@ -1,24 +1,19 @@
 import classNames from 'classnames/bind';
 import style from './Me.moudule.scss';
-<<<<<<< HEAD
+
 import { useSelector, useDispatch } from 'react-redux';
-=======
-import { useDispatch, useSelector } from 'react-redux';
->>>>>>> 6523241514395d6ff5ecb2e4232c09dc7f8e99da
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faPen } from '@fortawesome/free-solid-svg-icons';
 import imgbg from '../../assets/background-img.jpeg';
 import BlogItemForHome from '~/components/BlogItemForHome/BlogItemForHome';
-<<<<<<< HEAD
 import { useLocation } from 'react-router-dom';
 import { followUser } from '~/redux/apiRequest';
 import { useNavigate } from 'react-router-dom';
-=======
-import { useEffect } from 'react';
+import { useEffect, Button } from 'react';
 import { getMyPost } from '~/redux/apiRequest';
 import { createInstance } from '~/utils/createInstance';
 
->>>>>>> 6523241514395d6ff5ecb2e4232c09dc7f8e99da
 const cx = classNames.bind(style);
 function Me() {
     // Sử dụng useLocation để lấy thông tin tài khoản từ location
@@ -27,8 +22,7 @@ function Me() {
     const location = useLocation();
     const userData = location.state?.userData;
     const user = useSelector((state) => state.auth.login?.currentUser);
-<<<<<<< HEAD
-    const posts = useSelector((state) => state.post.arrPosts.newPost.posts);
+    //const posts = useSelector((state) => state.post.arrPosts.newPost.posts);
     
     // Nếu có dữ liệu từ `AccountItem`, sử dụng nó, nếu không thì sử dụng thông tin đăng nhập
     const displayUser = userData ;
@@ -37,16 +31,14 @@ function Me() {
         const followingUserId = displayUser._id; // Đặt userId của người dùng mà bạn muốn theo dõi ở đây
         dispatch(followUser(userId, followingUserId));
     };
-=======
     const posts = useSelector((state) => state.profile.myProfile.profiles.myPosts);
-    const dispatch = useDispatch();
+    
     let axiosJWT = createInstance();
     useEffect(() => {
         if (user) {
             getMyPost(dispatch, axiosJWT, user?.accessToken, user?._id);
         }
     }, [dispatch, user?.accessToken]);
->>>>>>> 6523241514395d6ff5ecb2e4232c09dc7f8e99da
     return (
         <div className={cx('wrapper')}>
             <div className={cx('wrap-header')}>
@@ -55,16 +47,13 @@ function Me() {
                 </div>
                 <div className={cx('wrap-info')}>
                     <div className={cx('wrap-avatar')}>
-<<<<<<< HEAD
                         <img src={displayUser?.avatar} alt="" className={cx('img-avatar')} />
                         <h3 className={cx('display-name')}>{displayUser?.displayName || displayUser?.username}</h3>
                         <Button leftIcon={<FontAwesomeIcon icon={faPen} />} primary className={cx('btn-avatar')}>
                             Chỉnh sửa thông tin
                         </Button>
-=======
                         <img src={user?.avatar} alt="" className={cx('img-avatar')} />
                         <h3 className={cx('display-name')}>{user?.displayName || user?.username}</h3>
->>>>>>> 6523241514395d6ff5ecb2e4232c09dc7f8e99da
                     </div>
                     <button className={cx('btn')} onClick={handleFollow}>Theo dõi</button>
                 </div>

@@ -10,6 +10,7 @@ router.get('/', PostController.index);
 router.post('/create', authMiddleware.verifyToken, PostController.create);
 router.get('/detail/:id', PostController.detail);
 router.get('/search', PostController.search);
+router.get('/get-tags', PostController.getTags);
 
 //save post
 router.post('/save-post', PostController.savedPosts);
@@ -22,6 +23,5 @@ router.get('/check-like', PostController.checkLike);
 //comment post
 router.get('/get-comment', PostController.getAllComments);
 router.post('/comment-post', PostController.createComment);
-router.post('/reply-comment-post', PostController.replyComment);
 
 module.exports = router;

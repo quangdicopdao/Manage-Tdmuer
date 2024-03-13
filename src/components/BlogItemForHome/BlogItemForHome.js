@@ -7,6 +7,7 @@ import { faBookmark } from '@fortawesome/free-solid-svg-icons';
 import { faBookmark as faBookmarkRegular } from '@fortawesome/free-regular-svg-icons';
 import moment from 'moment';
 import { useSelector } from 'react-redux';
+import noImg from '~/assets/no-image.jpg';
 const cx = classNames.bind(style);
 
 function stripHTML(htmlString) {
@@ -101,7 +102,7 @@ function BlogItemForHome({ title, imageUser, nameUser, postId, content, to, crea
             <div className={cx('wrap-content')}>
                 <div className={cx('wrap-info')}>
                     <div className={cx('wrap-name-img')}>
-                        <img src={imageUser} alt={nameUser} className={cx('img-user')} />
+                        <img src={imageUser ? imageUser : noImg} alt={nameUser} className={cx('img-user')} />
                         <span className={cx('name-user')}>{nameUser}</span>
                     </div>
                     <FontAwesomeIcon

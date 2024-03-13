@@ -139,6 +139,14 @@ export const checkLike = async (data) => {
     }
 };
 
+export const getTags = async () => {
+    try {
+        const res = await axios.get(baseURL + 'post/get-tags');
+        return res.data;
+    } catch (error) {
+        console.error('Error getting tags:', error);
+    }
+};
 export const createComment = async (data) => {
     try {
         const res = await axios.post(baseURL + 'post/comment-post', data);
@@ -169,10 +177,10 @@ export const createSchedule = async (data, dispatch, accessToken, closeModal) =>
         });
         dispatch(createScheduleSuccess(res.data));
         closeModal();
-        toast.success('Tạo lịch thành công');
+        toast.success(res.data.message);
     } catch (error) {
-        console.error('Error:', error.response.data);
-        toast.error('Lỗi khi tạo lịch');
+        console.error('Error:', error.response.data.message);
+        toast.error(error.response.data.message);
         dispatch(createScheduleFailer(error.response.data));
     }
 };

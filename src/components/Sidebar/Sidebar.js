@@ -57,13 +57,13 @@ const Sidebar = () => {
                             to={'/post'}
                             onClick={() => handleTabClick('Post')}
                         />
-                        {/* <SidebarItem
+                        <SidebarItem
                             icon={faFileInvoiceDollar}
                             label="Chi tiêu"
                             isActive={isTabActive('/spending')}
                             to={'/spending'}
                             onClick={() => handleTabClick('Spending')}
-                        /> */}
+                        />
                     </div>
                 )}
             </ul>

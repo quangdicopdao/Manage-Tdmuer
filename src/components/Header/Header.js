@@ -27,13 +27,16 @@ function Header() {
     const [searchResult, setSearchResult] = useState([]);
     const [modalOpen, setModalOpen] = useState(false);
     const [isForm, setIsForm] = useState(true);
-
+    const [showToast, setShowToast] = useState(false);
     console.log('header', searchResult);
 
     const userInfo = searchResult?.userInfo;
     const postInfo = searchResult?.postsInfo;
     console.log('userInfo', userInfo);
     //open and close from avatar
+    const handleShowToast = () => {
+        setShowToast(!showToast);
+    };
     const [show, setShow] = useState(false);
     const handleShowAction = () => {
         setShow(!show);
@@ -145,7 +148,31 @@ function Header() {
 
                 {user ? (
                     <div className={cx('current-user')}>
-                        <FontAwesomeIcon className={cx('action-icon')} icon={faBell} />
+                        <FontAwesomeIcon className={cx('action-icon')} icon={faBell} onClick={handleShowToast} />
+                        {showToast && (
+                            <div className={cx('wrap-all-toast')}>
+                                <div className={cx('wrap-toast')}>
+                                    <img
+                                        src="https://thinkzone.vn/uploads/2021_04/ui-ux-la-gi-2-1618403613.jpg"
+                                        alt=""
+                                        className={cx('img-toast')}
+                                    />
+                                    <span className={cx('content-toast')}>
+                                        Đặng Việt Quang đã bình luận bài viết của bạn
+                                    </span>
+                                </div>
+                                <div className={cx('wrap-toast')}>
+                                    <img
+                                        src="https://thinkzone.vn/uploads/2021_04/ui-ux-la-gi-2-1618403613.jpg"
+                                        alt=""
+                                        className={cx('img-toast')}
+                                    />
+                                    <span className={cx('content-toast')}>
+                                        Đặng Việt Quang đã bình luận bài viết của bạn
+                                    </span>
+                                </div>
+                            </div>
+                        )}
                         <Tippy
                             visible={show}
                             interactive

@@ -251,6 +251,7 @@ function PostDetail() {
                             <h4 className={cx('date-post')}>{formatPostDate(post.createdAt)}</h4>
                         </div>
                     </div>
+
                     <div className={cx('wrap-action')}>
                         <div className={cx('wrap-btn')}>
                             <FontAwesomeIcon
@@ -271,6 +272,9 @@ function PostDetail() {
                             <span className={cx('count')}>{countComments}</span>
                         </div>
                     </div>
+                    <Button outline className={cx('btn-join')}>
+                        Tham gia hoạt động
+                    </Button>
                 </div>
             </div>
             {showComment && (

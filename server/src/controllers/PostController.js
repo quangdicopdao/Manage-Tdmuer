@@ -4,6 +4,7 @@ const User = require('../models/User.js');
 const Like = require('../models/Likes.js');
 const Comment = require('../models/Comments.js');
 const Notification = require('../models/Notification.js');
+const Tag = require('../models/Tag.js');
 const mongoose = require('mongoose');
 
 // controllers/PostController.js
@@ -34,7 +35,6 @@ class PostController {
                     return null;
                 })
                 .filter(Boolean);
-
             res.json({
                 page: parseInt(page),
                 per_page: parseInt(pageSize),
@@ -231,6 +231,18 @@ class PostController {
         }
     }
 
-    async replyComment(req, res) {}
+    async getTags(req, res) {
+        try {
+            // Lấy tất cả các tag từ cơ sở dữ liệu
+            const tags = await Tag.find();
+
+            // Trả về danh sách các tag
+            return res.status(200).json({ tags });
+        } catch (error) {
+            // Xử lý lỗi nếu có
+            console.error('Error getting tags:', error);
+            return res.status(500).json({ error: 'Internal Server Error' });
+        }
+    }
 }
 module.exports = new PostController();

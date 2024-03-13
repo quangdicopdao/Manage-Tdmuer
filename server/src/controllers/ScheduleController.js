@@ -95,15 +95,74 @@ class ScheduleController {
         const userId = req.user.id;
 
         try {
-            const newSchedule = new Schedule({
-                title,
-                start,
-                end,
-                description,
-                userId,
-            });
-            await newSchedule.save();
-            return res.status(201).json({ message: 'Công việc đã được lưu trữ thành công.' });
+            // Chia start và end thành phần ngày và giờ riêng biệt
+            const startDateTime = new Date(start);
+            const endDateTime = new Date(end);
+
+            // Lấy ngày và giờ từ start và end
+            const startDate = startDateTime.toDateString();
+            const startTime = startDateTime.getHours();
+            const endDate = endDateTime.toDateString();
+            const endTime = endDateTime.getHours();
+
+            // Kiểm tra nếu ngày của start và end không giống nhau, cho phép tạo mới
+            if (startDate !== endDate) {
+                // Kiểm tra nếu giờ của start và end giống nhau
+                if (startTime === endTime) {
+                    return res.status(400).json({ message: 'Thời gian bắt đầu và kết thúc không thể giống nhau.' });
+                }
+
+                // Kiểm tra xem có bất kỳ bản ghi nào trong db có giờ bắt đầu hoặc kết thúc trùng với giờ của khoảng thời gian mới không
+                const existingSchedule = await Schedule.findOne({
+                    $or: [
+                        { $and: [{ start: { $gte: start } }, { start: { $lt: end } }] }, // Kiểm tra xem có bản ghi nào bắt đầu trong khoảng thời gian mới
+                        { $and: [{ end: { $gt: start } }, { end: { $lte: end } }] }, // Kiểm tra xem có bản ghi nào kết thúc trong khoảng thời gian mới
+                    ],
+                    userId: userId,
+                });
+
+                if (existingSchedule) {
+                    return res.status(400).json({ message: 'Khoảng thời gian đã tồn tại trong lịch của bạn.' });
+                }
+
+                const newSchedule = new Schedule({
+                    title,
+                    start,
+                    end,
+                    description,
+                    userId,
+                });
+                await newSchedule.save();
+                return res.status(201).json({ message: 'Công việc đã được lưu trữ thành công.' });
+            } else {
+                // Kiểm tra nếu giờ của start và end giống nhau
+                if (startTime === endTime) {
+                    return res.status(400).json({ message: 'Thời gian bắt đầu và kết thúc không thể giống nhau.' });
+                }
+
+                // Kiểm tra xem có bất kỳ bản ghi nào trong db có giờ bắt đầu hoặc kết thúc trùng với giờ của khoảng thời gian mới không
+                const existingSchedule = await Schedule.findOne({
+                    $or: [
+                        { $and: [{ start: { $gte: start } }, { start: { $lt: end } }] }, // Kiểm tra xem có bản ghi nào bắt đầu trong khoảng thời gian mới
+                        { $and: [{ end: { $gt: start } }, { end: { $lte: end } }] }, // Kiểm tra xem có bản ghi nào kết thúc trong khoảng thời gian mới
+                    ],
+                    userId: userId,
+                });
+
+                if (existingSchedule) {
+                    return res.status(400).json({ message: 'Khoảng thời gian đã tồn tại trong lịch của bạn.' });
+                }
+
+                const newSchedule = new Schedule({
+                    title,
+                    start,
+                    end,
+                    description,
+                    userId,
+                });
+                await newSchedule.save();
+                return res.status(201).json({ message: 'Công việc đã được lưu trữ thành công.' });
+            }
         } catch (error) {
             console.error(error);
             return res.status(500).json({ message: 'Đã xảy ra lỗi khi lưu trữ bài viết.' });
@@ -111,6 +170,7 @@ class ScheduleController {
             next();
         }
     }
+
     //edit the schedule
     async edit(req, res, next) {
         try {

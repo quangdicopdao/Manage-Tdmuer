@@ -8,6 +8,7 @@
 }
 .col-7 {
     flex: 1;
+    margin-right: 350px;
     .wrap-content {
         width: 800px;
         display: flex;
@@ -37,6 +38,8 @@
 }
 .col-3 {
     width: 350px;
+    position: fixed;
+    right: 20px;
     .wrap-user {
         margin-left: 40px;
         display: flex;
@@ -64,6 +67,12 @@
                 color: #999;
             }
         }
+    }
+    .btn-join {
+        width: 90%;
+        margin-top: 10px;
+        margin-right: 10px;
+        margin-left: 40px;
     }
 }
 .wrap-action {

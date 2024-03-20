@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import classNames from 'classnames/bind';
 import styles from './customtable.module.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -14,17 +15,19 @@ function formatDate(dateString) {
     return `${day}/${month}/${year}`;
 }
 
-function CustomTable({ data, columns, onView, onEdit, onDelete }) {
+function CustomTable({ data, columns, onViewLink, onEditLink, onDelete }) {
     if (!data || data.length === 0) {
         return <div>No data available</div>;
     }
 
     return (
-        <table className={cx('customTable')}>
+        <table className={styles.customTable}>
             <thead>
                 <tr>
                     {columns.map((column, index) => (
-                        <th key={index}>{column.label}</th>
+                        <th key={index} className={cx(column.className)}>
+                            {column.label}
+                        </th>
                     ))}
                 </tr>
             </thead>
@@ -32,18 +35,18 @@ function CustomTable({ data, columns, onView, onEdit, onDelete }) {
                 {data.map((row, rowIndex) => (
                     <tr key={rowIndex}>
                         {columns.map((column, colIndex) => (
-                            <td key={colIndex}>
+                            <td key={colIndex} className={cx(column.className)}>
                                 {column.isAction && (
                                     <div className={cx('wrap-actions')}>
-                                        {onView && (
-                                            <button onClick={() => onView(row)} className={cx('actionButton')}>
+                                        {onViewLink && (
+                                            <Link to={onViewLink(row)} className={cx('actionButton')}>
                                                 <FontAwesomeIcon icon={faEye} className={cx('view-icon')} />
-                                            </button>
+                                            </Link>
                                         )}
-                                        {onEdit && (
-                                            <button onClick={() => onEdit(row)} className={cx('actionButton')}>
+                                        {onEditLink && (
+                                            <Link to={onEditLink(row)} className={cx('actionButton')}>
                                                 <FontAwesomeIcon icon={faPen} className={cx('edit-icon')} />{' '}
-                                            </button>
+                                            </Link>
                                         )}
                                         {onDelete && (
                                             <button onClick={() => onDelete(row)} className={cx('actionButton')}>

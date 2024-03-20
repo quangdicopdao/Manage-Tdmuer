@@ -74,6 +74,24 @@
         margin-right: 10px;
         margin-left: 40px;
     }
+    .joined {
+        margin-left: 40px;
+        height: 40px;
+        background-color: #00b14f;
+        border-radius: 10px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 10px;
+        .message {
+            color: #fff;
+            margin-right: 40px;
+            font-size: 1.6rem;
+        }
+        .icon-message {
+            color: #fff;
+        }
+    }
 }
 .wrap-action {
     margin-top: 10px;
@@ -264,5 +282,76 @@
         background-color: var(--primary-color);
         color: #fff;
         margin-left: 0px;
+    }
+}
+.wrap-all-time {
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-content: center;
+    margin-left: 40px;
+    .title-time {
+        font-size: 1.6rem;
+        font-weight: 500;
+    }
+
+    .wrap-time {
+        display: flex;
+        width: 50%;
+        align-items: center;
+        margin-top: 10px;
+        .icon-time {
+            margin-right: 10px;
+            color: var(--primary-color);
+        }
+    }
+    .wrap-date {
+        display: flex;
+        width: 80%;
+        align-items: center;
+        margin-top: 10px;
+        .icon-time {
+            margin-right: 10px;
+            color: var(--primary-color);
+        }
+    }
+}
+
+.modal-join {
+    width: 600px;
+    .modal-content {
+        margin-left: 50px;
+        .wrap-title-input {
+            width: 80%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 20px;
+            .title {
+                font-size: 1.6rem;
+                font-weight: 500;
+                margin-left: 10px;
+            }
+            .wrap-input {
+                background-color: var(--input-color);
+                padding: 8px;
+                border-radius: 10px;
+                width: 250px;
+                input {
+                    background-color: transparent;
+                    width: 100%;
+                    margin-left: 10px;
+                }
+            }
+        }
+    }
+}
+// list modal
+.list-modal {
+    width: 90%;
+    min-height: 50%;
+    .wrap-content-list {
+        padding: 10px;
     }
 }

@@ -7,7 +7,14 @@ import { createPost, getTags } from '~/redux/apiRequest';
 import { useNavigate } from 'react-router-dom';
 import Button from '~/components/Button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import Modal from '~/components/Modal/Modal';
+import moment from 'moment';
+import { momentLocalizer } from 'react-big-calendar';
+
+const localizer = momentLocalizer(moment);
+
 const cx = classNames.bind(style);
 
 function CreateBlog() {
@@ -22,8 +29,12 @@ function CreateBlog() {
     const [dataTag, setDataTag] = useState([]);
     console.log('dataTag', dataTag);
     const [tag, setTag] = useState('');
-    const handleSetTag = (tag) => {
+    const [tagId, setTagId] = useState('');
+    const [tagBtn, setTagBtn] = useState('Thể loại bài viết');
+    console.log('tag', tag);
+    const handleSetTag = (id, tag) => {
         setTag(tag);
+        setTagId(id);
     };
     const [start, setStart] = useState(new Date());
     const [end, setEnd] = useState(new Date());
@@ -37,11 +48,18 @@ function CreateBlog() {
     const handleContentChange = (newContent) => {
         setContent(newContent);
     };
+    const handlePickTypeAndDate = () => {
+        setTagBtn(tag);
+        setShow(!show);
+    };
     const handleSubmit = async (e) => {
         e.preventDefault();
         const data = {
             title,
             content,
+            start,
+            end,
+            tagId,
             id,
         };
         console.log('data: ' + data);
@@ -62,7 +80,7 @@ function CreateBlog() {
                     <input type="text" placeholder="Nhập tiêu đề" value={title} onChange={handleTitleChange} />
                     <div className={cx('wrap-actions')}>
                         <Button outline className={cx('btn')} onClick={toggleTag}>
-                            Chọn loại bài viết
+                            {tagBtn}
                         </Button>
                         {show && (
                             <Modal
@@ -70,13 +88,18 @@ function CreateBlog() {
                                 titleModal={'Chọn thể loại và thời gian'}
                                 className={cx('modal')}
                                 onClose={toggleTag}
+                                onSave={handlePickTypeAndDate}
                             >
                                 <div className={cx('modal-content')}>
                                     <h4 className={cx('modal-title')}>Danh mục bài viết</h4>
                                     {dataTag && (
                                         <div className={cx('wrap-tag')}>
                                             {dataTag.map((tags) => (
-                                                <span className={cx('tag-btn')} key={tags._id}>
+                                                <span
+                                                    className={cx('tag-btn', { taggedBtn: tags.name === tag })}
+                                                    key={tags._id}
+                                                    onClick={() => handleSetTag(tags._id, tags.name)}
+                                                >
                                                     {tags.name}
                                                 </span>
                                             ))}
@@ -85,9 +108,36 @@ function CreateBlog() {
 
                                     <h4 className={cx('modal-title')}>Thời gian</h4>
                                     <div className={cx('wrap-time')}>
-                                        <div className={cx('time')}>Thời gian bắt đầu</div>
+                                        <div className={cx('time')}>
+                                            <DatePicker
+                                                calendarClassName={cx('date-picker')}
+                                                selected={start}
+                                                onChange={(date) => setStart(date)}
+                                                className={cx('title')}
+                                                showTimeSelect
+                                                selectsStart
+                                                startDate={start}
+                                                timeFormat="HH:mm"
+                                                dateFormat="dd/MM/yyyy HH:mm"
+                                                timezone="Asia/Ho_Chi_Minh"
+                                            />
+                                        </div>
                                         <span> - </span>
-                                        <div className={cx('time')}>Thời gian bắt đầu</div>
+                                        <div className={cx('time')}>
+                                            <DatePicker
+                                                calendarClassName={cx('date-picker')}
+                                                selected={end}
+                                                onChange={(date) => setEnd(date)}
+                                                className={cx('title')}
+                                                showTimeSelect
+                                                selectsStart
+                                                startDate={start}
+                                                endDate={end}
+                                                timeFormat="HH:mm"
+                                                dateFormat="dd/MM/yyyy HH:mm"
+                                                timezone="Asia/Ho_Chi_Minh"
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             </Modal>
@@ -97,6 +147,10 @@ function CreateBlog() {
                         </Button>
                     </div>
                 </div>
+                <span className={cx('show-time')}>
+                    Thời gian:{' '}
+                    {`${moment(start).format('DD/MM/YYYY HH:mm')} - ${moment(end).format('DD/MM/YYYY HH:mm')}`}
+                </span>
                 <div className={cx('wrap-editor')}>
                     <Editor value={content} onChange={handleContentChange} />
                 </div>

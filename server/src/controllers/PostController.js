@@ -49,7 +49,7 @@ class PostController {
     }
 
     async create(req, res, next) {
-        const { title, content } = req.body;
+        const { title, content, start, end, tagId } = req.body;
 
         // Kiểm tra xác thực thông qua req.user
         if (!req.user) {
@@ -59,7 +59,7 @@ class PostController {
         const userId = req.user.id;
 
         try {
-            const newPost = new Posts({ title, content, userId }); // Chỉnh sửa tại đây
+            const newPost = new Posts({ title, content, start, end, tagId, userId }); // Chỉnh sửa tại đây
             await newPost.save();
             return res.status(201).json({ message: 'Bài viết đã được lưu trữ thành công.' });
         } catch (error) {

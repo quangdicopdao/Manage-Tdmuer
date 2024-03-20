@@ -285,3 +285,40 @@ export const getProfile = async (userId) => {
         console.log(error);
     }
 };
+//join activities
+export const joinActivity = async (data, accessToken, closeModal) => {
+    try {
+        const res = await axios.post(baseURL + 'join/join-activity', data, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        toast.success(res.data.message);
+        return res.data;
+
+        closeModal();
+    } catch (error) {
+        console.log(error);
+        toast.error(error.response.data.message);
+    }
+};
+export const checkJoinActivity = async (data, accessToken) => {
+    try {
+        const res = await axios.post(baseURL + `join/check-join-activity`, data, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        console.log('abc', res.data);
+        return res.data;
+    } catch (error) {
+        console.log(error);
+    }
+};
+export const showListActivity = async (postId, accessToken) => {
+    console.log('abc', postId);
+    try {
+        const res = await axios.get(baseURL + `join/show-list/${postId}`, null, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        return res.data;
+    } catch (error) {
+        console.log(error);
+    }
+};

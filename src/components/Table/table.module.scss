@@ -17,7 +17,7 @@
         min-height: 420px;
     }
     .table {
-        width: 90%;
+        width: 100%;
         margin: 10px auto;
         .table-header {
             height: 60px;
@@ -32,6 +32,7 @@
                     line-height: 30px;
                     padding: 10px;
                     text-align: center;
+                    max-width: 600px;
                     .action-btn {
                         width: 50px;
                         height: 50px;
@@ -88,7 +89,6 @@
         align-items: center;
         .wrap-btn-selector {
             margin-left: 10px;
-
             .dropdown-menu {
                 width: 150px;
                 background-color: #fff;
@@ -138,14 +138,10 @@
         border-radius: 10px;
         display: flex;
         align-items: center;
-        margin-left: 62px;
         .input-search {
             background-color: transparent;
             flex: 1;
         }
-    }
-    .wrap-btn {
-        margin-right: 62px;
     }
 }
 .wrap-modal {
@@ -205,4 +201,12 @@
             }
         }
     }
+}
+.title-content {
+}
+.desciption-content {
+    width: 300px;
+}
+.btn-content {
+    width: 100px;
 }

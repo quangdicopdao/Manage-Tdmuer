@@ -13,6 +13,7 @@ const authRoutes = require('./routes/auth');
 const profileRoutes = require('./routes/profile');
 const scheduleRoutes = require('./routes/schedule');
 const postRoutes = require('./routes/post');
+const joinRoutes = require('./routes/listjoin');
 
 const ScheduleController = require('./controllers/ScheduleController');
 require('dotenv').config();
@@ -96,7 +97,8 @@ db.connect()
         app.use('/v1/auth', authRoutes);
         //chat
         app.use('/chat', chatRoutes);
-
+        //join activity
+        app.use('/join', joinRoutes);
         // Kết nối đến MongoDB thành công, bắt đầu cập nhật trạng thái công việc định kỳ
 
         // Profile

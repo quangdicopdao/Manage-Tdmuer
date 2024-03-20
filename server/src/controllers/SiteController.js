@@ -3,15 +3,6 @@ const Posts = require('../models/Posts.js');
 const User = require('../models/User.js');
 // controllers/SiteController.js
 class SiteController {
-    // async index(req, res, next) {
-    //     try {
-    //         const posts = await Posts.find();
-    //         res.json({ posts });
-    //     } catch (err) {
-    //         console.error('Error fetching posts:', err);
-    //         next(err);
-    //     }
-    // }
     async index(req, res, next) {
         try {
             const posts = await Posts.find().populate('userId', 'avatar email').exec();
@@ -82,14 +73,14 @@ class SiteController {
                 $or: [{ title: { $regex: query, $options: 'i' } }, { content: { $regex: query, $options: 'i' } }],
             });
 
-            const modifiedUserResults = userResults.map(({ password, ...other }) => other);
-            const combinedResults = [...modifiedUserResults, ...postResults];
+            const modifiedUserResults = userResults.map(({ _id, username, email, avatar }) => ({
+                _id,
+                username,
+                email,
+                avatar,
+            }));
 
-            if (combinedResults.length === 0) {
-                return res.status(404).json({ error: 'No results found' });
-            }
-
-            res.json(combinedResults);
+            res.json({ postsInfo: postResults, userInfo: modifiedUserResults });
         } catch (error) {
             console.error('Error searching:', error);
             res.status(500).json({ error: 'Internal Server Error' });

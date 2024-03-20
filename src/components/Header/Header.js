@@ -30,8 +30,16 @@ function Header() {
     const [searchResult, setSearchResult] = useState([]);
     const [modalOpen, setModalOpen] = useState(false);
     const [isForm, setIsForm] = useState(true);
+    const [showToast, setShowToast] = useState(false);
+    console.log('header', searchResult);
 
+    const userInfo = searchResult?.userInfo;
+    const postInfo = searchResult?.postsInfo;
+    console.log('userInfo', userInfo);
     //open and close from avatar
+    const handleShowToast = () => {
+        setShowToast(!showToast);
+    };
     const [show, setShow] = useState(false);
     const handleShowAction = () => {
         setShow(!show);
@@ -59,6 +67,7 @@ function Header() {
         try {
             const response = await fetch(baseURL + `api/search?q=${query}`);
             const data = await response.json();
+            console.log('data', data);
             setSearchResult(data);
         } catch (error) {
             console.error('Error searching:', error);
@@ -153,16 +162,26 @@ function Header() {
                     <h4>Quản lý hoạt động cá nhân</h4>
                 </div>
                 <Tippy
-                    visible={searchResult.length > 0}
+                    visible={Object.keys(searchResult).length > 0}
                     interactive
                     render={(attrs) => (
                         <div className={cx('search-result')} tabIndex="-1" {...attrs}>
-                            <PopperWrapper>
-                                <h4 className={cx('search-title')}>Accounts</h4>
-                                <AccountItem searchResults={searchResult} onAccountItemClick={handleAccountItemClick} />
-                                <h4 className={cx('search-title')}>Blogs</h4>
-                                <BlogItem searchResults={searchResult} />
-                            </PopperWrapper>
+                            {searchResult !== undefined && (
+                                <PopperWrapper>
+                                    {userInfo && (
+                                        <>
+                                            <h4 className={cx('search-title')}>Accounts</h4>
+                                            <AccountItem searchResults={userInfo} />
+                                        </>
+                                    )}
+                                    {postInfo && (
+                                        <>
+                                            <h4 className={cx('search-title')}>Blogs</h4>
+                                            <BlogItem searchResults={postInfo} />
+                                        </>
+                                    )}
+                                </PopperWrapper>
+                            )}
                         </div>
                     )}
                 >
@@ -174,16 +193,45 @@ function Header() {
 
                 {user ? (
                     <div className={cx('current-user')}>
-                        <FontAwesomeIcon className={cx('action-icon')} icon={faBell} />
+                        <FontAwesomeIcon className={cx('action-icon')} icon={faBell} onClick={handleShowToast} />
+                        {showToast && (
+                            <div className={cx('wrap-all-toast')}>
+                                <div className={cx('wrap-toast')}>
+                                    <img
+                                        src="https://thinkzone.vn/uploads/2021_04/ui-ux-la-gi-2-1618403613.jpg"
+                                        alt=""
+                                        className={cx('img-toast')}
+                                    />
+                                    <span className={cx('content-toast')}>
+                                        Đặng Việt Quang đã bình luận bài viết của bạn
+                                    </span>
+                                </div>
+                                <div className={cx('wrap-toast')}>
+                                    <img
+                                        src="https://thinkzone.vn/uploads/2021_04/ui-ux-la-gi-2-1618403613.jpg"
+                                        alt=""
+                                        className={cx('img-toast')}
+                                    />
+                                    <span className={cx('content-toast')}>
+                                        Đặng Việt Quang đã bình luận bài viết của bạn
+                                    </span>
+                                </div>
+                            </div>
+                        )}
                         <Tippy
                             visible={show}
                             interactive
                             render={(attrs) => (
                                 <div className={cx('wrap-action-avatar')} tabIndex="-1" {...attrs}>
                                     <ul className={cx('list-action')}>
-                                        <li className={cx('item-action')}>
+                                        <li className={cx('item-action')} onClick={handleShowAction}>
                                             <Link to={`/profile/${user?._id}`} className={cx('text-link')}>
                                                 Trang cá nhân
+                                            </Link>
+                                        </li>
+                                        <li className={cx('item-action')} onClick={handleShowAction}>
+                                            <Link to={`/post/manage-post`} className={cx('text-link')}>
+                                                Quản lý bài viết
                                             </Link>
                                         </li>
                                         <li onClick={handleLogout} className={cx('item-action')}>

@@ -12,22 +12,51 @@ class ScheduleController {
                 return res.status(401).json({ message: 'Unauthorized' });
             }
 
-            // Truy vấn lịch theo ID người dùng đã đăng nhập
+            // Trích xuất selectedDate từ req.query
+            const { selectedDate } = req.query;
+
+            // Kiểm tra selectedDate nếu không có thì trả về lỗi
+            if (!selectedDate) {
+                return res.status(400).json({ message: 'Selected date is required' });
+            }
+
+            // Chuyển đổi selectedDate thành đối tượng Date
+            const endOfDay = new Date(selectedDate);
+            endOfDay.setHours(23, 59, 59, 999); // Đặt giờ là 23:59:59 và millisecond là 999
+
+            // Tạo ngày bắt đầu của ngày đã chọn
+            const startOfDay = new Date(selectedDate);
+            startOfDay.setHours(0, 0, 0, 0); // Đặt giờ là 00:00:00 và millisecond là 0
+
+            // Truy vấn lịch theo ID người dùng đã đăng nhập và end là ngày đã chọn
             const userId = req.user.id;
-            const { statusWork, page, pageSize = 5 } = req.query;
+            const { statusWork, page, pageSize = 5, query } = req.query;
 
             if (statusWork === undefined || statusWork === null || statusWork === '') {
                 return res.status(400).json({ message: 'StatusWork is required' });
             }
 
+            // Tạo điều kiện tìm kiếm
+            let searchCondition = { userId, end: { $gte: startOfDay, $lte: endOfDay } }; // Thêm điều kiện end
+
+            // Nếu statusWork bằng 5, không cần thêm điều kiện tìm kiếm về statusWork
+            if (statusWork !== '5') {
+                searchCondition.statusWork = statusWork;
+            }
+
+            if (query) {
+                // Nếu có query, thêm điều kiện tìm kiếm cho title hoặc description
+                searchCondition.$or = [
+                    { title: { $regex: query, $options: 'i' } },
+                    { description: { $regex: query, $options: 'i' } },
+                ];
+            }
+
             const skip = (page - 1) * pageSize;
 
-            const userSchedule = await Schedule.find({ userId, statusWork })
-                .skip(skip)
-                .limit(pageSize)
-                .sort({ end: 'desc' });
+            const userSchedule = await Schedule.find(searchCondition).skip(skip).limit(pageSize).sort({ end: 'desc' });
 
-            const total = await Schedule.countDocuments({ userId, statusWork });
+            const total = await Schedule.countDocuments(searchCondition);
             const total_pages = Math.ceil(total / pageSize);
 
             res.status(200).json({
@@ -41,6 +70,7 @@ class ScheduleController {
             next(error);
         }
     }
+
     async overview(req, res, next) {
         try {
             // Kiểm tra xem người dùng đã đăng nhập chưa
@@ -65,15 +95,74 @@ class ScheduleController {
         const userId = req.user.id;
 
         try {
-            const newSchedule = new Schedule({
-                title,
-                start,
-                end,
-                description,
-                userId,
-            });
-            await newSchedule.save();
-            return res.status(201).json({ message: 'Công việc đã được lưu trữ thành công.' });
+            // Chia start và end thành phần ngày và giờ riêng biệt
+            const startDateTime = new Date(start);
+            const endDateTime = new Date(end);
+
+            // Lấy ngày và giờ từ start và end
+            const startDate = startDateTime.toDateString();
+            const startTime = startDateTime.getHours();
+            const endDate = endDateTime.toDateString();
+            const endTime = endDateTime.getHours();
+
+            // Kiểm tra nếu ngày của start và end không giống nhau, cho phép tạo mới
+            if (startDate !== endDate) {
+                // Kiểm tra nếu giờ của start và end giống nhau
+                if (startTime === endTime) {
+                    return res.status(400).json({ message: 'Thời gian bắt đầu và kết thúc không thể giống nhau.' });
+                }
+
+                // Kiểm tra xem có bất kỳ bản ghi nào trong db có giờ bắt đầu hoặc kết thúc trùng với giờ của khoảng thời gian mới không
+                const existingSchedule = await Schedule.findOne({
+                    $or: [
+                        { $and: [{ start: { $gte: start } }, { start: { $lt: end } }] }, // Kiểm tra xem có bản ghi nào bắt đầu trong khoảng thời gian mới
+                        { $and: [{ end: { $gt: start } }, { end: { $lte: end } }] }, // Kiểm tra xem có bản ghi nào kết thúc trong khoảng thời gian mới
+                    ],
+                    userId: userId,
+                });
+
+                if (existingSchedule) {
+                    return res.status(400).json({ message: 'Khoảng thời gian đã tồn tại trong lịch của bạn.' });
+                }
+
+                const newSchedule = new Schedule({
+                    title,
+                    start,
+                    end,
+                    description,
+                    userId,
+                });
+                await newSchedule.save();
+                return res.status(201).json({ message: 'Công việc đã được lưu trữ thành công.' });
+            } else {
+                // Kiểm tra nếu giờ của start và end giống nhau
+                if (startTime === endTime) {
+                    return res.status(400).json({ message: 'Thời gian bắt đầu và kết thúc không thể giống nhau.' });
+                }
+
+                // Kiểm tra xem có bất kỳ bản ghi nào trong db có giờ bắt đầu hoặc kết thúc trùng với giờ của khoảng thời gian mới không
+                const existingSchedule = await Schedule.findOne({
+                    $or: [
+                        { $and: [{ start: { $gte: start } }, { start: { $lt: end } }] }, // Kiểm tra xem có bản ghi nào bắt đầu trong khoảng thời gian mới
+                        { $and: [{ end: { $gt: start } }, { end: { $lte: end } }] }, // Kiểm tra xem có bản ghi nào kết thúc trong khoảng thời gian mới
+                    ],
+                    userId: userId,
+                });
+
+                if (existingSchedule) {
+                    return res.status(400).json({ message: 'Khoảng thời gian đã tồn tại trong lịch của bạn.' });
+                }
+
+                const newSchedule = new Schedule({
+                    title,
+                    start,
+                    end,
+                    description,
+                    userId,
+                });
+                await newSchedule.save();
+                return res.status(201).json({ message: 'Công việc đã được lưu trữ thành công.' });
+            }
         } catch (error) {
             console.error(error);
             return res.status(500).json({ message: 'Đã xảy ra lỗi khi lưu trữ bài viết.' });
@@ -81,11 +170,36 @@ class ScheduleController {
             next();
         }
     }
-    //edit the schedule
-    // async edit(req, res, next) {
 
-    // }
-    //update the content of the schedule
+    //edit the schedule
+    async edit(req, res, next) {
+        try {
+            const scheduleId = req.params.id; // Lấy id của schedule từ request params
+            const updateData = req.body; // Lấy dữ liệu cập nhật từ request body
+
+            // Kiểm tra nếu không có dữ liệu cập nhật được gửi lên
+            if (!updateData) {
+                return res.status(400).json({ success: false, message: 'No data provided for update' });
+            }
+
+            // Tiến hành cập nhật schedule trong cơ sở dữ liệu
+            const updatedSchedule = await Schedule.findByIdAndUpdate(scheduleId, updateData, { new: true });
+
+            // Kiểm tra xem có schedule được cập nhật thành công không
+            if (!updatedSchedule) {
+                return res.status(404).json({ success: false, message: 'Schedule not found or unable to update' });
+            }
+
+            // Trả về thông tin schedule đã cập nhật thành công
+            res.status(200).json({ success: true, schedule: updatedSchedule });
+        } catch (error) {
+            // Bắt lỗi nếu có lỗi xảy ra trong quá trình cập nhật
+            console.error('Error editing schedule:', error);
+            res.status(500).json({ success: false, message: 'Internal server error' });
+        }
+    }
+
+    // update the content of the schedule
     async update(req, res, next) {
         try {
             Schedule.updateOne({ _id: req.params.id }, req.body);
@@ -93,6 +207,32 @@ class ScheduleController {
             next(error);
         }
     }
+    async delete(req, res, next) {
+        try {
+            await Schedule.deleteOne({ _id: req.params.id });
+            res.status(200).json({ message: 'Deleted schedule successfully.' });
+        } catch (error) {
+            next(error);
+        }
+    }
+    async updateStatus(req, res, next) {
+        try {
+            // Lấy id người dùng từ request
+            const scheduleId = req.params.scheduleId;
+            console.log('scheduleId: ', scheduleId);
+
+            // Giá trị mới của trường statusWork
+            const newStatusWork = 2; // Cố định statusWork thành 2
+
+            // Cập nhật trường statusWork cho người dùng có id tương ứng
+            await Schedule.updateMany({ _id: scheduleId }, { $set: { statusWork: newStatusWork } });
+
+            res.status(200).json({ message: 'StatusWork updated successfully' });
+        } catch (error) {
+            next(error);
+        }
+    }
+
     // auto update status of schedule
     async updateStatusWork() {
         try {

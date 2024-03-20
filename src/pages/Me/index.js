@@ -1,44 +1,52 @@
+
 import classNames from 'classnames/bind';
 import style from './Me.moudule.scss';
-
 import { useSelector, useDispatch } from 'react-redux';
-
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faPen } from '@fortawesome/free-solid-svg-icons';
 import imgbg from '../../assets/background-img.jpeg';
 import BlogItemForHome from '~/components/BlogItemForHome/BlogItemForHome';
-import { useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { getMyPost, getProfile } from '~/redux/apiRequest';
+import { useParams } from 'react-router-dom';
 import { followUser } from '~/redux/apiRequest';
-import { useNavigate } from 'react-router-dom';
-import { useEffect, Button } from 'react';
-import { getMyPost } from '~/redux/apiRequest';
-import { createInstance } from '~/utils/createInstance';
-
+import Modal from '~/components/Modal/Modal';
 const cx = classNames.bind(style);
 function Me() {
+    const { userId } = useParams(); // Nhận id từ đường dẫn
+    console.log('userId', userId);
+    const [modal, setModal] = useState(false);
+    const handleShowModal = () => {
+        setModal(!modal);
+    };
     // Sử dụng useLocation để lấy thông tin tài khoản từ location
     const dispatch = useDispatch();
-    //const navigate = useNavigate();
-    const location = useLocation();
-    const userData = location.state?.userData;
     const user = useSelector((state) => state.auth.login?.currentUser);
-    //const posts = useSelector((state) => state.post.arrPosts.newPost.posts);
-    
-    // Nếu có dữ liệu từ `AccountItem`, sử dụng nó, nếu không thì sử dụng thông tin đăng nhập
-    const displayUser = userData ;
+    console.log('user', user?._id);
     const handleFollow = () => {
-        const userId = user._id; // Đặt userId của người dùng hiện tại ở đây
-        const followingUserId = displayUser._id; // Đặt userId của người dùng mà bạn muốn theo dõi ở đây
-        dispatch(followUser(userId, followingUserId));
+        const id = user._id; // Đặt userId của người dùng hiện tại ở đây
+        const followingUserId = userId; // Đặt userId của người dùng mà bạn muốn theo dõi ở đây
+        dispatch(followUser(id, followingUserId));
     };
-    const posts = useSelector((state) => state.profile.myProfile.profiles.myPosts);
-    
-    let axiosJWT = createInstance();
+
+    const [dataProfile, setDataProfile] = useState([]);
+    const [posts, setPosts] = useState([]);
+    console.log('img', dataProfile.avatar);
+    console.log('dataProfile', dataProfile);
+    // let axiosJWT = createInstance();
     useEffect(() => {
-        if (user) {
-            getMyPost(dispatch, axiosJWT, user?.accessToken, user?._id);
-        }
+        const fetchData = async () => {
+            if (user) {
+                // getMyPost(dispatch, user?.accessToken, user?._id);
+                const dataPost = await getMyPost(user?.accessToken, userId);
+                setPosts(dataPost?.myPosts);
+                const data = await getProfile(userId);
+                setDataProfile(data);
+            }
+        };
+        fetchData();
     }, [dispatch, user?.accessToken]);
+
     return (
         <div className={cx('wrapper')}>
             <div className={cx('wrap-header')}>
@@ -47,15 +55,12 @@ function Me() {
                 </div>
                 <div className={cx('wrap-info')}>
                     <div className={cx('wrap-avatar')}>
-                        <img src={displayUser?.avatar} alt="" className={cx('img-avatar')} />
-                        <h3 className={cx('display-name')}>{displayUser?.displayName || displayUser?.username}</h3>
-                        <Button leftIcon={<FontAwesomeIcon icon={faPen} />} primary className={cx('btn-avatar')}>
-                            Chỉnh sửa thông tin
-                        </Button>
-                        <img src={user?.avatar} alt="" className={cx('img-avatar')} />
-                        <h3 className={cx('display-name')}>{user?.displayName || user?.username}</h3>
+                        <img src={dataProfile?.avatar} alt="" className={cx('img-avatar')} />
+                        <h3 className={cx('display-name')}>{dataProfile?.displayName || dataProfile?.username}</h3>
                     </div>
-                    <button className={cx('btn')} onClick={handleFollow}>Theo dõi</button>
+                    <button className={cx('btn')} onClick={handleFollow}>
+                        Theo dõi
+                    </button>
                 </div>
             </div>
             <div className={cx('grid')}>
@@ -64,14 +69,16 @@ function Me() {
                         <div className={cx('wrap-info-list')}>
                             <div className={cx('wrap-title')}>
                                 <h3 className={cx('title')}>Thông tin cá nhân</h3>
-                                <button className={cx('btn-icon')}>
-                                    <FontAwesomeIcon icon={faPen} />
-                                </button>
+                                {userId === user?._id && (
+                                    <button className={cx('btn-icon')} onClick={handleShowModal}>
+                                        <FontAwesomeIcon icon={faPen} />
+                                    </button>
+                                )}
                             </div>
                             <div className={cx('wrap-list-item')}>
                                 <span className={cx('wrap-item')}>
                                     <FontAwesomeIcon icon={faEnvelope} className={cx('icon-item')} />
-                                    <span className={cx('title-item')}>{user?.email}</span>
+                                    <span className={cx('title-item')}>{dataProfile?.email}</span>
                                 </span>
                             </div>
                         </div>
@@ -80,21 +87,45 @@ function Me() {
                         {posts && (
                             <div className={cx('wrap-content')}>
                                 <h3 className={cx('title-content')}>Bài viết đã đăng</h3>
-                                {posts.map((post) => (
-                                    <BlogItemForHome
-                                        title={post.title}
-                                        // imageUser={post.userId.avatar}
-                                        // nameUser={post.userId.email}
-                                        content={post.content}
-                                        to={`/post/${post._id}`}
-                                        createAt={post.createdAt}
-                                    />
-                                ))}
+                                <div className={cx('wrap-blog')}>
+                                    {posts.map((post) => (
+                                        <BlogItemForHome
+                                            title={post.title}
+                                            content={post.content}
+                                            imageUser={dataProfile.avatar}
+                                            nameUser={dataProfile.username}
+                                            postId={post._id}
+                                            to={`/post/${post._id}`}
+                                            createAt={post.createdAt}
+                                        />
+                                    ))}
+                                </div>
                             </div>
                         )}
                     </div>
                 </div>
             </div>
+            {modal && (
+                <Modal
+                    titleBtn={'Lưu'}
+                    titleModal={'Chỉnh sửa thông tin cá nhân'}
+                    onClose={handleShowModal}
+                    className={cx('modal')}
+                >
+                    <div className={cx('wrap-content-modal')}>
+                        <div className={cx('wrap-body-modal')}>
+                            <span className={cx('title-content-modal')}>Email</span>
+                            <div className={cx('wrap-input')}>
+                                <input
+                                    type="text"
+                                    placeholder="Nhập email của bạn"
+                                    className={cx('input-content-modal')}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </Modal>
+            )}
         </div>
     );
 }

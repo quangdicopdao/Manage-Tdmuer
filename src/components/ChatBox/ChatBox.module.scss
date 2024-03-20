@@ -258,3 +258,23 @@
 .user-profile:hover .username-overlay {
     opacity: 1; /* Hiển thị tên khi hover vào user-profile */
 }
+.user-profile {
+    position: relative;
+    display: inline-block; /* Đảm bảo phần tử không chiếm toàn bộ hàng */
+}
+.username-overlay {
+    position: absolute;
+    bottom: -30px; /* Hiển thị tên phía dưới ảnh */
+    left: 140%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 20px; /* Làm tròn góc của hộp chứa tên */
+    opacity: 0; /* Ẩn tên ban đầu */
+    transition: opacity 0.3s ease-in-out; /* Hiệu ứng khi hiển thị */
+}
+
+.user-profile:hover .username-overlay {
+    opacity: 1; /* Hiển thị tên khi hover vào user-profile */
+}

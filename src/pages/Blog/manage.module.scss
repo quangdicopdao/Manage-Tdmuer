@@ -1,0 +1,47 @@
+.wrapper {
+    width: 100%;
+}
+.wrap-tab {
+    display: flex;
+    margin-bottom: 10px;
+
+    .action-tab {
+        min-width: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        height: 30px;
+        background-color: var(--input-color);
+        margin-left: 10px;
+        margin-top: 10px;
+        border-radius: 10px;
+        padding: 5px;
+        cursor: pointer;
+        &:hover {
+            opacity: 0.5;
+            transition: ease-out 0.2s;
+        }
+        .icon-btn {
+            color: #000;
+        }
+        .btn-action-tab {
+            cursor: pointer;
+            background-color: transparent;
+            font-size: 1.4rem;
+            font-weight: 500;
+        }
+    }
+    .isOnTab {
+        background-color: var(--primary-color);
+        .btn-action-tab {
+            color: #fff;
+        }
+        .icon-btn {
+            color: #fff;
+        }
+    }
+}
+.wrap-table {
+    margin-left: 10px;
+    width: 98%;
+}

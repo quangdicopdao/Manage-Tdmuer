@@ -13,6 +13,7 @@ const authRoutes = require('./routes/auth');
 const profileRoutes = require('./routes/profile');
 const scheduleRoutes = require('./routes/schedule');
 const postRoutes = require('./routes/post');
+const spendingRoutes = require('./routes/spending');
 
 const ScheduleController = require('./controllers/ScheduleController');
 require('dotenv').config();
@@ -35,11 +36,11 @@ db.connect()
         const server = http.createServer(app);
 
         // Thêm WebSocket server
-        const io = socketIo(server,{
-            cors:{
-                origin:'http://localhost:3000',
-                credentials:true
-            }
+        const io = socketIo(server, {
+            cors: {
+                origin: 'http://localhost:3000',
+                credentials: true,
+            },
         });
 
         // Middleware để thêm biến io vào req
@@ -52,33 +53,33 @@ db.connect()
         // Lắng nghe kết nối mới từ client
         io.on('connection', (socket) => {
             // Lắng nghe sự kiện addUser khi người dùng đăng nhập
-            socket.on("addUser", (id) => {
+            socket.on('addUser', (id) => {
                 // Thêm người dùng vào danh sách onlineUsers với id của socket
                 onlineUsers.set(id, socket.id);
             });
-        
+
             // Lắng nghe sự kiện send-mess khi người dùng gửi tin nhắn
-            socket.on("send-mess", (data) => {
+            socket.on('send-mess', (data) => {
                 // Kiểm tra xem người nhận có phải là người dùng hay nhóm chat
                 if (data.groupId) {
                     // Nếu là nhóm chat, gửi tin nhắn đến tất cả các thành viên trong nhóm
                     const groupMembers = data.groupMembers; // Danh sách id của các thành viên trong nhóm
-                    groupMembers.forEach(memberId => {
+                    groupMembers.forEach((memberId) => {
                         const memberSocket = onlineUsers.get(memberId);
                         if (memberSocket && memberSocket !== socket.id) {
                             const messageData = {
                                 message: data.message,
                                 senderAvatar: data.senderAvatar,
-                                namesend: data.namesend
+                                namesend: data.namesend,
                             };
-                            socket.to(memberSocket).emit("mess-receive", messageData);
+                            socket.to(memberSocket).emit('mess-receive', messageData);
                         }
                     });
                 } else {
                     // Nếu là người dùng, gửi tin nhắn đến socket của người đó
                     const receiverSocket = onlineUsers.get(data.to);
                     if (receiverSocket && receiverSocket !== socket.id) {
-                        socket.to(receiverSocket).emit("mess-receive", data.message);
+                        socket.to(receiverSocket).emit('mess-receive', data.message);
                     }
                 }
             });
@@ -96,6 +97,7 @@ db.connect()
         app.use('/v1/auth', authRoutes);
 
         app.use('/chat', chatRoutes);
+        app.use('/spending', spendingRoutes);
 
         // Kết nối đến MongoDB thành công, bắt đầu cập nhật trạng thái công việc định kỳ
 
@@ -103,6 +105,14 @@ db.connect()
         // Profile
         app.use('/profile', profileRoutes);
 
+
+        //chat
+        app.use('/chat', chatRoutes);
+
+        // Kết nối đến MongoDB thành công, bắt đầu cập nhật trạng thái công việc định kỳ
+
+        // Profile
+        app.use('/profile', profileRoutes);
         // Start the server
         server.listen(port, () => {
             console.log(`Server is running on port ${port}`);
@@ -114,4 +124,3 @@ db.connect()
     });
 
 ///
-

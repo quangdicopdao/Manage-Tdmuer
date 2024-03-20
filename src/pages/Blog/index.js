@@ -6,14 +6,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faSearch } from '@fortawesome/free-solid-svg-icons';
 import Button from '../../components/Button';
 import { useDispatch, useSelector } from 'react-redux';
-import { savedPosts, searchPost, showPosts } from '~/redux/apiRequest';
+import { getTags, savedPosts, searchPost, showPosts } from '~/redux/apiRequest';
 import Pagination from '~/components/Pagination';
 
 const cx = classNames.bind(style);
 
 function Blog() {
     const getData = useSelector((state) => state.post.arrPosts?.newPost);
-    console.log('dâta', getData);
     const posts = getData?.data;
     const user = useSelector((state) => state.auth.login.currentUser);
     const dispatch = useDispatch();
@@ -25,7 +24,6 @@ function Blog() {
     // Search
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResult, setSearchResult] = useState([]);
-    console.log('search', searchResult);
 
     //save post
 
@@ -34,7 +32,6 @@ function Blog() {
             postId,
             userId: user?._id,
         };
-        console.log(data);
         try {
             const res = await savedPosts(data);
             if (res) {
@@ -54,27 +51,31 @@ function Blog() {
     const handleSearchSubmit = async () => {
         try {
             const res = await searchPost(searchQuery);
-            console.log(res);
             setSearchResult(res);
         } catch (error) {
             console.error('Error searching:', error);
         }
     };
+    const [tag, setTag] = useState([]);
+    console.log('tag:', tag);
 
     useEffect(() => {
-        const data = {
-            page: currentPage,
-            pageSize: pageSize,
+        const fetchData = async () => {
+            const data = {
+                page: currentPage,
+                pageSize: pageSize,
+            };
+            showPosts(dispatch, data);
+            const tagdata = await getTags();
+            setTag(tagdata.tags);
+            handleSearchSubmit();
         };
-        showPosts(dispatch, data);
-        handleSearchSubmit();
+        fetchData();
     }, [dispatch, user?.accessToken, searchQuery, currentPage]);
 
     // Chọn danh sách bài viết để hiển thị dựa trên có query tìm kiếm hay không
     const displayPosts = searchQuery ? searchResult : posts;
     console.log(posts);
-    console.log('result', searchResult);
-    console.log('displayPosts', displayPosts);
 
     return (
         <div className={cx('wrapper')}>
@@ -144,23 +145,15 @@ function Blog() {
                             </div>
                             <div className={cx('wrap-filter')}>
                                 <h3 className={cx('title-filter')}>Nhóm bài viết</h3>
-                                <ul className={cx('wrap-list')}>
-                                    <li className={cx('list-item')}>
-                                        <span className={cx('item-name')}>Quân sự</span>
-                                    </li>
-                                    <li className={cx('list-item')}>
-                                        <span className={cx('item-name')}>Học tập</span>
-                                    </li>
-                                    <li className={cx('list-item')}>
-                                        <span className={cx('item-name')}>Bàn luận làm việc</span>
-                                    </li>
-                                    <li className={cx('list-item')}>
-                                        <span className={cx('item-name')}>Làm việc nhóm</span>
-                                    </li>
-                                    <li className={cx('list-item')}>
-                                        <span className={cx('item-name')}>Bàn luận làm việc</span>
-                                    </li>
-                                </ul>
+                                {tag && tag.length > 0 && (
+                                    <ul className={cx('wrap-list')}>
+                                        {tag.map((data) => (
+                                            <li className={cx('list-item')} key={data._id}>
+                                                <span className={cx('item-name')}>{data.name}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
                             </div>
                         </div>
                     </div>

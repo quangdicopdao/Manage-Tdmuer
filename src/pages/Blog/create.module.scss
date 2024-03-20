@@ -16,20 +16,58 @@
             height: 100%;
             font-size: 2rem;
         }
-        button {
-            cursor: pointer;
-            width: 100px;
-            height: 40px;
-            border-radius: 10px;
-            color: #fff;
-            font-size: 1.6rem;
-            font-weight: 600;
-            background-color: var(--primary-color);
-            &:hover {
-                background-color: var(--hover-color-primary);
+        .wrap-actions {
+            min-width: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            .btn {
+                margin-right: 10px;
             }
         }
     }
+
     .wrap-editor {
+    }
+}
+.modal {
+    width: 500px;
+    .modal-content {
+        .modal-title {
+            font-size: 1.8rem;
+            font-weight: 500;
+            margin-left: 10px;
+            margin-top: 10px;
+        }
+        .wrap-tag {
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            .tag-btn {
+                background-color: var(--input-color);
+                padding: 10px;
+                border-radius: 10px;
+                margin-left: 10px;
+                margin-top: 10px;
+                cursor: pointer;
+                &:hover {
+                    background-color: rgba(0, 0, 0, 0.1);
+                    transition: ease-in 0.2s;
+                }
+            }
+        }
+        .wrap-time {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+            .time {
+                background-color: var(--input-color);
+                border-radius: 10px;
+                padding: 10px;
+                cursor: pointer;
+                margin-left: 10px;
+                margin-right: 10px;
+            }
+        }
     }
 }

@@ -225,6 +225,7 @@ function ChatBox() {
     const scrollRef = useRef();
 
     useEffect(() => {
+
         if (selectedUser && scrollRef.current) {
             scrollRef.current.scrollIntoView({ behavior: 'smooth' });
         }

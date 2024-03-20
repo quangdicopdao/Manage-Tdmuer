@@ -88,6 +88,7 @@
         align-items: center;
         .wrap-btn-selector {
             margin-left: 10px;
+
             .dropdown-menu {
                 width: 150px;
                 background-color: #fff;
@@ -111,6 +112,23 @@
                 }
             }
         }
+        .wrap-datepicker {
+            width: 170px;
+            height: 40px;
+            border-radius: 10px;
+            margin-left: 10px;
+            border: 1px solid var(--primary-color);
+            display: flex;
+            align-items: center;
+            .datepicker {
+                background-color: transparent;
+                cursor: pointer;
+                font-size: 1.6rem;
+                text-align: center;
+                width: 100%;
+                color: var(--primary-color);
+            }
+        }
     }
     .wrap-input {
         width: 250px;
@@ -128,5 +146,63 @@
     }
     .wrap-btn {
         margin-right: 62px;
+    }
+}
+.wrap-modal {
+    display: flex;
+    flex-direction: column;
+    width: 500px;
+
+    .modal-content {
+        height: 80%;
+        .wrap-input-modal {
+            display: flex;
+            align-items: center;
+            height: 40px;
+            border-bottom: 1px solid #ccc;
+            margin-top: 10px;
+            .input-modal {
+                width: 100%;
+                background-color: transparent;
+                margin-left: 10px;
+                font-size: 1.6rem;
+                font-weight: 500;
+            }
+        }
+        .wrap-more {
+            margin-top: 10px;
+            .wrap-option {
+                display: flex;
+                .modal-components {
+                    height: 40px;
+                    width: 100%;
+                    display: flex;
+                    align-items: center;
+                    .icon {
+                        margin-right: 20px;
+                        font-size: 1.8rem;
+                    }
+                    .title {
+                        font-size: 1.4rem;
+                        font-weight: 500;
+                        cursor: pointer;
+                        background-color: rgba(0, 0, 0, 0.1);
+                        text-align: center;
+                        height: 30px;
+                        border-radius: 10px;
+                        margin-left: 5px;
+                        margin-right: 5px;
+                    }
+                    .custom-datepicker-popper {
+                        font-size: 1.6rem;
+                    }
+                }
+            }
+            .desciption {
+                width: 100%;
+                height: 200px;
+                outline: none;
+            }
+        }
     }
 }

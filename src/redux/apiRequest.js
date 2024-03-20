@@ -124,8 +124,7 @@ export const createPost = async (data, dispatch, navigate, accessToken) => {
         dispatch(createPostSuccess(res.data));
         navigate('/post');
     } catch (error) {
-        console.error('Error:', error.response.data);
-        dispatch(createPostFailer(error.response.data));
+        dispatch(createPostFailer(error));
     }
 };
 
@@ -149,6 +148,63 @@ export const savedPosts = async (data) => {
     }
 };
 
+export const likePosts = async (data) => {
+    try {
+        const res = await axios.post(baseURL + 'post/like-post', data);
+        return res;
+    } catch (error) {
+        console.error('Error saving post:', error);
+    }
+};
+export const unlikePosts = async (data) => {
+    try {
+        const res = await axios.post(baseURL + 'post/unlike-post', data);
+        return res;
+    } catch (error) {
+        console.error('Error saving post:', error);
+    }
+};
+export const checkLike = async (data) => {
+    try {
+        console.log('Checking', data);
+        const res = await axios.get(baseURL + 'post/check-like', { params: data });
+        return res.data; // Trả về dữ liệu từ phản hồi
+    } catch (error) {
+        console.error('Error checking like:', error);
+        throw error; // Ném lỗi để xử lý ở các thành phần gọi hàm này
+    }
+};
+
+export const getTags = async () => {
+    try {
+        const res = await axios.get(baseURL + 'post/get-tags');
+        return res.data;
+    } catch (error) {
+        console.error('Error getting tags:', error);
+    }
+};
+export const createComment = async (data) => {
+    try {
+        const res = await axios.post(baseURL + 'post/comment-post', data);
+        return res.data;
+    } catch (error) {
+        console.error('Error checking like:', error);
+        throw error; // Ném lỗi để xử lý ở các thành phần gọi hàm này
+    }
+};
+
+export const getAllComments = async (postId) => {
+    console.log('Getting comments', postId);
+    try {
+        const res = await axios.get(baseURL + 'post/get-comment', {
+            params: { postId },
+        });
+        return res.data;
+    } catch (error) {
+        console.error('Error checking like:', error);
+        throw error; // Ném lỗi để xử lý ở các thành phần gọi hàm này
+    }
+};
 //schedule
 export const createSchedule = async (data, dispatch, accessToken, closeModal) => {
     try {
@@ -157,10 +213,10 @@ export const createSchedule = async (data, dispatch, accessToken, closeModal) =>
         });
         dispatch(createScheduleSuccess(res.data));
         closeModal();
-        toast.success('Tạo lịch thành công');
+        toast.success(res.data.message);
     } catch (error) {
-        console.error('Error:', error.response.data);
-        toast.error('Lỗi khi tạo lịch');
+        console.error('Error:', error.response.data.message);
+        toast.error(error.response.data.message);
         dispatch(createScheduleFailer(error.response.data));
     }
 };
@@ -178,17 +234,52 @@ export const showSchedule = async (dispatch, axiosJWT, data, accessToken) => {
         dispatch(getScheduleFailer(error));
     }
 };
+export const deleteSchedule = async (scheduleId, accessToken) => {
+    try {
+        const res = await axios.delete(baseURL + `schedule/api/delete/${scheduleId}`, {
+            params: { scheduleId },
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        return res;
+    } catch (error) {
+        console.error(error);
+    }
+};
+export const editSchedule = async (scheduleId, data, accessToken, closeModal) => {
+    try {
+        const res = await axios.post(baseURL + `schedule/api/edit/${scheduleId}`, data, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        return res.data;
+        closeModal();
+    } catch (error) {
+        console.error(error);
+    }
+};
+export const updateStatus = async (scheduleId, accessToken) => {
+    console.log('access', accessToken);
+    try {
+        const res = await axios.post(baseURL + `schedule/api/update-status/${scheduleId}`, scheduleId, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        return res.data;
+    } catch (error) {
+        console.error(error);
+    }
+};
 
-export const followUser = (userId, followingUserId) => async dispatch => {
+
+// chat
+export const followUser = (userId, followingUserId) => async (dispatch) => {
     try {
         // Thêm followingUserId vào mảng following của người dùng có userId
-        const response1 = await axios.post(baseURL+`chat/api/follow/${userId}`, { followingUserId });
+        const response1 = await axios.post(baseURL + `chat/api/follow/${userId}`, { followingUserId });
         console.log(response1.data); // Log phản hồi từ server (nếu cần)
-        
+
         // Thêm userId vào mảng following của người dùng có followingUserId
-        const response2 = await axios.post(baseURL+`chat/api/follow/${followingUserId}`, { followingUserId: userId });
+        const response2 = await axios.post(baseURL + `chat/api/follow/${followingUserId}`, { followingUserId: userId });
         console.log(response2.data); // Log phản hồi từ server (nếu cần)
-        
+
         // Cập nhật state Redux hoặc hiển thị thông báo "Theo dõi thành công"
         dispatch({ type: 'FOLLOW_USER_SUCCESS', payload: response1.data });
         toast.success('Theo dõi thành công');
@@ -212,15 +303,23 @@ export const overviewSchedule = async (dispatch, axiosJWT, accessToken, convert)
     }
 };
 //profile
-export const getMyPost = async (dispatch, axiosJWT, accessToken, userId) => {
-    dispatch(getProfileStart());
+export const getMyPost = async (accessToken, userId) => {
     try {
-        const res = await axiosJWT.get(baseURL + `profile/posts/${userId}`, {
+        const res = await axios.get(baseURL + `profile/posts/${userId}`, {
             headers: { Authorization: `Bearer ${accessToken}` },
+            params: { userId },
         });
-        dispatch(getProfileSuccess(res.data));
+        return res.data;
     } catch (error) {
-        dispatch(getProfileFailer(error));
+        console.error(error);
+    }
+};
+export const getProfile = async (userId) => {
+    try {
+        const res = await axios.get(baseURL + `profile/${userId}`, userId);
+        return res.data;
+    } catch (error) {
+        console.log(error);
     }
 };
 

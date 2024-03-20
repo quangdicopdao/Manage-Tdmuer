@@ -46,6 +46,42 @@ export const loginUser = async (user, dispatch, navigate, closeModal) => {
         dispatch(loginFailed(error.response.data));
     }
 };
+export const loginUserWithFacebook = async (user, dispatch, navigate, closeModal) => {
+    dispatch(loginStart());
+    try {
+        const res = await axios.post(baseURL + 'v1/auth/login/facebook', user, {
+            withCredentials: true,
+        });
+        console.log('Login with Facebook success:', res.data);
+        dispatch(loginSuccess(res.data));
+
+        navigate('/');
+        toast.success('Đăng nhập thành công');
+        closeModal();
+    } catch (error) {
+        toast.error('Đăng nhập bằng Facebook thất bại');
+        console.log('Login with Facebook failed:', error.response.data);
+        dispatch(loginFailed(error.response.data));
+    }
+};
+export const loginUserWithGoogle = async (user, dispatch, navigate, closeModal) => {
+    dispatch(loginStart());
+    try {
+        const res = await axios.post(baseURL + 'v1/auth/login/google', user, {
+            withCredentials: true,
+        });
+        console.log('Login with Google success:', res.data);
+        dispatch(loginSuccess(res.data));
+
+        navigate('/');
+        toast.success('Đăng nhập thành công');
+        closeModal();
+    } catch (error) {
+        toast.error('Đăng nhập bằng Google thất bại');
+        console.log('Login with Google failed:', error.response.data);
+        dispatch(loginFailed(error.response.data));
+    }
+};
 export const registerUser = async (user, dispatch, navigate, openModalLogin) => {
     dispatch(registerStart());
     try {

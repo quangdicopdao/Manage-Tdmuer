@@ -156,6 +156,130 @@ class AuthController {
             res.status(500).json({ err: 'Lỗi cơ sở dữ liệu!' });
         }
     }
+    //login with Facebook
+    async loginFacebook(req, res) {
+        try {
+            const  {name, email} = req.body;
+            console.log("data check:", name)
+            console.log("data check1:", email)
+
+            // Kiểm tra xem username đã tồn tại trong cơ sở dữ liệu hay chưa
+            let user = await User.findOne({ 
+              //username: req.body.username, 
+              email});
+    
+            if (user) {
+                // Người dùng đã tồn tại, thực hiện việc đăng nhập
+                const accessToken = jwt.sign(
+                    {
+                        id: user._id,
+                        admin: user.isAdmin,
+                    },
+                    process.env.JWT_ACCESS_KEY,
+                    {
+                        expiresIn: '2h',
+                    },
+                );
+    
+                // Gửi token và thông tin người dùng về client
+                const { password, ...others } = user._doc;
+                //console.log("thông tin user:",user._doc);
+                return res.status(200).json({ ...others, accessToken });
+            } else {
+                // Người dùng chưa tồn tại, thêm mới người dùng vào cơ sở dữ liệu
+                const avatar = gravatar.url(email, { s: '200', r: 'pg', d: 'identicon' });
+                user = new User({
+                    username:name,
+                    password: email, // Lưu ý: Đây chỉ là giá trị tạm thời, bạn có thể tạo một mật khẩu ngẫu nhiên cho người dùng mới
+                    avatar,
+                    email,
+                    isAdmin: false,
+                });
+    
+                await user.save();
+    
+                // Tiếp tục quá trình đăng nhập cho người dùng mới
+                const accessToken = jwt.sign(
+                    {
+                        id: user._id,
+                        admin: user.isAdmin,
+                    },
+                    process.env.JWT_ACCESS_KEY,
+                    {
+                        expiresIn: '2h',
+                    },
+                );
+    
+                // Gửi token và thông tin người dùng về client
+                const { password, ...others } = user._doc;
+                //console.log("thông tin user:", user._doc);
+                return res.status(200).json({ ...others, accessToken });
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            res.status(500).json(error);
+        }
+    }
+    
+    async loginGoogle(req, res) {
+        try {
+            const { username, email } = req.body;
+            console.log("data check:", username);
+            console.log("data check1:", email);
+    
+            // Kiểm tra xem email đã tồn tại trong cơ sở dữ liệu hay chưa
+            let user = await User.findOne({ email });
+    
+            if (user) {
+                // Người dùng đã tồn tại, thực hiện việc đăng nhập
+                const accessToken = jwt.sign(
+                    {
+                        id: user._id,
+                        admin: user.isAdmin,
+                    },
+                    process.env.JWT_ACCESS_KEY,
+                    {
+                        expiresIn: '2h',
+                    },
+                );
+    
+                // Gửi token và thông tin người dùng về client
+                const { password, ...others } = user._doc;
+                return res.status(200).json({ ...others, accessToken });
+            } else {
+                // Người dùng chưa tồn tại, thêm mới người dùng vào cơ sở dữ liệu
+                const avatar = gravatar.url(email, { s: '200', r: 'pg', d: 'identicon' });
+                user = new User({
+                    username,
+                    password: email, // Lưu ý: Đây chỉ là giá trị tạm thời, bạn có thể tạo một mật khẩu ngẫu nhiên cho người dùng mới
+                    avatar,
+                    email,
+                    isAdmin: false,
+                });
+    
+                await user.save();
+    
+                // Tiếp tục quá trình đăng nhập cho người dùng mới
+                const accessToken = jwt.sign(
+                    {
+                        id: user._id,
+                        admin: user.isAdmin,
+                    },
+                    process.env.JWT_ACCESS_KEY,
+                    {
+                        expiresIn: '2h',
+                    },
+                );
+    
+                // Gửi token và thông tin người dùng về client
+                const { password, ...others } = user._doc;
+                return res.status(200).json({ ...others, accessToken });
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            res.status(500).json(error);
+        }
+    }    
 }
 
 module.exports = new AuthController();

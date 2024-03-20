@@ -200,6 +200,7 @@ function ChatBox() {
 
     const handleUserOrGroupSelect = (item) => {
         setSelectedUser(item);
+        setSelectedUserId(item._id);
     };
     console.log('Selected:', selectedUser);
 
@@ -224,8 +225,12 @@ function ChatBox() {
     const scrollRef = useRef();
 
     useEffect(() => {
-        scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [messages]);
+
+        if (selectedUser && scrollRef.current) {
+            scrollRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [selectedUser, messages]);
+    
 
     // const handleSendMessage = () => {
     //     const messageschat = {

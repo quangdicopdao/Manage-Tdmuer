@@ -15,12 +15,15 @@ import Button from '~/components/Button';
 import Modal from '../Modal/Modal';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { loginUser, logoutUser } from '~/redux/apiRequest';
+import { loginUser, logoutUser,loginUserWithFacebook,loginUserWithGoogle } from '~/redux/apiRequest';
 import { baseURL } from '~/utils/api';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Link } from 'react-router-dom';
-
+import { GoogleLogin } from 'react-google-login';
+import OAuth2Login from 'react-simple-oauth2-login';
+import axios from 'axios';
+import { gapi } from 'gapi-script';
 const cx = classNames.bind(style);
 
 function Header() {
@@ -50,6 +53,7 @@ function Header() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     //api ssearch
+    const clientId = "167804317966-4om60dtbnb2qoiu6ncpsao69bo3gka12.apps.googleusercontent.com";
 
     const handleSearchChange = async (e) => {
         const query = e.target.value;
@@ -105,6 +109,47 @@ function Header() {
         // Chuyển hướng đến trang Me và truyền dữ liệu người dùng
         navigate('/me', { state: { userData } });
     };
+
+
+    //login google
+    const responseGoogle = (response) => {
+        console.log("Login success:", response.profileObj);
+        //Xử lý thông tin người dùng sau khi đăng nhập thành công
+        const { profileObj } = response;
+        const newUser = {
+            username: profileObj.name,
+            email: profileObj.email,
+        };
+        // Gọi hàm xử lý đăng nhập hoặc tạo tài khoản mới
+        loginUserWithGoogle(newUser,dispatch, navigate, closeModal);
+    };
+
+    //
+    const responseGoogleFailure = (response) => {
+        console.log("Login failure:", response);
+        // Xử lý khi đăng nhập bằng Google thất bại
+    };
+
+      //login facebook
+      const onSuccess = async (res) => {
+        try {
+            const accessToken = res.access_token;
+            const result = await fetch(`https://graph.facebook.com/me?fields=name,email&access_token=${accessToken}`);
+            const profile = await result.json();
+            
+            // Bổ sung các thông tin khác nếu cần thiết
+            // avatar, gender, dob, etc.
+            // Ví dụ: profile.avatar = 'URL_OF_AVATAR';
+            // Gọi hàm xử lý đăng nhập hoặc tạo tài khoản mới
+            loginUserWithFacebook(profile, dispatch, navigate, closeModal);
+        } catch (error) {
+            console.error('Error logging in with Facebook:', error);
+        }
+    };
+
+      const onFailure = (res) =>{
+        console.log(res)
+      }
     return (
         <div className={cx('wrapper-all')}>
             <ToastContainer autoClose={3000} />
@@ -230,17 +275,31 @@ function Header() {
                         <h2>{isForm ? 'Đăng nhập' : 'Đăng ký'} Tdmu Manager</h2>
 
                         <div className={cx('wrap-action')}>
-                            <button className={cx('btn-action')}>
-                                <img className={cx('img-icon-google')} src={google} alt="" />
-                                <h3 className={cx('text-btn')}>{isForm ? 'Đăng nhập' : 'Đăng ký'} với google</h3>
-                            </button>
-
-                            <button className={cx('btn-action')}>
-                                <img className={cx('img-icon')} src={facebook} alt="" />
-                                <h3 className={cx('text-btn')}>{isForm ? 'Đăng nhập' : 'Đăng ký'} với facebook</h3>
-                            </button>
+                            <GoogleLogin
+                                className={cx('google-login-btn')}
+                                clientId={clientId}
+                                buttonText="Login with Google"
+                                onSuccess={responseGoogle}
+                                onFailure={responseGoogleFailure}
+                                cookiePolicy={'single_host_origin'}
+                                isSignedIn={false}
+                            />
+                            
+                            {/* Nút đăng nhập bằng Google */}
+                            <OAuth2Login
+                                className={cx('facebook-login-btn')}
+                                buttonText="Login with Facebook"
+                                authorizationUrl="https://www.facebook.com/dialog/oauth"
+                                responseType="token"
+                                clientId="2460389754168770"
+                                redirectUri="http://localhost:3000"
+                                scope='email'
+                                onSuccess={onSuccess}
+                                onFailure={onFailure}/>
+                               
                         </div>
-                        <h3> Hoặc</h3>
+                      
+                        <h3 style={{marginTop:10}}>Hoặc</h3>
                         <div className={cx('wrap-form')}>
                             <form onSubmit={handleLogin}>
                                 <div className={cx('wrap-form-input')}>

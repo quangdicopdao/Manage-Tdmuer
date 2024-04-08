@@ -100,6 +100,7 @@ db.connect()
         app.use('/chat', chatRoutes);
         app.use('/spending', spendingRoutes);
         app.use('/join', joinRoutes);
+        app.use('/profile', profileRoutes);
 
         // Kết nối đến MongoDB thành công, bắt đầu cập nhật trạng thái công việc định kỳ
 

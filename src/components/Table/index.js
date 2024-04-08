@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useMemo } from 'react';
 import classNames from 'classnames/bind';
 import style from './table.module.scss';
@@ -74,7 +73,6 @@ function MyTable() {
     const pageSize = getData.per_page;
     const totalPages = getData.total_pages;
 
-    console.log('total pages: ' + totalPages);
     //console.log('schedules.length: ' + schedules.length);
     const [searchQuery, setSearchQuery] = useState('');
     const handleChangQuery = (e) => {
@@ -89,7 +87,6 @@ function MyTable() {
     const [selectedDate, setSelectedDate] = useState(new Date());
     //set schedule = data
 
-    const navigate = useNavigate();
     const changstateModal = () => {
         setModalOpen(!modalOpen);
     };
@@ -113,7 +110,6 @@ function MyTable() {
 
         const formattedStartDate = moment(selectedStartDate).utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ');
         const formattedEndDate = moment(selectedEndDate).utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ');
-
         const newSchedule = {
             title,
             start: formattedStartDate,

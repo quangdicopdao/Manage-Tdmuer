@@ -195,12 +195,18 @@ class PostController {
     //comments post
     async createComment(req, res) {
         try {
-            const { postId, userId, content, parentId } = req.body;
+            const { postId, userPost, idUserPost, userId, content, parentId } = req.body;
             const comment = new Comment({ postId, userId, content, parentId });
             await comment.save();
 
+            console.log(idUserPost);
+            console.log('nameUser', userPost);
             // Lưu thông báo vào cơ sở dữ liệu
-            const notification = new Notification({ userId: userId, message: 'Bạn có một bình luận mới' });
+            const notification = new Notification({
+                userId: idUserPost,
+                postId,
+                message: `${userPost} vừa bình luận bài viết của bạn`,
+            });
             await notification.save();
 
             // Gửi thông báo qua WebSocket

@@ -25,10 +25,14 @@ import {
     joinActivity,
     checkJoinActivity,
     showListActivity,
+    updateUrlImage,
 } from '~/redux/apiRequest';
 import { useSelector } from 'react-redux';
 import Button from '~/components/Button';
 import CustomTable from '~/components/Table/MyCustomTable/Table';
+import ImageUploader from '~/components/ImageUploader';
+import DefaultImage from '~/assets/no-image.jpg';
+
 const cx = classNames.bind(style); // Sửa đổi cách sử dụng classNames.bind
 
 function PostDetail() {
@@ -37,8 +41,24 @@ function PostDetail() {
     const [userPost, setUserPost] = useState(null);
     const user = useSelector((state) => state.auth.login?.currentUser);
     const [isLoading, setIsLoading] = useState(false);
-    console.log('post', post);
-
+    const [showModalUpload, setShowModalUpload] = useState(false);
+    const handelShowModalUpload = () => {
+        setShowModalUpload(!showModalUpload);
+    };
+    const [imageUpload, setImageUpload] = useState(false);
+    console.log('imageUpload', imageUpload);
+    const handleSaveUrlImage = () => {
+        const data = {
+            userId: user?._id,
+            postId,
+            url: imageUpload,
+        };
+        updateUrlImage(data, user?.accessToken);
+        handelShowModalUpload();
+    };
+    const handleSetURL = (url) => {
+        setImageUpload(url);
+    };
     //join activity
     const handleJoinActivity = async () => {
         const data = {
@@ -91,9 +111,6 @@ function PostDetail() {
 
     const [replyingToCommentId, setReplyingToCommentId] = useState(null);
 
-    console.log('comment', comment);
-    console.log('dâtcomment', dataComment);
-
     //reply comment
 
     const handleShowReplyComment = (commentId) => {
@@ -137,6 +154,7 @@ function PostDetail() {
     const handleShowRequest = () => {
         setShowModal(!showModal);
     };
+
     const handleCommentPost = async () => {
         try {
             // Kiểm tra xem người dùng đã đăng nhập chưa
@@ -144,10 +162,11 @@ function PostDetail() {
                 // Xử lý logic nếu người dùng chưa đăng nhập
                 return; // Hoặc hiển thị thông báo lỗi cho người dùng
             }
-
             // Tạo dữ liệu bình luận từ các trường thông tin
             const data = {
                 postId: postId, // postId đã được định nghĩa ở nơi khác trong phạm vi của hàm này
+                userPost: userPost.username,
+                idUserPost: userPost._id,
                 userId: user._id, // user đã được xác định trước đó trong phạm vi của hàm này
                 content: comment, // comment là nội dung bình luận từ người dùng
             };
@@ -199,8 +218,7 @@ function PostDetail() {
     //show list join
     const [showList, setShowList] = useState(false);
     const [dataList, setDataList] = useState([]);
-    console.log('dataList', dataList);
-    console.log('post?._id', post?._id);
+
     const handleShowList = async () => {
         setShowList(!showList);
         const data = await showListActivity(post?._id, user?.accessToken);
@@ -212,6 +230,7 @@ function PostDetail() {
         { key: 'email', label: 'Email' },
         { key: 'classId', label: 'Lớp' }, // Thêm cột chứa các chức năng
         { key: 'department', label: 'Khoa/Viện' }, // Thêm cột chứa các chức năng
+        { key: 'imageUrl', label: 'Minh chứng', isImage: true, classNameImage: 'imageView' },
     ];
     useEffect(() => {
         const fetchPostDetail = async () => {
@@ -249,8 +268,6 @@ function PostDetail() {
 
     useEffect(() => {
         const fetchData = async () => {
-            console.log('User:', user?._id);
-            console.log('Post ID:', postId);
             const data = {
                 userId: user?._id,
                 postId,
@@ -371,18 +388,37 @@ function PostDetail() {
                     ) : (
                         <></>
                     )}
-                    {user?._id !== post?.userId && (
+                    {user && post && user._id !== post.userId && (
                         <>
-                            {post?.start && checkActivity && checkActivity?.message === 'joined' ? (
-                                <div className={cx('joined')}>
-                                    <span className={cx('message')}>Bạn đã đăng ký tham gia</span>
-                                    <FontAwesomeIcon icon={faCheck} className={cx('icon-message')} />
-                                </div>
-                            ) : (
-                                <Button outline className={cx('btn-join')} onClick={handleShowRequest}>
-                                    Tham gia hoạt động
-                                </Button>
-                            )}
+                            {post.start ? (
+                                <>
+                                    {checkActivity && checkActivity.message === 'joined' ? (
+                                        <>
+                                            <div className={cx('joined')}>
+                                                <span className={cx('message')}>Bạn đã đăng ký tham gia</span>
+                                                <FontAwesomeIcon icon={faCheck} className={cx('icon-message')} />
+                                            </div>
+                                            {user?._id !== post.userId ? (
+                                                <Button
+                                                    outline
+                                                    className={cx('btn-join')}
+                                                    onClick={handelShowModalUpload}
+                                                >
+                                                    Cập nhật minh chứng
+                                                </Button>
+                                            ) : (
+                                                <></>
+                                            )}
+
+                                            <div>{/* <ImageUploader /> */}</div>
+                                        </>
+                                    ) : (
+                                        <Button outline className={cx('btn-join')} onClick={handleShowRequest}>
+                                            Tham gia hoạt động
+                                        </Button>
+                                    )}
+                                </>
+                            ) : null}
                         </>
                     )}
 
@@ -579,6 +615,18 @@ function PostDetail() {
                             <span>Chưa có thành viên tham gia</span>
                         </>
                     )}
+                </Modal>
+            )}
+            {showModalUpload && (
+                <Modal
+                    titleBtn={'Xong'}
+                    titleModal={'Cập nhật ảnh minh chứng'}
+                    className={cx('modal-upload')}
+                    onClose={handelShowModalUpload}
+                    onSave={handleSaveUrlImage}
+                >
+                    {/* url={handleSetURL} */}
+                    <ImageUploader />
                 </Modal>
             )}
         </div>

@@ -111,19 +111,17 @@
     justify-content: space-between; /* Canh giữa theo chiều ngang */
     /* For Google Login Button */
     .google-login-btn {
-        
         margin-right: 10px;
-        
     }
-    
+
     .google-login-btn:hover {
         background-color: #f1f1f1;
     }
-    
+
     /* For Facebook Login Button */
     .facebook-login-btn {
-        flex: 1;    
-        background-color: #4267B2;
+        flex: 1;
+        background-color: #4267b2;
         color: #ffffff;
         border: none;
         padding: 10px 20px;
@@ -133,7 +131,7 @@
         border-radius: 4px;
         height: 45px;
     }
-    
+
     .facebook-login-btn:hover {
         background-color: #385898;
     }
@@ -186,26 +184,54 @@
     top: 100%;
     right: 3%;
     overflow: hidden;
-
+    .toast-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        .title-toast {
+            font-size: 2rem;
+            font-weight: 500;
+            margin-left: 10px;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+        .btn-toast {
+            cursor: pointer;
+            color: green;
+            font-size: 1.6rem;
+            font-weight: 400;
+            &:hover {
+                transition: ease-in-out 0.5s;
+                text-decoration: underline;
+            }
+        }
+    }
     .wrap-toast {
         display: flex;
-        align-items: center;
+        flex-direction: column;
         cursor: pointer;
         padding: 10px;
-
+        margin-top: 10px;
+        min-height: 40px;
+        .toast-link {
+            text-decoration: none;
+            color: #000;
+            display: flex;
+            flex-direction: column;
+        }
         &:hover {
             background-color: rgba(0, 0, 0, 0.1);
             transition: ease-in 0.2s;
         }
-        .img-toast {
-            width: 50px;
-            height: 50px;
-            border-radius: 10000px;
-        }
+
         .content-toast {
-            margin-left: 10px;
             font-size: 1.6rem;
-            font-weight: 400;
+            font-weight: 500;
+        }
+        .date-toast {
+            color: #000;
+            opacity: 0.5;
+            font-size: 1.2rem;
         }
     }
 }
@@ -275,6 +301,3 @@
     margin-left: 5px;
     cursor: pointer;
 }
-
-
-  

@@ -75,14 +75,16 @@
         margin-left: 40px;
     }
     .joined {
+        width: 90%;
         margin-left: 40px;
         height: 40px;
         background-color: #00b14f;
-        border-radius: 10px;
+        border-radius: 5px;
         display: flex;
         justify-content: center;
         align-items: center;
         margin-top: 10px;
+        margin-right: 10px;
         .message {
             color: #fff;
             margin-right: 40px;
@@ -354,4 +356,7 @@
     .wrap-content-list {
         padding: 10px;
     }
+}
+.modal-upload {
+    width: 800px;
 }

@@ -28,11 +28,14 @@ function ManagePost() {
     }, []); // Chuyển một mảng rỗng vào useEffect để chỉ gọi hàm một lần khi component được mount
 
     const columns = [
-        { key: 'title', label: 'Tiêu đề bài viết', className: 'custom-title' },
-        { key: 'createdAt', label: 'Thời gian đăng', className: 'custom-createAt' },
-        { key: 'actions', label: 'Chức năng', isAction: true, className: 'custom-actions' }, // Thêm cột chứa các chức năng
+        { key: 'checkbox', label: '', isCheckBox: true },
+        { key: 'title', label: 'Tiêu đề bài viết' },
+        { key: 'createdAt', label: 'Thời gian đăng' },
+        { key: 'actions', label: 'Chức năng', isAction: true }, // Thêm cột chứa các chức năng
     ];
-
+    const customizeData = (data) => {
+        return data.map((item) => {});
+    };
     // Hàm xử lý sự kiện xóa bài viết
     const handleDelete = (row) => {
         // Viết mã xử lý xóa bài viết ở đây

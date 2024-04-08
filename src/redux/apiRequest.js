@@ -211,9 +211,9 @@ export const createSchedule = async (data, dispatch, accessToken, closeModal) =>
         const res = await axios.post(baseURL + 'schedule/api/create', data, {
             headers: { Authorization: `Bearer ${accessToken}` },
         });
+        toast.success(res.data.message);
         dispatch(createScheduleSuccess(res.data));
         closeModal();
-        toast.success(res.data.message);
     } catch (error) {
         console.error('Error:', error.response.data.message);
         toast.error(error.response.data.message);
@@ -351,6 +351,40 @@ export const showListActivity = async (postId, accessToken) => {
     console.log('abc', postId);
     try {
         const res = await axios.get(baseURL + `join/show-list/${postId}`, null, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        return res.data;
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+export const showMyList = async (userId, accessToken) => {
+    try {
+        const res = await axios.get(baseURL + `join/show-my-list/${userId}`, null, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        return res.data;
+    } catch (error) {
+        console.log(error);
+    }
+};
+export const updateUrlImage = async (data, accessToken) => {
+    try {
+        const res = await axios.post(baseURL + 'join/update-image', data, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        toast.success('Cập nhật minh chứng thành công!');
+        return res.data;
+    } catch (error) {
+        toast.success('Cập nhật minh chứng thất bại!');
+        console.log(error);
+    }
+};
+// site
+export const getNotifications = async (userId, accessToken) => {
+    try {
+        const res = await axios.get(baseURL + `api/notification/${userId}`, {
             headers: { Authorization: `Bearer ${accessToken}` },
         });
         return res.data;

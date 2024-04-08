@@ -1,6 +1,8 @@
 const User = require('../models/User.js');
 const Schedule = require('../models/Schedule.js');
 const ListJoin = require('../models/ListJoin.js');
+const Notification = require('../models/Notification.js');
+const Post = require('../models/Posts.js');
 const mongoose = require('mongoose');
 
 class ListJoinController {
@@ -12,10 +14,12 @@ class ListJoinController {
             end = new Date(end);
 
             console.log('type', typeof start);
-            // Kiểm tra nếu giờ của start bằng giờ của end
-            if (start.getHours() === end.getHours() && start.getMinutes() === end.getMinutes()) {
-                return res.status(500).json({ message: 'Giờ bắt đầu phải khác giờ kết thúc.' });
+            if (start.toDateString() === end.toDateString()) {
+                if (start.getHours() === end.getHours() && start.getMinutes() === end.getMinutes()) {
+                    return res.status(500).json({ message: 'Giờ bắt đầu phải khác giờ kết thúc.' });
+                }
             }
+            // Kiểm tra nếu giờ của start bằng giờ của end
 
             // Tạo một truy vấn để kiểm tra xem có lịch trình nào chồng chéo với thời gian mới không
             const existingSchedule = await Schedule.findOne({
@@ -40,6 +44,14 @@ class ListJoinController {
 
             const newSchedule = new Schedule({ title, start, end, description, userId });
             await newSchedule.save();
+
+            const post = await Post.findById(postId);
+            const postTitle = post.title;
+            const messageNoti = `Đăng ký tham gia thành công :${postTitle}`;
+
+            const newNotification = new Notification({ userId, postId, message: messageNoti });
+            await newNotification.save();
+
             return res.status(200).json({ message: 'Đăng ký tham gia thành công.' });
         } catch (error) {
             console.error(error);
@@ -67,13 +79,61 @@ class ListJoinController {
     async showList(req, res) {
         try {
             const postId = new mongoose.Types.ObjectId(req.params.postId);
-            console.log(postId);
             const list = await ListJoin.find({ postId: postId });
-            console.log(list);
 
             return res.status(200).json({ list });
         } catch (error) {
             return res.status(500).json({ message: 'Đã xảy ra lỗi khi hiển thị danh sách' });
+        }
+    }
+    async showMyList(req, res) {
+        try {
+            const userId = new mongoose.Types.ObjectId(req.params.userId);
+            console.log('userId', userId);
+            const list = await ListJoin.find({ userId: userId });
+            console.log('list', list);
+
+            const data = [];
+            for (let item of list) {
+                const post = await Post.findById(item.postId);
+
+                const newDataItem = {
+                    title: post.title,
+                    createdAt: item.createdAt,
+                    mark: item.mark,
+                    isPresent: item.isPresent,
+                };
+
+                data.push(newDataItem);
+            }
+            return res.status(200).json(data);
+        } catch (error) {
+            return res.status(500).json({ message: 'Đã xảy ra lỗi khi hiển thị danh sách' });
+        }
+    }
+
+    async updateImageUrl(req, res) {
+        try {
+            const { url, userId, postId } = req.body;
+
+            // Tìm Document cần cập nhật
+            const contentUpdate = await ListJoin.findOneAndUpdate({ userId: userId, postId: postId });
+
+            // Kiểm tra xem Document có tồn tại hay không
+            if (!contentUpdate) {
+                return res.status(404).json({ message: 'Document không tồn tại' });
+            }
+
+            // Cập nhật imageUrl
+            contentUpdate.imageUrl = url;
+
+            // Lưu thay đổi vào cơ sở dữ liệu
+            await contentUpdate.save();
+
+            return res.status(200).json({ message: 'Cập nhật minh chứng thành công' });
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: 'Đã xảy ra lỗi khi cập nhật minh chứng' });
         }
     }
 }

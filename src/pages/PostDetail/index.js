@@ -626,7 +626,7 @@ function PostDetail() {
                     onSave={handleSaveUrlImage}
                 >
                     {/* url={handleSetURL} */}
-                    <ImageUploader />
+                    <ImageUploader imageUrl={handleSetURL}/>
                 </Modal>
             )}
         </div>

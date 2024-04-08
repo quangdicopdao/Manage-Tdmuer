@@ -5,6 +5,7 @@ import styles from './customtable.module.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faPen, faTrash } from '@fortawesome/free-solid-svg-icons';
 import ModalImage from '~/components/Modal/ImageModal';
+import { Image } from 'cloudinary-react';
 
 const cx = classNames.bind(styles);
 
@@ -106,12 +107,18 @@ function CustomTable({ data, columns, onViewLink, onEditLink, onDelete, checkbox
                                             className={cx(column.classNameHtml)}
                                         />
                                     ) : !column.isAction && column.isImage ? (
-                                        <img
-                                            src={row[column.key]}
-                                            alt={`Image_${rowIndex}`}
-                                            className={cx(column.classNameImage)}
-                                            onClick={() => handleOpenModal(row[column.key])}
-                                        />
+                                        // <Image cloudName={process.env.REACT_APP_CLOUDINARY_CLOUD_NAME} publicId={row[column.key]} className={cx(column.classNameImage)}/>
+                                        row[column.key] === 'No image' ? (
+                                            <span>No image</span>
+                                        ):(
+                                            
+                                            <img
+                                                src={row[column.key]}
+                                                alt={`Image_${rowIndex}`}
+                                                className={cx(column.classNameImage)}
+                                                onClick={() => handleOpenModal(row[column.key])}
+                                            />
+                                        )
                                     ) : !column.isAction ? (
                                         column.key === 'createdAt' ? (
                                             formatDate(row[column.key])

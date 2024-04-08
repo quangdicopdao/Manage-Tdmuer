@@ -1,20 +1,31 @@
+import React, { useState, useEffect } from 'react';
 import classNames from 'classnames/bind';
 import style from './ImageUploader.module.scss';
-import { useState } from 'react';
 import { Image } from 'cloudinary-react';
 
 const cx = classNames.bind(style);
 
-function ImageUploader() {
+function ImageUploader({ imageUrl }) {
     const [image, setImage] = useState(null);
     const [url, setUrl] = useState('');
     const [loading, setLoading] = useState(false);
     const [preview, setPreview] = useState(null);
+    const [progress, setProgress] = useState(0);
 
-    console.log(process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET);
-    console.log(process.env.REACT_APP_CLOUDINARY_CLOUD_NAME);
     const uploadImage = async () => {
         setLoading(true);
+        
+        // Reset progress to 0
+        setProgress(0);
+
+        // Calculate progress every 100 milliseconds
+        const interval = setInterval(() => {
+            setProgress(prevProgress => {
+                const newProgress = prevProgress + 1;
+                return newProgress >= 100 ? 100 : newProgress;
+            });
+        }, 30);
+
         const data = new FormData();
         data.append('file', image);
         data.append('upload_preset', process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET);
@@ -30,10 +41,15 @@ function ImageUploader() {
                 },
             );
             const res = await response.json();
+            console.log('res', res);
             setUrl(res.public_id);
+            imageUrl(res.url);
             setLoading(false);
+            clearInterval(interval); // Clear interval when upload is complete
+            setProgress(100); // Set progress to 100%
         } catch (error) {
             setLoading(false);
+            clearInterval(interval); // Clear interval on error
         }
     };
 
@@ -53,25 +69,36 @@ function ImageUploader() {
         setPreview(null);
         setImage(null);
         setUrl('');
+        setProgress(0); // Reset progress when reset button is clicked
     };
+
+    useEffect(() => {
+        if (image) {
+            uploadImage();
+        }
+    }, [image]);
 
     return (
         <div className={cx('wrapper')}>
             <input type="file" accept="image/*" onChange={handleImageChange} />
-            <div className={cx('wrapper-preview')}>
-                {preview && <img src={preview} alt="preview" className={cx('img-preview')} />}
-            </div>
-            <button onClick={uploadImage} disabled={!image}>
-                Upload Now
-            </button>
+           
+            {url && !loading && (
+                <div className={cx('wrap-img-cloudinary')}>
+                    <Image cloudName={process.env.REACT_APP_CLOUDINARY_CLOUD_NAME} publicId={url} className={cx('img-cloudinary')} />
+                </div>
+            )}
+
+            {progress !== 100 && (
+                <div className={cx('progress-bar')}>
+                    <div className={cx('progress-bar-inner')} style={{ width: `${progress}%` }}>
+                        <div className={cx('progress-percent')}>{progress}%</div>
+                    </div>
+                </div>
+            )}
+
             <button onClick={handleResetClick} disabled={!image}>
                 Reset
             </button>
-            {url && !loading && (
-                <div>
-                    <Image cloudName={process.env.REACT_APP_CLOUDINARY_CLOUD_NAME} publicId={url} />
-                </div>
-            )}
         </div>
     );
 }

@@ -5,7 +5,6 @@ import styles from './customtable.module.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faPen, faTrash } from '@fortawesome/free-solid-svg-icons';
 import ModalImage from '~/components/Modal/ImageModal';
-import { Image } from 'cloudinary-react';
 
 const cx = classNames.bind(styles);
 
@@ -23,7 +22,6 @@ function CustomTable({ data, columns, onViewLink, onEditLink, onDelete, checkbox
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const handleOpenModal = (imageUrl) => {
-        console.log('imageUrl');
         setModalImageUrl(imageUrl);
         setIsModalOpen(true);
     };
@@ -31,16 +29,36 @@ function CustomTable({ data, columns, onViewLink, onEditLink, onDelete, checkbox
     const handleCloseModal = () => {
         setIsModalOpen(false);
     };
-    const handleCheckboxChange = (event, rowIndex) => {
+
+    const handleCheckboxChange = (event, _id) => {
         const checked = event.target.checked;
-        if (checked) {
-            setSelectedRows([...selectedRows, rowIndex]);
+
+        if (_id === 'all') {
+            const allRowIds = data.map((row) => row._id);
+            setSelectedRows(checked ? allRowIds : []);
+            onCheckboxChange && onCheckboxChange(checked ? allRowIds : []);
         } else {
-            setSelectedRows(selectedRows.filter((index) => index !== rowIndex));
+            const updatedSelectedRows = checked
+                ? [...selectedRows, _id]
+                : selectedRows.filter((rowId) => rowId !== _id);
+            setSelectedRows(updatedSelectedRows);
+            onCheckboxChange && onCheckboxChange(updatedSelectedRows);
         }
-        onCheckboxChange && onCheckboxChange(selectedRows);
+    };
+    const limitWords = (text, limit) => {
+        const words = text.split(' ');
+        if (words.length > limit) {
+            return words.slice(0, limit).join(' ') + '...';
+        }
+        return text;
     };
 
+    // Render nội dung của cột HTML với giới hạn số từ
+    const renderHtmlColumnContent = (htmlContent, limit) => {
+        const div = document.createElement('div');
+        div.innerHTML = htmlContent;
+        return limitWords(div.textContent, limit);
+    };
     if (!data || data.length === 0) {
         return <div>No data available</div>;
     }
@@ -54,13 +72,7 @@ function CustomTable({ data, columns, onViewLink, onEditLink, onDelete, checkbox
                             <input
                                 type="checkbox"
                                 checked={selectedRows.length === data.length}
-                                onChange={(event) => {
-                                    if (event.target.checked) {
-                                        setSelectedRows(Array.from({ length: data.length }, (_, i) => i));
-                                    } else {
-                                        setSelectedRows([]);
-                                    }
-                                }}
+                                onChange={(event) => handleCheckboxChange(event, 'all')}
                             />
                         </th>
                         {columns.map((column, index) => (
@@ -76,8 +88,8 @@ function CustomTable({ data, columns, onViewLink, onEditLink, onDelete, checkbox
                             <td>
                                 <input
                                     type="checkbox"
-                                    checked={selectedRows.includes(rowIndex)}
-                                    onChange={(event) => handleCheckboxChange(event, rowIndex)}
+                                    checked={selectedRows.includes(row._id)}
+                                    onChange={(event) => handleCheckboxChange(event, row._id)}
                                 />
                             </td>
                             {columns.map((column, colIndex) => (
@@ -91,7 +103,7 @@ function CustomTable({ data, columns, onViewLink, onEditLink, onDelete, checkbox
                                             )}
                                             {onEditLink && (
                                                 <Link to={onEditLink(row)} className={cx('actionButton')}>
-                                                    <FontAwesomeIcon icon={faPen} className={cx('edit-icon')} />{' '}
+                                                    <FontAwesomeIcon icon={faPen} className={cx('edit-icon')} />
                                                 </Link>
                                             )}
                                             {onDelete && (
@@ -103,15 +115,15 @@ function CustomTable({ data, columns, onViewLink, onEditLink, onDelete, checkbox
                                     )}
                                     {!column.isAction && column.isHTML ? (
                                         <div
-                                            dangerouslySetInnerHTML={{ __html: row[column.key] }}
+                                            dangerouslySetInnerHTML={{
+                                                __html: renderHtmlColumnContent(row[column.key], 200), // Giới hạn số từ là 10
+                                            }}
                                             className={cx(column.classNameHtml)}
                                         />
                                     ) : !column.isAction && column.isImage ? (
-                                        // <Image cloudName={process.env.REACT_APP_CLOUDINARY_CLOUD_NAME} publicId={row[column.key]} className={cx(column.classNameImage)}/>
                                         row[column.key] === 'No image' ? (
                                             <span>No image</span>
-                                        ):(
-                                            
+                                        ) : (
                                             <img
                                                 src={row[column.key]}
                                                 alt={`Image_${rowIndex}`}
@@ -124,9 +136,11 @@ function CustomTable({ data, columns, onViewLink, onEditLink, onDelete, checkbox
                                             formatDate(row[column.key])
                                         ) : (
                                             <span
-                                                className={cx(
-                                                    column.isPresent ? column.classNameData2 : column.classNameData1,
-                                                )}
+                                                className={
+                                                    row.isPresent === 'Đã điểm danh'
+                                                        ? cx(column.classNameData2)
+                                                        : cx(column.classNameData1)
+                                                }
                                             >
                                                 {row[column.key]}
                                             </span>

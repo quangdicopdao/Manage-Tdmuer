@@ -11,9 +11,9 @@ function UserChatComp({ imageUrl, name, lastMessage, isActive, onUserClick }) {
             <img className={cx('img-user')} src={imageUrl} alt={name} />
             <div className={cx('wrap-info')}>
                 <h3 className={cx('name-user')}>{name}</h3>
-                <h4 className={cx('last-message')}>{lastMessage}</h4>
+                {/* <h4 className={cx('last-message')}>{lastMessage}</h4> */}
             </div>
-            <span className={cx('read-message-yet')}></span>
+            {/* <span className={cx('read-message-yet')}></span> */}
         </div>
     );
 }

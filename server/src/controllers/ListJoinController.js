@@ -136,44 +136,41 @@ class ListJoinController {
             return res.status(500).json({ message: 'Đã xảy ra lỗi khi cập nhật minh chứng' });
         }
     }
-    async updateMark(req, res){
+    async updateMark(req, res) {
         try {
             const data = req.body; // Nhận dữ liệu từ request body
-    
+
             // Kiểm tra nếu không có dữ liệu
             if (!data || data.length === 0) {
                 return res.status(400).json({ message: 'Thiếu thông tin' });
             }
-    
+
             // Lặp qua từng đối tượng trong mảng data để cập nhật điểm
             for (const item of data) {
                 const { id, mark } = item; // Lấy id và mark từ mỗi đối tượng trong mảng
-    
+
                 // Kiểm tra nếu id là undefined
                 if (!id) {
                     return res.status(400).json({ message: 'Thiếu thông tin _id' });
                 }
-    
+
                 // Cập nhật điểm cho mỗi id
                 const updateMark = await ListJoin.findByIdAndUpdate(
                     { _id: id }, // Điều kiện tìm kiếm tài liệu cần cập nhật
-                    { mark: mark }, // Giá trị mới cho trường mark
-                    { new: true } // Tùy chọn để trả về tài liệu đã được cập nhật
+                    { mark: mark, isPresent: true }, // Giá trị mới cho trường mark
+                    { new: true }, // Tùy chọn để trả về tài liệu đã được cập nhật
                 );
-    
+
                 if (!updateMark) {
                     return res.status(404).json({ message: 'Không tìm thấy tài liệu cần cập nhật' });
                 }
             }
-    
+
             return res.status(200).json({ message: 'Cập nhập điểm rèn luyện thành công' });
         } catch (error) {
             console.error(error);
             return res.status(500).json({ message: 'Đã xảy ra lỗi khi cập nhật điểm rèn luyện' });
         }
     }
-    
-    
-    
 }
 module.exports = new ListJoinController();

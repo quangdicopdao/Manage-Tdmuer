@@ -7,6 +7,7 @@ import Post from '~/pages/Blog';
 import ManagePost from '~/pages/Blog/manage';
 import Me from '~/pages/Me';
 import Spending from '~/pages/Spending';
+import AdminPost from '~/pages/Admin/Posts';
 import { DetailLayout } from '~/Layout';
 
 const publicRoute = [
@@ -17,9 +18,11 @@ const publicRoute = [
     { path: '/post/:postId', component: PostDetail },
     { path: '/post', component: Post },
     { path: '/post/manage-post', component: ManagePost },
-
     { path: '/schedule', component: Schedule },
     { path: '/message', component: Message },
+
+    // admin
+    { path: '/admin/posts', component: AdminPost },
 ];
 const privateRoute = [];
 export { publicRoute, privateRoute };

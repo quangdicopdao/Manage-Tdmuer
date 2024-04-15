@@ -26,6 +26,7 @@ import {
     checkJoinActivity,
     showListActivity,
     updateUrlImage,
+    updateMark,
 } from '~/redux/apiRequest';
 import { useSelector } from 'react-redux';
 import Button from '~/components/Button';
@@ -146,7 +147,31 @@ function PostDetail() {
     const [department, setDepartment] = useState('');
     const [email, setEmail] = useState('');
 
-    const handleShowComment = async () => {
+    const [selectedRowsData, setSelectedRowsData] = useState([]);
+    const [mark, setMark] = useState(0);
+    console.log('selectedRowsData', selectedRowsData);
+    const handleCheckboxChange = (selectedRows) => {
+        // const selectedIds = selectedRows.map(rowIndex => dataList[rowIndex]);
+        setSelectedRowsData(selectedRows);
+    };
+    //update drl
+    const handleUpdateMark = async () => {
+        if (selectedRowsData.length === 0) {
+            // Nếu không có hàng nào được chọn, hiển thị thông báo hoặc thực hiện các hành động khác tùy thuộc vào yêu cầu của bạn
+            console.log('Không có hàng nào được chọn để cập nhật điểm.');
+            return;
+        }
+
+        const data = selectedRowsData.map((id) => {
+            return {
+                id,
+                mark,
+            };
+        });
+        console.log(data);
+        await updateMark(data, user?.accessToken);
+    };
+    const handleShowComment = async (selectedRows) => {
         setShowComment(!showComment);
         setIsLoading(true);
     };
@@ -600,14 +625,28 @@ function PostDetail() {
             )}
             {showList && (
                 <Modal
-                    titleBtn={'Xuất file excel'}
                     titleModal={'Danh sách tham gia hoạt động'}
                     onClose={handleShowList}
                     className={cx('list-modal')}
                 >
                     {dataList ? (
                         <div className={cx('wrap-content-list')}>
-                            <CustomTable columns={columns} data={dataList} />
+                            <div className={cx('wrap-mark')}>
+                                <span className={cx('title-mark')}>Điểm rèn luyện</span>
+                                <div className={cx('wrap-input')}>
+                                    <input
+                                        type="number"
+                                        placeholder="0"
+                                        className={cx('input-mark')}
+                                        value={mark}
+                                        onChange={(e) => setMark(e.target.value)}
+                                    />
+                                </div>
+                                <Button primary onClick={handleUpdateMark}>
+                                    Áp dụng
+                                </Button>
+                            </div>
+                            <CustomTable columns={columns} data={dataList} onCheckboxChange={handleCheckboxChange} />
                         </div>
                     ) : (
                         <>
@@ -626,7 +665,7 @@ function PostDetail() {
                     onSave={handleSaveUrlImage}
                 >
                     {/* url={handleSetURL} */}
-                    <ImageUploader imageUrl={handleSetURL}/>
+                    <ImageUploader imageUrl={handleSetURL} />
                 </Modal>
             )}
         </div>

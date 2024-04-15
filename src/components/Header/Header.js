@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
 import classNames from 'classnames/bind';
 import style from './Header.module.scss';
-import facebook from '~/assets/facebook.png';
-import google from '~/assets/google.png';
 import logo from '~/assets/tdmu-icon-ldpi.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBell, faSearch } from '@fortawesome/free-solid-svg-icons';

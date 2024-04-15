@@ -4,17 +4,31 @@ import style from './ChatBox.module.scss';
 import UserChatComp from './UserChat/UserChatComp';
 import { formatDistanceToNow } from 'date-fns';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPaperPlane, faPaperclip, faSearch, faUserPlus, faUsers } from '@fortawesome/free-solid-svg-icons';
+import {
+    faClock,
+    faPaperPlane,
+    faPaperclip,
+    faPlus,
+    faSearch,
+    faUserPlus,
+    faUsers,
+    faXmark,
+} from '@fortawesome/free-solid-svg-icons';
 import Modal from '../Modal/Modal';
 import Button from '../Button';
 import Tippy from '@tippyjs/react/headless';
 import 'tippy.js/dist/tippy.css'; // optional
 import { Wrapper as PopperWrapper } from '~/components/Popper';
 import UserGroup from '../User/UserGroup';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import { baseURL } from '~/utils/api';
 import { io } from 'socket.io-client';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import { createScheduleMember, getAllUsers } from '~/redux/apiRequest';
+import moment from 'moment';
+
 const cx = classNames.bind(style);
 
 function ChatBox() {
@@ -47,6 +61,148 @@ function ChatBox() {
     const [keywordsGroup, setKeywordsGroup] = useState('');
     const [groupName, setGroupName] = useState('');
     const [groupChats, setGroupChats] = useState([]);
+
+    console.log('GROUP', groupChats);
+    // add schedule for user in group
+    const [allUsers, setAllUsers] = useState([]);
+    console.log('SET', allUsers);
+    useEffect(() => {
+        const fetchUsers = async () => {
+            const users = await getAllUsers();
+            setAllUsers(users);
+        };
+        fetchUsers();
+    }, []);
+
+    const [members, setMembers] = useState([]);
+
+    const [arrUserSelected, setArrUserSelected] = useState([]); // Use state to track changes to arrUserSelected
+    const [searchText, setSearchText] = useState('');
+    const [isSelected, setIsSelected] = useState(false);
+
+    const RenderUserSelected = () => {
+        return (
+            <>
+                {arrUserSelected.length > 0 && (
+                    <div className={cx('wrap-members-selected')}>
+                        {arrUserSelected.map((item, index) => {
+                            return (
+                                <div className={cx('member')} key={index}>
+                                    <div>
+                                        <img src={item.avatar} className={cx('img-member')} />
+                                        <span className={cx('name-member')}>{item.username}</span>
+                                    </div>
+                                    <FontAwesomeIcon icon={faXmark} />
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
+            </>
+        );
+    };
+
+    const handleSearchChange = (e) => {
+        setSearchText(e.target.value);
+    };
+
+    // Filter members based on search text
+    const filteredMembers = members.filter((member) =>
+        member.username.toLowerCase().includes(searchText.toLowerCase()),
+    );
+    const handleAddUserToTask = (item) => {
+        // Use spread syntax to create a new array with the existing items and the new item
+        setIsSelected(!isSelected);
+        setSearchText('');
+        const updatedArray = [...arrUserSelected, item];
+        // Update arrUserSelected state with the new array
+        setArrUserSelected(updatedArray);
+        const updatedMembers = members.filter((member) => member !== item); // Filter out the selected member from members
+        setMembers(updatedMembers); // Update members state with the filtered array
+    };
+    useEffect(() => {
+        if (searchText.length > 0) {
+            setIsSelected(true);
+        }
+    }, [arrUserSelected, searchText]);
+    console.log('arrUserSelected', arrUserSelected);
+    useEffect(() => {
+        if (groupChats.length > 0) {
+            let allGroupMembers = [];
+            groupChats.forEach((chat) => {
+                if (chat.members) {
+                    const membersOfGroup = chat.members;
+                    if (allUsers) {
+                        const groupMembersInfo = allUsers.filter((user) => membersOfGroup.includes(user._id));
+                        allGroupMembers = allGroupMembers.concat(groupMembersInfo);
+                    } else {
+                        console.log('Biến allUsers không được định nghĩa.');
+                    }
+                } else {
+                    console.log('Không có thông tin thành viên trong nhóm chat.');
+                }
+            });
+            console.log('Thông tin của tất cả các thành viên từ tất cả các nhóm chat:', allGroupMembers);
+            setMembers(allGroupMembers); // Di chuyển setState vào trong useEffect
+        } else {
+            console.log('Không có dữ liệu trong groupChats.');
+        }
+    }, [groupChats, allUsers]); // Thêm các dependency vào trong useEffect
+
+    const [isToggle, setIsToggle] = useState(false);
+
+    const handleToggle = () => {
+        setIsToggle(!isToggle);
+    };
+
+    const [modalTask, setModalTask] = useState(false);
+    const handleModalTask = () => {
+        setModalTask(!modalTask);
+        setIsToggle(false);
+    };
+    const [titleTask, setTitleTask] = useState('');
+    const [descriptionTask, setDescriptionTask] = useState('');
+    const [startTime, setStartTime] = useState(new Date());
+    const [endTime, setEndTime] = useState(new Date());
+
+    const dispatch = useDispatch();
+    const handleSubmitTask = async (e) => {
+        e.preventDefault();
+
+        const formattedStartDate = moment(startTime).utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ');
+        const formattedEndDate = moment(endTime).utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ');
+        const userIds = arrUserSelected.map((user) => user._id);
+
+        const tasks = userIds.map(async (userId) => {
+            const data = {
+                title: titleTask,
+                start: formattedStartDate,
+                end: formattedEndDate,
+                description: descriptionTask,
+                userId: userId,
+            };
+
+            try {
+                // Gọi API cho từng userId
+                await createScheduleMember(data, dispatch, user?.accessToken, handleModalTask());
+                // Xử lý thành công
+                console.log(`API called successfully for user with ID: ${userId}`);
+            } catch (error) {
+                // Xử lý lỗi
+                console.error(`Error calling API for user with ID: ${userId}`, error);
+            }
+        });
+
+        try {
+            // Chờ cho tất cả các yêu cầu hoàn thành
+            await Promise.all(tasks);
+            console.log('All API requests completed successfully.');
+        } catch (error) {
+            // Xử lý lỗi tổng thể nếu có
+            console.error('Error calling one or more APIs:', error);
+        }
+    };
+
     //new
 
     console.log('arrayuser:', users);
@@ -225,12 +381,10 @@ function ChatBox() {
     const scrollRef = useRef();
 
     useEffect(() => {
-
         if (selectedUser && scrollRef.current) {
             scrollRef.current.scrollIntoView({ behavior: 'smooth' });
         }
     }, [selectedUser, messages]);
-    
 
     // const handleSendMessage = () => {
     //     const messageschat = {
@@ -440,10 +594,17 @@ function ChatBox() {
                         </div>
                     ))}
                 </div>
-
+                {isToggle && (
+                    <div className={cx('wrap-all-actions')}>
+                        <div className={cx('wrap-actions')} onClick={handleModalTask}>
+                            <FontAwesomeIcon icon={faPlus} className={cx('actions-icon')} />
+                            <span className={cx('actions-title')}>Giao việc</span>
+                        </div>
+                    </div>
+                )}
                 {/**Footer-Chat */}
                 <div className={cx('footer-chat')}>
-                    <button className={cx('btn-footer')}>
+                    <button className={cx('btn-footer')} onClick={handleToggle}>
                         <FontAwesomeIcon icon={faPaperclip} />
                     </button>
                     <input
@@ -529,6 +690,82 @@ function ChatBox() {
                         <Button outline className={cx('btn-submit')} onClick={createGroupChat}>
                             Tạo nhóm
                         </Button>
+                    </div>
+                </Modal>
+            )}
+            {modalTask && (
+                <Modal
+                    titleBtn={'Giao việc'}
+                    titleModal={'Giao việc cho thành viên nhóm'}
+                    onClose={handleModalTask}
+                    onSave={handleSubmitTask}
+                    className={cx('wrap-task-modal')}
+                >
+                    <div className={cx('wrap-input')}>
+                        <input
+                            type="text"
+                            placeholder="Tiêu đề công việc"
+                            value={titleTask}
+                            onChange={(e) => setTitleTask(e.target.value)}
+                        />
+                    </div>
+                    <div className={cx('wrap-all-dpk')}>
+                        <span className={cx('title-task')}>Thời gian</span>
+                        <div className={cx('wrap-datepicker')}>
+                            <DatePicker
+                                calendarClassName={cx('datepicker')}
+                                selected={startTime}
+                                onChange={(date) => setStartTime(date)}
+                                className={cx('datepicker')}
+                                showTimeSelect
+                                selectsStart
+                                startDate={startTime}
+                                endDate={endTime}
+                                timeFormat="HH:mm"
+                                dateFormat="dd/MM/yyyy HH:mm"
+                                timezone="Asia/Ho_Chi_Minh"
+                            />
+                        </div>
+                        <span> - </span>
+                        <div className={cx('wrap-datepicker')}>
+                            <DatePicker
+                                calendarClassName={cx('date-picker')}
+                                selected={endTime}
+                                onChange={(date) => setEndTime(date)}
+                                className={cx('datepicker')}
+                                showTimeSelect
+                                selectsEnd
+                                startDate={startTime}
+                                endDate={endTime}
+                                minDate={startTime}
+                                timeFormat="HH:mm"
+                                dateFormat="dd/MM/yyyy HH:mm"
+                                timezone="Asia/Ho_Chi_Minh"
+                            />
+                        </div>
+                    </div>
+                    <div className={cx('wrap-members')}>
+                        <span className={cx('title-task')}>Thành viên</span>
+                        <div className={cx('wrap-input-member')}>
+                            <input type="text" placeholder="Nhập tên thành viên" onChange={handleSearchChange} />
+                        </div>
+                    </div>
+                    {isSelected && (
+                        <div className={cx('wrap-members-selected')}>
+                            {filteredMembers.map((member, index) => (
+                                <div className={cx('hover-member')} key={index}>
+                                    <div className={cx('member')} onClick={() => handleAddUserToTask(member)}>
+                                        <img src={member.avatar} alt="ảnh người dùng" className={cx('img-member')} />
+                                        <span className={cx('name-member')}>{member.username}</span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                    {RenderUserSelected()}
+                    <div className={cx('wrap-description')}>
+                        <span className={cx('title-task')}>Mô tả</span>
+                        <textarea></textarea>
                     </div>
                 </Modal>
             )}

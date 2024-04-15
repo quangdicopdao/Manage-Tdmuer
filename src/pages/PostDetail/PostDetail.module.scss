@@ -360,3 +360,25 @@
 .modal-upload {
     width: 800px;
 }
+.wrap-mark {
+    width: 50%;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+    .title-mark {
+        font-size: 1.6rem;
+        font-weight: 500;
+        margin-right: 10px;
+    }
+    .wrap-input {
+        padding: 5px;
+        background-color: var(--input-color);
+        border-radius: 5px;
+        margin-right: 10px;
+        .input-mark {
+            background-color: transparent;
+            width: 40px;
+        }
+    }
+}

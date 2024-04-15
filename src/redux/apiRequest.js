@@ -28,6 +28,14 @@ import { createPostFailer, createPostSuccess, getPostFailer, getPostStart, getPo
 import { toast } from 'react-toastify';
 
 // authenication
+export const getAllUsers = async () => {
+    try {
+        const res = await axios.get(baseURL + 'v1/auth/get/users');
+        return res.data;
+    } catch (error) {
+        console.error(error);
+    }
+};
 export const loginUser = async (user, dispatch, navigate, closeModal) => {
     dispatch(loginStart());
     try {
@@ -36,8 +44,11 @@ export const loginUser = async (user, dispatch, navigate, closeModal) => {
         });
         console.log('Login success:', res.data);
         dispatch(loginSuccess(res.data));
-
-        navigate('/');
+        if (res.data.isAdmin) {
+            navigate('/admin/posts');
+        } else {
+            navigate('/');
+        }
         toast.success('Đăng nhập thành công');
         closeModal();
     } catch (error) {
@@ -128,9 +139,9 @@ export const createPost = async (data, dispatch, navigate, accessToken) => {
     }
 };
 
-export const searchPost = async (query) => {
+export const searchPost = async (query, tagId) => {
     try {
-        const res = await axios.get(baseURL + `post/search?q=${query}`);
+        const res = await axios.get(baseURL + `post/search?q=${query}&tagId=${tagId}`);
         return res.data;
     } catch (error) {
         console.error('Error searching:', error);
@@ -209,6 +220,20 @@ export const getAllComments = async (postId) => {
 export const createSchedule = async (data, dispatch, accessToken, closeModal) => {
     try {
         const res = await axios.post(baseURL + 'schedule/api/create', data, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        toast.success(res.data.message);
+        dispatch(createScheduleSuccess(res.data));
+        closeModal();
+    } catch (error) {
+        console.error('Error:', error.response.data.message);
+        toast.error(error.response.data.message);
+        dispatch(createScheduleFailer(error.response.data));
+    }
+};
+export const createScheduleMember = async (data, dispatch, accessToken, closeModal) => {
+    try {
+        const res = await axios.post(baseURL + 'schedule/api/create-member', data, {
             headers: { Authorization: `Bearer ${accessToken}` },
         });
         toast.success(res.data.message);
@@ -377,7 +402,19 @@ export const updateUrlImage = async (data, accessToken) => {
         toast.success('Cập nhật minh chứng thành công!');
         return res.data;
     } catch (error) {
-        toast.success('Cập nhật minh chứng thất bại!');
+        toast.error('Cập nhật minh chứng thất bại!');
+        console.log(error);
+    }
+};
+export const updateMark = async (data, accessToken) => {
+    try {
+        const res = await axios.post(baseURL + 'join/update-mark', data, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        toast.success('Cập nhật điểm rèn luyện thành công!');
+        return res.data;
+    } catch (error) {
+        toast.error('Cập nhật điểm rèn luyện thất bại!');
         console.log(error);
     }
 };

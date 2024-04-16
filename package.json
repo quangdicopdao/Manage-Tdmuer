@@ -18,6 +18,7 @@
         "axios": "^1.6.5",
         "chart.js": "^4.4.2",
         "classnames": "^2.5.1",
+        "cloudinary-react": "^1.8.1",
         "cookie-parser": "^1.4.6",
         "date-fns": "^3.2.0",
         "gapi-script": "^1.2.0",
@@ -76,6 +77,7 @@
         "babel-plugin-module-resolver": "^5.0.0",
         "concurrently": "^8.2.2",
         "customize-cra": "^1.0.0",
+        "dotenv": "^16.4.5",
         "react-app-rewired": "^2.2.1",
         "sass": "^1.69.5"
     },

@@ -11,4 +11,6 @@ router.post('/logout', authMiddleware.verifyToken, authController.logout);
 router.get('/get/users', authController.getUser);
 router.post('/login/facebook', authController.loginFacebook);
 router.post('/login/google', authController.loginGoogle);
+
 module.exports = router;
+

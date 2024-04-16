@@ -6,10 +6,26 @@
 //table
 .wrap-table {
     width: 95%;
-    height: 580px;
     margin: auto;
     padding: 10px;
     border-radius: 10px;
     background-color: #fff;
-    border: 1px solid #ccc;
+    // border: 1px solid #ccc;
+}
+
+.wrap-activity {
+    margin-top: 20px;
+    width: 95%;
+    margin-left: 25px;
+    padding: 10px;
+    border-radius: 10px;
+    // border: 1px solid #ccc;
+    display: flex;
+    flex-direction: column;
+    min-height: 250px;
+    .title {
+        font-size: 1.8rem;
+        font-weight: 500;
+        margin-bottom: 20px;
+    }
 }

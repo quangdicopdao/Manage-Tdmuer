@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
 import classNames from 'classnames/bind';
 import style from './Header.module.scss';
-import facebook from '~/assets/facebook.png';
-import google from '~/assets/google.png';
 import logo from '~/assets/tdmu-icon-ldpi.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBell, faSearch } from '@fortawesome/free-solid-svg-icons';
@@ -15,7 +13,14 @@ import Button from '~/components/Button';
 import Modal from '../Modal/Modal';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { loginUser, logoutUser,loginUserWithFacebook,loginUserWithGoogle } from '~/redux/apiRequest';
+import moment from 'moment';
+import {
+    loginUser,
+    logoutUser,
+    loginUserWithFacebook,
+    loginUserWithGoogle,
+    getNotifications,
+} from '~/redux/apiRequest';
 import { baseURL } from '~/utils/api';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -53,7 +58,7 @@ function Header() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     //api ssearch
-    const clientId = "167804317966-4om60dtbnb2qoiu6ncpsao69bo3gka12.apps.googleusercontent.com";
+    const clientId = '167804317966-4om60dtbnb2qoiu6ncpsao69bo3gka12.apps.googleusercontent.com';
 
     const handleSearchChange = async (e) => {
         const query = e.target.value;
@@ -102,7 +107,16 @@ function Header() {
     useEffect(() => {
         setTimeout(() => {
             setSearchResult([]);
-        }, 0);
+        }, 1000);
+    }, []);
+    const [noti, setNoti] = useState([]);
+    console.log('noti', noti);
+    useEffect(() => {
+        const fetchData = async () => {
+            const newNoti = await getNotifications(user?._id, user?.accessToken);
+            setNoti(newNoti.newNotification);
+        };
+        fetchData();
     }, []);
     // Truyền thông tin người dùng khi click vào AccountItem
     const handleAccountItemClick = (userData) => {
@@ -110,10 +124,9 @@ function Header() {
         navigate('/me', { state: { userData } });
     };
 
-
     //login google
     const responseGoogle = (response) => {
-        console.log("Login success:", response.profileObj);
+        console.log('Login success:', response.profileObj);
         //Xử lý thông tin người dùng sau khi đăng nhập thành công
         const { profileObj } = response;
         const newUser = {
@@ -121,22 +134,22 @@ function Header() {
             email: profileObj.email,
         };
         // Gọi hàm xử lý đăng nhập hoặc tạo tài khoản mới
-        loginUserWithGoogle(newUser,dispatch, navigate, closeModal);
+        loginUserWithGoogle(newUser, dispatch, navigate, closeModal);
     };
 
     //
     const responseGoogleFailure = (response) => {
-        console.log("Login failure:", response);
+        console.log('Login failure:', response);
         // Xử lý khi đăng nhập bằng Google thất bại
     };
 
-      //login facebook
-      const onSuccess = async (res) => {
+    //login facebook
+    const onSuccess = async (res) => {
         try {
             const accessToken = res.access_token;
             const result = await fetch(`https://graph.facebook.com/me?fields=name,email&access_token=${accessToken}`);
             const profile = await result.json();
-            
+
             // Bổ sung các thông tin khác nếu cần thiết
             // avatar, gender, dob, etc.
             // Ví dụ: profile.avatar = 'URL_OF_AVATAR';
@@ -147,9 +160,9 @@ function Header() {
         }
     };
 
-      const onFailure = (res) =>{
-        console.log(res)
-      }
+    const onFailure = (res) => {
+        console.log(res);
+    };
     return (
         <div className={cx('wrapper-all')}>
             <ToastContainer autoClose={3000} />
@@ -196,26 +209,30 @@ function Header() {
                         <FontAwesomeIcon className={cx('action-icon')} icon={faBell} onClick={handleShowToast} />
                         {showToast && (
                             <div className={cx('wrap-all-toast')}>
-                                <div className={cx('wrap-toast')}>
-                                    <img
-                                        src="https://thinkzone.vn/uploads/2021_04/ui-ux-la-gi-2-1618403613.jpg"
-                                        alt=""
-                                        className={cx('img-toast')}
-                                    />
-                                    <span className={cx('content-toast')}>
-                                        Đặng Việt Quang đã bình luận bài viết của bạn
-                                    </span>
+                                <div className={cx('toast-header')}>
+                                    <span className={cx('title-toast')}>Thông báo</span>
+                                    <span className={cx('title-toast', 'btn-toast')}>Đánh dấu là đã đọc</span>
                                 </div>
-                                <div className={cx('wrap-toast')}>
-                                    <img
-                                        src="https://thinkzone.vn/uploads/2021_04/ui-ux-la-gi-2-1618403613.jpg"
-                                        alt=""
-                                        className={cx('img-toast')}
-                                    />
-                                    <span className={cx('content-toast')}>
-                                        Đặng Việt Quang đã bình luận bài viết của bạn
-                                    </span>
-                                </div>
+                                {noti && noti.length > 0 ? (
+                                    noti.map((data) => (
+                                        <div className={cx('wrap-toast')} key={data._id}>
+                                            <Link
+                                                to={`/post/${data.postId}`}
+                                                className={cx('toast-link')}
+                                                onClick={handleShowToast}
+                                            >
+                                                <span className={cx('content-toast')}>{data.message}</span>
+                                                <span className={cx('date-toast')}>
+                                                    {moment(data.createdAt).format('DD/MM/YYYY')}
+                                                </span>
+                                            </Link>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className={cx('wrap-toast')}>
+                                        <span className={cx('no-noti')}>Bạn hiện chưa có thông báo</span>
+                                    </div>
+                                )}
                             </div>
                         )}
                         <Tippy
@@ -284,7 +301,7 @@ function Header() {
                                 cookiePolicy={'single_host_origin'}
                                 isSignedIn={false}
                             />
-                            
+
                             {/* Nút đăng nhập bằng Google */}
                             <OAuth2Login
                                 className={cx('facebook-login-btn')}
@@ -293,13 +310,13 @@ function Header() {
                                 responseType="token"
                                 clientId="2460389754168770"
                                 redirectUri="http://localhost:3000"
-                                scope='email'
+                                scope="email"
                                 onSuccess={onSuccess}
-                                onFailure={onFailure}/>
-                               
+                                onFailure={onFailure}
+                            />
                         </div>
-                      
-                        <h3 style={{marginTop:10}}>Hoặc</h3>
+
+                        <h3 style={{ marginTop: 10 }}>Hoặc</h3>
                         <div className={cx('wrap-form')}>
                             <form onSubmit={handleLogin}>
                                 <div className={cx('wrap-form-input')}>

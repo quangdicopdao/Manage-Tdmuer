@@ -1,6 +1,9 @@
 // controllers/SiteController.js
 const Posts = require('../models/Posts.js');
 const User = require('../models/User.js');
+const Notification = require('../models/Notification.js');
+const mongoose = require('mongoose');
+
 // controllers/SiteController.js
 class SiteController {
     async index(req, res, next) {
@@ -81,6 +84,17 @@ class SiteController {
             }));
 
             res.json({ postsInfo: postResults, userInfo: modifiedUserResults });
+        } catch (error) {
+            console.error('Error searching:', error);
+            res.status(500).json({ error: 'Internal Server Error' });
+        }
+    }
+    async notification(req, res) {
+        try {
+            const userId = new mongoose.Types.ObjectId(req.params.userId); // Chuyển đổi userId sang ObjectId
+            console.log('userId', userId);
+            const noti = await Notification.find({ userId: userId });
+            return res.status(200).json({ newNotification: noti });
         } catch (error) {
             console.error('Error searching:', error);
             res.status(500).json({ error: 'Internal Server Error' });

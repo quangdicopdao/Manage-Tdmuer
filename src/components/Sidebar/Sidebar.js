@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import classNames from 'classnames/bind';
 import styles from './Sidebar.module.scss';
-import { faHouse, faCalendar, faFileInvoiceDollar } from '@fortawesome/free-solid-svg-icons';
+import { faHouse, faCalendar, faFileInvoiceDollar, faQuoteLeft, faUsers } from '@fortawesome/free-solid-svg-icons';
 import SidebarItem from './SidebarItem';
 import { faBloggerB, faFacebookMessenger } from '@fortawesome/free-brands-svg-icons';
 import { useSelector } from 'react-redux';
@@ -13,7 +13,7 @@ const Sidebar = () => {
     const user = useSelector((state) => state.auth.login.currentUser);
     const location = useLocation();
 
-    const [activeTab, setActiveTab] = useState('Home');
+    const [activeTab, setActiveTab] = useState(user?.isAdmin ? 'AdminPosts' : 'Home');
 
     const handleTabClick = (tabName) => {
         setActiveTab(tabName);
@@ -27,15 +27,15 @@ const Sidebar = () => {
     return (
         <div className={cx('wrapper')}>
             <ul className={cx('nav-list')}>
-                <SidebarItem
-                    icon={faHouse}
-                    label="Trang chủ"
-                    isActive={isTabActive('/')}
-                    to={'/'}
-                    onClick={() => handleTabClick('Home')}
-                />
-                {user && (
-                    <div>
+                {user?.isAdmin === false && (
+                    <li>
+                        <SidebarItem
+                            icon={faHouse}
+                            label="Trang chủ"
+                            isActive={isTabActive('/')}
+                            to={'/'}
+                            onClick={() => handleTabClick('Home')}
+                        />
                         <SidebarItem
                             icon={faCalendar}
                             label="Lịch"
@@ -64,7 +64,25 @@ const Sidebar = () => {
                             to={'/spending'}
                             onClick={() => handleTabClick('Spending')}
                         />
-                    </div>
+                    </li>
+                )}
+                {user?.isAdmin && (
+                    <li>
+                        <SidebarItem
+                            icon={faQuoteLeft}
+                            label={'Bài viết'}
+                            isActive={isTabActive('/admin/posts')}
+                            to={'/admin/posts'}
+                            onClick={() => handleTabClick('AdminPost')}
+                        />
+                        <SidebarItem
+                            icon={faUsers}
+                            label={'Users'}
+                            isActive={isTabActive('/admin/user')}
+                            to={'/admin/posts'}
+                            onClick={() => handleTabClick('AdminPost')}
+                        />
+                    </li>
                 )}
             </ul>
         </div>

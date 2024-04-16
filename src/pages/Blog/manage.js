@@ -15,6 +15,7 @@ function ManagePost() {
     const [onTab, setOnTab] = useState('posted');
     const user = useSelector((state) => state.auth.login?.currentUser);
     const [arrPost, setArrPost] = useState([]);
+    console.log('arrPost', typeof arrPost);
     const handleTab = (id) => {
         setOnTab(id);
     };
@@ -27,11 +28,14 @@ function ManagePost() {
     }, []); // Chuyển một mảng rỗng vào useEffect để chỉ gọi hàm một lần khi component được mount
 
     const columns = [
-        { key: 'title', label: 'Title' },
-        { key: 'createdAt', label: 'Created At' },
-        { key: 'actions', label: 'Actions', isAction: true }, // Thêm cột chứa các chức năng
+        { key: 'checkbox', label: '', isCheckBox: true },
+        { key: 'title', label: 'Tiêu đề bài viết' },
+        { key: 'createdAt', label: 'Thời gian đăng' },
+        { key: 'actions', label: 'Chức năng', isAction: true }, // Thêm cột chứa các chức năng
     ];
-
+    const customizeData = (data) => {
+        return data.map((item) => {});
+    };
     // Hàm xử lý sự kiện xóa bài viết
     const handleDelete = (row) => {
         // Viết mã xử lý xóa bài viết ở đây
@@ -56,8 +60,8 @@ function ManagePost() {
                     data={arrPost}
                     columns={columns}
                     onDelete={handleDelete}
-                    onView={handleDelete}
-                    onEdit={handleDelete}
+                    onViewLink={(row) => `/post/${row._id}`}
+                    onEditLink={handleDelete}
                 />
             </div>
         </div>

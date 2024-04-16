@@ -13,6 +13,7 @@ const authRoutes = require('./routes/auth');
 const profileRoutes = require('./routes/profile');
 const scheduleRoutes = require('./routes/schedule');
 const postRoutes = require('./routes/post');
+const joinRoutes = require('./routes/listjoin');
 const spendingRoutes = require('./routes/spending');
 
 const ScheduleController = require('./controllers/ScheduleController');
@@ -98,21 +99,11 @@ db.connect()
 
         app.use('/chat', chatRoutes);
         app.use('/spending', spendingRoutes);
+        app.use('/join', joinRoutes);
+        app.use('/profile', profileRoutes);
 
         // Kết nối đến MongoDB thành công, bắt đầu cập nhật trạng thái công việc định kỳ
 
-
-        // Profile
-        app.use('/profile', profileRoutes);
-
-
-        //chat
-        app.use('/chat', chatRoutes);
-
-        // Kết nối đến MongoDB thành công, bắt đầu cập nhật trạng thái công việc định kỳ
-
-        // Profile
-        app.use('/profile', profileRoutes);
         // Start the server
         server.listen(port, () => {
             console.log(`Server is running on port ${port}`);

@@ -7,6 +7,12 @@ const spendingSchema = new mongoose.Schema({
   date: { type: Date, default: Date.now },
   categoryId: { type: mongoose.Schema.Types.ObjectId, required: true },
   walletId:{ type: mongoose.Schema.Types.ObjectId, required: true },
+  // title: { type: String, required: true },
+  description: { type: String, required: true },
+  amount: { type: Number, required: true },
+  date: { type: Date, default: Date.now },
+  userId: { type: mongoose.Schema.Types.ObjectId, required: true },
+  categoryId: { type: mongoose.Schema.Types.ObjectId, required: true },
 });
 
 // Tạo model từ schema

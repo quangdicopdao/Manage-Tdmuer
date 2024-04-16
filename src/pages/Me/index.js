@@ -1,4 +1,3 @@
-
 import classNames from 'classnames/bind';
 import style from './Me.moudule.scss';
 import { useSelector, useDispatch } from 'react-redux';
@@ -95,6 +94,7 @@ function Me() {
                                             imageUser={dataProfile.avatar}
                                             nameUser={dataProfile.username}
                                             postId={post._id}
+                                            tagName={post.tagName}
                                             to={`/post/${post._id}`}
                                             createAt={post.createdAt}
                                         />

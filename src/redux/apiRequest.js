@@ -28,6 +28,14 @@ import { createPostFailer, createPostSuccess, getPostFailer, getPostStart, getPo
 import { toast } from 'react-toastify';
 
 // authenication
+export const getAllUsers = async () => {
+    try {
+        const res = await axios.get(baseURL + 'v1/auth/get/users');
+        return res.data;
+    } catch (error) {
+        console.error(error);
+    }
+};
 export const loginUser = async (user, dispatch, navigate, closeModal) => {
     dispatch(loginStart());
     try {
@@ -36,8 +44,11 @@ export const loginUser = async (user, dispatch, navigate, closeModal) => {
         });
         console.log('Login success:', res.data);
         dispatch(loginSuccess(res.data));
-
-        navigate('/');
+        if (res.data.isAdmin) {
+            navigate('/admin/posts');
+        } else {
+            navigate('/');
+        }
         toast.success('Đăng nhập thành công');
         closeModal();
     } catch (error) {
@@ -59,9 +70,9 @@ export const loginUserWithFacebook = async (user, dispatch, navigate, closeModal
         toast.success('Đăng nhập thành công');
         closeModal();
     } catch (error) {
-            toast.error('Đăng nhập bằng Facebook thất bại');
-            console.log('Login with Facebook failed:', error.response.data);
-            dispatch(loginFailed(error.response.data));
+        toast.error('Đăng nhập bằng Facebook thất bại');
+        console.log('Login with Facebook failed:', error.response.data);
+        dispatch(loginFailed(error.response.data));
     }
 };
 export const loginUserWithGoogle = async (user, dispatch, navigate, closeModal) => {
@@ -77,9 +88,9 @@ export const loginUserWithGoogle = async (user, dispatch, navigate, closeModal) 
         toast.success('Đăng nhập thành công');
         closeModal();
     } catch (error) {
-            toast.error('Đăng nhập bằng Google thất bại');
-            console.log('Login with Google failed:', error.response.data);
-            dispatch(loginFailed(error.response.data));
+        toast.error('Đăng nhập bằng Google thất bại');
+        console.log('Login with Google failed:', error.response.data);
+        dispatch(loginFailed(error.response.data));
     }
 };
 export const registerUser = async (user, dispatch, navigate, openModalLogin) => {
@@ -128,9 +139,9 @@ export const createPost = async (data, dispatch, navigate, accessToken) => {
     }
 };
 
-export const searchPost = async (query) => {
+export const searchPost = async (query, tagId) => {
     try {
-        const res = await axios.get(baseURL + `post/search?q=${query}`);
+        const res = await axios.get(baseURL + `post/search?q=${query}&tagId=${tagId}`);
         return res.data;
     } catch (error) {
         console.error('Error searching:', error);
@@ -211,9 +222,23 @@ export const createSchedule = async (data, dispatch, accessToken, closeModal) =>
         const res = await axios.post(baseURL + 'schedule/api/create', data, {
             headers: { Authorization: `Bearer ${accessToken}` },
         });
+        toast.success(res.data.message);
         dispatch(createScheduleSuccess(res.data));
         closeModal();
+    } catch (error) {
+        console.error('Error:', error.response.data.message);
+        toast.error(error.response.data.message);
+        dispatch(createScheduleFailer(error.response.data));
+    }
+};
+export const createScheduleMember = async (data, dispatch, accessToken, closeModal) => {
+    try {
+        const res = await axios.post(baseURL + 'schedule/api/create-member', data, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
         toast.success(res.data.message);
+        dispatch(createScheduleSuccess(res.data));
+        closeModal();
     } catch (error) {
         console.error('Error:', error.response.data.message);
         toast.error(error.response.data.message);
@@ -268,7 +293,6 @@ export const updateStatus = async (scheduleId, accessToken) => {
     }
 };
 
-
 // chat
 export const followUser = (userId, followingUserId) => async (dispatch) => {
     try {
@@ -322,4 +346,86 @@ export const getProfile = async (userId) => {
         console.log(error);
     }
 };
+//join activities
+export const joinActivity = async (data, accessToken, closeModal) => {
+    try {
+        const res = await axios.post(baseURL + 'join/join-activity', data, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        toast.success(res.data.message);
+        return res.data;
 
+        closeModal();
+    } catch (error) {
+        console.log(error);
+        toast.error(error.response.data.message);
+    }
+};
+export const checkJoinActivity = async (data, accessToken) => {
+    try {
+        const res = await axios.post(baseURL + `join/check-join-activity`, data, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        console.log('abc', res.data);
+        return res.data;
+    } catch (error) {
+        console.log(error);
+    }
+};
+export const showListActivity = async (postId, accessToken) => {
+    console.log('abc', postId);
+    try {
+        const res = await axios.get(baseURL + `join/show-list/${postId}`, null, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        return res.data;
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+export const showMyList = async (userId, accessToken) => {
+    try {
+        const res = await axios.get(baseURL + `join/show-my-list/${userId}`, null, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        return res.data;
+    } catch (error) {
+        console.log(error);
+    }
+};
+export const updateUrlImage = async (data, accessToken) => {
+    try {
+        const res = await axios.post(baseURL + 'join/update-image', data, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        toast.success('Cập nhật minh chứng thành công!');
+        return res.data;
+    } catch (error) {
+        toast.error('Cập nhật minh chứng thất bại!');
+        console.log(error);
+    }
+};
+export const updateMark = async (data, accessToken) => {
+    try {
+        const res = await axios.post(baseURL + 'join/update-mark', data, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        toast.success('Cập nhật điểm rèn luyện thành công!');
+        return res.data;
+    } catch (error) {
+        toast.error('Cập nhật điểm rèn luyện thất bại!');
+        console.log(error);
+    }
+};
+// site
+export const getNotifications = async (userId, accessToken) => {
+    try {
+        const res = await axios.get(baseURL + `api/notification/${userId}`, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        return res.data;
+    } catch (error) {
+        console.log(error);
+    }
+};

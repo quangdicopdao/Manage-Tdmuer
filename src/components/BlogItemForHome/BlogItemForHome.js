@@ -15,7 +15,7 @@ function stripHTML(htmlString) {
     return doc.body.textContent || '';
 }
 
-function BlogItemForHome({ title, imageUser, nameUser, postId, content, to, createAt, savePost }) {
+function BlogItemForHome({ title, imageUser, nameUser, postId, content, to, createAt, savePost, tagName }) {
     console.log('data', imageUser, nameUser);
     const [isSaved, setIsSaved] = useState(false);
     const user = useSelector((state) => state.auth.login.currentUser);
@@ -120,7 +120,7 @@ function BlogItemForHome({ title, imageUser, nameUser, postId, content, to, crea
                 </Link>
 
                 <div className={cx('wrap-filter')}>
-                    <span className={cx('title-type')}>Quân sự</span>
+                    <span className={cx('title-type')}>{tagName}</span>
                     <span className={cx('time')}>{formatPostDate(createAt)}</span>
                 </div>
             </div>

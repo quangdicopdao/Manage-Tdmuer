@@ -2,7 +2,7 @@
 const Schedule = require('../models/Schedule.js');
 const User = require('../models/User.js');
 const moment = require('moment');
-
+const mongoose = require('mongoose');
 // controllers/ScheduleController.js
 class ScheduleController {
     async show(req, res, next) {
@@ -101,14 +101,22 @@ class ScheduleController {
 
             // Lấy ngày và giờ từ start và end
             const startDate = startDateTime.toDateString();
-            const startTime = startDateTime.getHours();
             const endDate = endDateTime.toDateString();
+            const startTime = startDateTime.getHours();
             const endTime = endDateTime.getHours();
+            const startMinutes = startDateTime.getMinutes();
+            const endMinutes = endDateTime.getMinutes();
 
+            console.log('startDate: ' + startDate);
+            console.log('startTime: ' + startTime);
+            console.log('endDate: ' + endDate);
+            console.log('endTime: ' + endTime);
+            console.log('startMinutes: ' + startMinutes);
+            console.log('Endminutes: ' + endMinutes);
             // Kiểm tra nếu ngày của start và end không giống nhau, cho phép tạo mới
             if (startDate !== endDate) {
                 // Kiểm tra nếu giờ của start và end giống nhau
-                if (startTime === endTime) {
+                if (startTime === endTime && startMinutes === endMinutes) {
                     return res.status(400).json({ message: 'Thời gian bắt đầu và kết thúc không thể giống nhau.' });
                 }
 
@@ -159,6 +167,94 @@ class ScheduleController {
                     end,
                     description,
                     userId,
+                });
+                await newSchedule.save();
+                return res.status(201).json({ message: 'Công việc đã được lưu trữ thành công.' });
+            }
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: 'Đã xảy ra lỗi khi lưu trữ bài viết.' });
+        } finally {
+            next();
+        }
+    }
+
+    async createForMember(req, res, next) {
+        const { title, start, end, description, userId } = req.body;
+
+        if (!req.user) {
+            return res.status(401).json({ message: 'Unauthorized - User not logged in' });
+        }
+
+        try {
+            // Chuyển đổi các chuỗi userId thành ObjectId
+
+            const startDateTime = new Date(start);
+            const endDateTime = new Date(end);
+
+            const startDate = startDateTime.toISOString();
+            const endDate = endDateTime.toISOString();
+            const startTime = startDateTime.getHours();
+            const endTime = endDateTime.getHours();
+            const startMinutes = startDateTime.getMinutes();
+            const endMinutes = endDateTime.getMinutes();
+
+            console.log('startDate: ' + startDate);
+            console.log('startTime: ' + startTime);
+            console.log('endDate: ' + endDate);
+            console.log('endTime: ' + endTime);
+            console.log('startMinutes: ' + startMinutes);
+            console.log('Endminutes: ' + endMinutes);
+
+            if (startDate !== endDate) {
+                if (startTime === endTime && startMinutes === endMinutes) {
+                    return res.status(400).json({ message: 'Thời gian bắt đầu và kết thúc không thể giống nhau.' });
+                }
+
+                const existingSchedule = await Schedule.findOne({
+                    $or: [
+                        { $and: [{ start: { $gte: start } }, { start: { $lt: end } }] },
+                        { $and: [{ end: { $gt: start } }, { end: { $lte: end } }] },
+                    ],
+                    userId: { $in: userId },
+                });
+
+                if (existingSchedule) {
+                    return res.status(400).json({ message: 'Khoảng thời gian đã tồn tại trong lịch của bạn.' });
+                }
+
+                const newSchedule = new Schedule({
+                    title,
+                    start,
+                    end,
+                    description,
+                    userId: userId,
+                });
+                await newSchedule.save();
+                return res.status(201).json({ message: 'Công việc đã được lưu trữ thành công.' });
+            } else {
+                if (startTime === endTime && startMinutes === endMinutes) {
+                    return res.status(400).json({ message: 'Thời gian bắt đầu và kết thúc không thể giống nhau.' });
+                }
+
+                const existingSchedule = await Schedule.findOne({
+                    $or: [
+                        { $and: [{ start: { $gte: start } }, { start: { $lt: end } }] },
+                        { $and: [{ end: { $gt: start } }, { end: { $lte: end } }] },
+                    ],
+                    userId: { $in: userId },
+                });
+
+                if (existingSchedule) {
+                    return res.status(400).json({ message: 'Khoảng thời gian đã tồn tại trong lịch của bạn.' });
+                }
+
+                const newSchedule = new Schedule({
+                    title,
+                    start,
+                    end,
+                    description,
+                    userId: userId,
                 });
                 await newSchedule.save();
                 return res.status(201).json({ message: 'Công việc đã được lưu trữ thành công.' });

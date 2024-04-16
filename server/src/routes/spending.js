@@ -4,6 +4,7 @@ const SpendingController = require('../controllers/SpendingController');
 const authMiddleware = require('../middlewares/authMiddleware');
 
 // chi tiêu
+
 router.post('/api/createSpending', authMiddleware.verifyToken, SpendingController.createSpending);
 router.get('/api/getSpending/:userId', SpendingController.getSpending);
 router.get('/api/getAllSpending/:userId', SpendingController.getAllSpending);

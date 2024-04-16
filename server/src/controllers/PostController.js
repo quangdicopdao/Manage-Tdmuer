@@ -16,6 +16,7 @@ class PostController {
 
             const posts = await Posts.find()
                 .populate('userId', 'avatar email username')
+                .populate('tagId', 'name') // Thêm populate cho trường tagId
                 .skip(skip)
                 .limit(parseInt(pageSize))
                 .exec();
@@ -26,15 +27,16 @@ class PostController {
             const sanitizedPosts = posts
                 .map((post) => {
                     if (post && post._doc) {
-                        const { userId, ...rest } = post._doc;
+                        const { userId, tagId, ...rest } = post._doc;
                         if (userId && userId._doc) {
                             const sanitizedUser = { ...userId._doc, password: undefined };
-                            return { ...rest, userId: sanitizedUser };
+                            return { ...rest, userId: sanitizedUser, tagName: tagId.name }; // Thêm tagName vào kết quả trả về
                         }
                     }
                     return null;
                 })
                 .filter(Boolean);
+
             res.json({
                 page: parseInt(page),
                 per_page: parseInt(pageSize),
@@ -49,7 +51,7 @@ class PostController {
     }
 
     async create(req, res, next) {
-        const { title, content } = req.body;
+        const { title, content, start, end, tagId } = req.body;
 
         // Kiểm tra xác thực thông qua req.user
         if (!req.user) {
@@ -59,7 +61,7 @@ class PostController {
         const userId = req.user.id;
 
         try {
-            const newPost = new Posts({ title, content, userId }); // Chỉnh sửa tại đây
+            const newPost = new Posts({ title, content, start, end, tagId, userId }); // Chỉnh sửa tại đây
             await newPost.save();
             return res.status(201).json({ message: 'Bài viết đã được lưu trữ thành công.' });
         } catch (error) {
@@ -99,10 +101,34 @@ class PostController {
 
     async search(req, res, next) {
         const query = req.query.q.toLowerCase();
+        const tagId = req.query.tagId.toLowerCase(); // Lấy tagId từ query string
+
         try {
-            const postResults = await Posts.find({
+            let searchQuery = {
                 $or: [{ title: { $regex: query, $options: 'i' } }, { content: { $regex: query, $options: 'i' } }],
-            }).populate('userId', '-password'); // Sử dụng populate để lấy thông tin của người dùng và loại bỏ trường password
+            };
+
+            // Nếu tagId được cung cấp, thêm điều kiện lọc theo tagId vào truy vấn
+            if (tagId) {
+                searchQuery.tagId = tagId;
+            }
+
+            let postResults = await Posts.find(searchQuery)
+                .populate('userId', '-password')
+                .populate('tagId', 'name') // Thêm populate cho trường tagId
+                .lean(); // Chuyển đổi kết quả thành plain JavaScript objects
+
+            // Thêm trường tagName và loại bỏ trường tagId
+            postResults = postResults.map((post) => {
+                if (post.tagId) {
+                    return {
+                        ...post,
+                        tagName: post.tagId.name,
+                        tagId: undefined, // Loại bỏ trường tagId
+                    };
+                }
+                return post;
+            });
 
             if (postResults.length === 0) {
                 return res.status(404).json({ message: 'No results found' });
@@ -195,12 +221,18 @@ class PostController {
     //comments post
     async createComment(req, res) {
         try {
-            const { postId, userId, content, parentId } = req.body;
+            const { postId, userPost, idUserPost, userId, content, parentId } = req.body;
             const comment = new Comment({ postId, userId, content, parentId });
             await comment.save();
 
+            console.log(idUserPost);
+            console.log('nameUser', userPost);
             // Lưu thông báo vào cơ sở dữ liệu
-            const notification = new Notification({ userId: userId, message: 'Bạn có một bình luận mới' });
+            const notification = new Notification({
+                userId: idUserPost,
+                postId,
+                message: `${userPost} vừa bình luận bài viết của bạn`,
+            });
             await notification.save();
 
             // Gửi thông báo qua WebSocket

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useMemo } from 'react';
 import classNames from 'classnames/bind';
 import style from './table.module.scss';
@@ -29,42 +28,41 @@ function MyTable() {
     const getData = useSelector((state) => state.schedule.arrSchedules?.newSchedule);
     const schedules = getData.data;
     const [checkedItems, setCheckedItems] = useState({});
+    const [updateCount, setUpdateCount] = useState(0);
 
     // Function để cập nhật trạng thái checked của checkbox
-    const handleCheckboxChange = (index) => {
-        setCheckedItems((prevCheckedItems) => ({
-            ...prevCheckedItems,
-            [index]: !prevCheckedItems[index],
-        }));
-        localStorage.setItem('checkedItems', JSON.stringify({ ...checkedItems, [index]: !checkedItems[index] }));
-    };
-    useEffect(() => {
-        const savedCheckedItems = JSON.parse(localStorage.getItem('checkedItems')) || {};
-        setCheckedItems(savedCheckedItems);
-    }, []);
+    const [completedJobIndexes, setCompletedJobIndexes] = useState([]);
 
-    const [updateCount, setUpdateCount] = useState(0);
-    // Function để gọi hàm updateStatus khi checkbox được click
-    const handleUpdateStatus = async (scheduleId) => {
+    useEffect(() => {
+        const completedIndexes = schedules.reduce((acc, current, index) => {
+            if (current.statusWork === 2) {
+                acc.push(index);
+            }
+            return acc;
+        }, []);
+        setCompletedJobIndexes(completedIndexes);
+    }, [schedules]);
+
+    const shouldCheckboxBeChecked = (index) => {
+        return completedJobIndexes.includes(index);
+    };
+
+    const handleUpdateStatus = async (scheduleId, index) => {
         try {
-            console.log('user?.accessToken', user?.accessToken);
-            await updateStatus(scheduleId, user?.accessToken); // Thay updateStatus bằng hàm thực sự của bạn
-            setUpdateCount((prevCount) => prevCount + 1);
-            // Sau khi cập nhật thành công, có thể cần làm gì đó, ví dụ như load lại dữ liệu
+            await updateStatus(scheduleId, user?.accessToken);
+            setCompletedJobIndexes((prevIndexes) =>
+                prevIndexes.includes(index) ? prevIndexes.filter((id) => id !== index) : [...prevIndexes, index],
+            );
+            setUpdateCount(updateCount + 1);
         } catch (error) {
             console.error('Error updating status:', error);
         }
     };
+
     // Render checkbox và xử lý sự kiện khi click vào checkbox
     const renderCheckbox = (index, scheduleId) => {
-        return (
-            <input
-                type="checkbox"
-                checked={checkedItems[index] || false}
-                onChange={() => handleCheckboxChange(index)}
-                onClick={() => handleUpdateStatus(scheduleId)}
-            />
-        );
+        const isChecked = shouldCheckboxBeChecked(index);
+        return <input type="checkbox" checked={isChecked} onChange={() => handleUpdateStatus(scheduleId, index)} />;
     };
     //dropdown btn
     const [isDropDown, setIsDropDown] = useState(false);
@@ -75,7 +73,6 @@ function MyTable() {
     const pageSize = getData.per_page;
     const totalPages = getData.total_pages;
 
-    console.log('total pages: ' + totalPages);
     //console.log('schedules.length: ' + schedules.length);
     const [searchQuery, setSearchQuery] = useState('');
     const handleChangQuery = (e) => {
@@ -90,7 +87,6 @@ function MyTable() {
     const [selectedDate, setSelectedDate] = useState(new Date());
     //set schedule = data
 
-    const navigate = useNavigate();
     const changstateModal = () => {
         setModalOpen(!modalOpen);
     };
@@ -114,7 +110,6 @@ function MyTable() {
 
         const formattedStartDate = moment(selectedStartDate).utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ');
         const formattedEndDate = moment(selectedEndDate).utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ');
-
         const newSchedule = {
             title,
             start: formattedStartDate,
@@ -126,8 +121,10 @@ function MyTable() {
         try {
             if (isEdit) {
                 await editSchedule(idSchedule, newSchedule, user?.accessToken, changstateModal());
+                setUpdateCounter(updateCounter + 1);
             } else {
                 await createSchedule(newSchedule, dispatch, user?.accessToken, changstateModal());
+                setUpdateCounter(updateCounter + 1);
             }
         } catch (error) {
             console.error('Error saving schedule:', error);
@@ -306,14 +303,14 @@ function MyTable() {
                                                 'DD/MM/YYYY',
                                             )}`}
                                         </td>
-                                        <td>{data.title}</td>
-                                        <td>{data.description}</td>
+                                        <td className={cx('title-content')}>{data.title}</td>
+                                        <td className={cx('description-content')}>{data.description}</td>
                                         <td>
                                             <span className={cx('work-status', secondClassName)}>
                                                 {renderStatus(data.statusWork)}
                                             </span>
                                         </td>
-                                        <td>
+                                        <td className={cx('btn-content')}>
                                             <button className={cx('action-btn')}>
                                                 <FontAwesomeIcon
                                                     icon={faEdit}

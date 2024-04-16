@@ -2,16 +2,38 @@ import React, { useEffect, useState } from 'react';
 import classNames from 'classnames/bind'; // Sửa đổi import
 import style from './PostDetail.module.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronDown, faChevronUp, faHeart, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
+import {
+    faCalendarDays,
+    faCheck,
+    faChevronDown,
+    faChevronUp,
+    faClock,
+    faHeart,
+} from '@fortawesome/free-solid-svg-icons';
 import { faComment as faCommentRegular, faHeart as faHeartRegular } from '@fortawesome/free-regular-svg-icons';
 import axios from 'axios';
 import { baseURL } from '~/utils/api';
 import { useParams } from 'react-router-dom';
 import moment from 'moment';
 import Modal from '~/components/Modal/Modal';
-import { likePosts, unlikePosts, checkLike, createComment, getAllComments } from '~/redux/apiRequest';
+import {
+    likePosts,
+    unlikePosts,
+    checkLike,
+    createComment,
+    getAllComments,
+    joinActivity,
+    checkJoinActivity,
+    showListActivity,
+    updateUrlImage,
+    updateMark,
+} from '~/redux/apiRequest';
 import { useSelector } from 'react-redux';
 import Button from '~/components/Button';
+import CustomTable from '~/components/Table/MyCustomTable/Table';
+import ImageUploader from '~/components/ImageUploader';
+import DefaultImage from '~/assets/no-image.jpg';
+
 const cx = classNames.bind(style); // Sửa đổi cách sử dụng classNames.bind
 
 function PostDetail() {
@@ -20,8 +42,40 @@ function PostDetail() {
     const [userPost, setUserPost] = useState(null);
     const user = useSelector((state) => state.auth.login?.currentUser);
     const [isLoading, setIsLoading] = useState(false);
-    console.log('post', post);
-
+    const [showModalUpload, setShowModalUpload] = useState(false);
+    const handelShowModalUpload = () => {
+        setShowModalUpload(!showModalUpload);
+    };
+    const [imageUpload, setImageUpload] = useState(false);
+    console.log('imageUpload', imageUpload);
+    const handleSaveUrlImage = () => {
+        const data = {
+            userId: user?._id,
+            postId,
+            url: imageUpload,
+        };
+        updateUrlImage(data, user?.accessToken);
+        handelShowModalUpload();
+    };
+    const handleSetURL = (url) => {
+        setImageUpload(url);
+    };
+    //join activity
+    const handleJoinActivity = async () => {
+        const data = {
+            studentId: studentID,
+            classId: className,
+            fullName,
+            department,
+            email,
+            start: post?.start,
+            end: post?.end,
+            userId: user?._id,
+            postId,
+            description: post?.title,
+        };
+        await joinActivity(data, user?.accessToken, setShowModal(!showModal));
+    };
     //like post
     const [isLiked, setIsLiked] = useState(false);
     const [countLikes, setCountLikes] = useState(0);
@@ -58,9 +112,6 @@ function PostDetail() {
 
     const [replyingToCommentId, setReplyingToCommentId] = useState(null);
 
-    console.log('comment', comment);
-    console.log('dâtcomment', dataComment);
-
     //reply comment
 
     const handleShowReplyComment = (commentId) => {
@@ -90,9 +141,43 @@ function PostDetail() {
             console.error('Error creating comment:', error);
         }
     };
-    const handleShowComment = async () => {
+    const [studentID, setStudentID] = useState('');
+    const [fullName, setFullName] = useState('');
+    const [className, setClassName] = useState('');
+    const [department, setDepartment] = useState('');
+    const [email, setEmail] = useState('');
+
+    const [selectedRowsData, setSelectedRowsData] = useState([]);
+    const [mark, setMark] = useState(0);
+    console.log('selectedRowsData', selectedRowsData);
+    const handleCheckboxChange = (selectedRows) => {
+        // const selectedIds = selectedRows.map(rowIndex => dataList[rowIndex]);
+        setSelectedRowsData(selectedRows);
+    };
+    //update drl
+    const handleUpdateMark = async () => {
+        if (selectedRowsData.length === 0) {
+            // Nếu không có hàng nào được chọn, hiển thị thông báo hoặc thực hiện các hành động khác tùy thuộc vào yêu cầu của bạn
+            console.log('Không có hàng nào được chọn để cập nhật điểm.');
+            return;
+        }
+
+        const data = selectedRowsData.map((id) => {
+            return {
+                id,
+                mark,
+            };
+        });
+        console.log(data);
+        await updateMark(data, user?.accessToken);
+    };
+    const handleShowComment = async (selectedRows) => {
         setShowComment(!showComment);
         setIsLoading(true);
+    };
+    const [showModal, setShowModal] = useState(false);
+    const handleShowRequest = () => {
+        setShowModal(!showModal);
     };
 
     const handleCommentPost = async () => {
@@ -102,10 +187,11 @@ function PostDetail() {
                 // Xử lý logic nếu người dùng chưa đăng nhập
                 return; // Hoặc hiển thị thông báo lỗi cho người dùng
             }
-
             // Tạo dữ liệu bình luận từ các trường thông tin
             const data = {
                 postId: postId, // postId đã được định nghĩa ở nơi khác trong phạm vi của hàm này
+                userPost: userPost.username,
+                idUserPost: userPost._id,
                 userId: user._id, // user đã được xác định trước đó trong phạm vi của hàm này
                 content: comment, // comment là nội dung bình luận từ người dùng
             };
@@ -149,6 +235,28 @@ function PostDetail() {
             return `${diffYears} năm trước`;
         }
     };
+    const timeStart = post && moment(post.start).format('HH:mm');
+    const timeEnd = post && moment(post.end).format('HH:mm');
+    const dateStart = post && moment(post.start).format('DD/MM/YYYY');
+    const dateEnd = post && moment(post.end).format('DD/MM/YYYY');
+
+    //show list join
+    const [showList, setShowList] = useState(false);
+    const [dataList, setDataList] = useState([]);
+
+    const handleShowList = async () => {
+        setShowList(!showList);
+        const data = await showListActivity(post?._id, user?.accessToken);
+        setDataList(data?.list);
+    };
+    const columns = [
+        { key: 'studentId', label: 'Mã số sinh viên' }, // Thêm cột chứa các chức năng
+        { key: 'fullName', label: 'Họ và tên' },
+        { key: 'email', label: 'Email' },
+        { key: 'classId', label: 'Lớp' }, // Thêm cột chứa các chức năng
+        { key: 'department', label: 'Khoa/Viện' }, // Thêm cột chứa các chức năng
+        { key: 'imageUrl', label: 'Minh chứng', isImage: true, classNameImage: 'imageView' },
+    ];
     useEffect(() => {
         const fetchPostDetail = async () => {
             try {
@@ -181,7 +289,20 @@ function PostDetail() {
             textarea.style.height = textarea.scrollHeight + 'px';
         }
     }, [comment]);
+    const [checkActivity, setCheckActivity] = useState('');
 
+    useEffect(() => {
+        const fetchData = async () => {
+            const data = {
+                userId: user?._id,
+                postId,
+            };
+            const dataCheck = await checkJoinActivity(data, user?.accessToken);
+            setCheckActivity(dataCheck);
+        };
+
+        fetchData();
+    }, []);
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -189,6 +310,7 @@ function PostDetail() {
                 const getDataComment = await getAllComments(postId);
                 setDataComment(getDataComment);
                 console.log('comment123', getDataComment);
+
                 setIsLoading(false); // Sau khi nhận được dữ liệu, setIsLoading(false) để kết thúc việc loading
             } catch (error) {
                 console.error('Error fetching comments:', error);
@@ -272,9 +394,64 @@ function PostDetail() {
                             <span className={cx('count')}>{countComments}</span>
                         </div>
                     </div>
-                    <Button outline className={cx('btn-join')}>
-                        Tham gia hoạt động
-                    </Button>
+                    {post?.start && post?.end ? (
+                        <div className={cx('wrap-all-time')}>
+                            <span className={cx('title-time')}>Thời gian diễn ra:</span>
+                            <div className={cx('wrap-time')}>
+                                <FontAwesomeIcon icon={faClock} className={cx('icon-time')} />
+                                <span>{`${timeStart} - ${timeEnd}`}</span>
+                            </div>
+                            <div className={cx('wrap-date')}>
+                                <FontAwesomeIcon icon={faCalendarDays} className={cx('icon-time')} />
+                                {dateStart === dateEnd ? (
+                                    <span>{`${dateStart} `}</span>
+                                ) : (
+                                    <span>{`${dateStart} - ${dateEnd}`}</span>
+                                )}
+                            </div>
+                        </div>
+                    ) : (
+                        <></>
+                    )}
+                    {user && post && user._id !== post.userId && (
+                        <>
+                            {post.start ? (
+                                <>
+                                    {checkActivity && checkActivity.message === 'joined' ? (
+                                        <>
+                                            <div className={cx('joined')}>
+                                                <span className={cx('message')}>Bạn đã đăng ký tham gia</span>
+                                                <FontAwesomeIcon icon={faCheck} className={cx('icon-message')} />
+                                            </div>
+                                            {user?._id !== post.userId ? (
+                                                <Button
+                                                    outline
+                                                    className={cx('btn-join')}
+                                                    onClick={handelShowModalUpload}
+                                                >
+                                                    Cập nhật minh chứng
+                                                </Button>
+                                            ) : (
+                                                <></>
+                                            )}
+
+                                            <div>{/* <ImageUploader /> */}</div>
+                                        </>
+                                    ) : (
+                                        <Button outline className={cx('btn-join')} onClick={handleShowRequest}>
+                                            Tham gia hoạt động
+                                        </Button>
+                                    )}
+                                </>
+                            ) : null}
+                        </>
+                    )}
+
+                    {user?._id === post.userId && post?.start && (
+                        <Button primary className={cx('btn-join')} onClick={handleShowList}>
+                            Xem danh sách tham gia
+                        </Button>
+                    )}
                 </div>
             </div>
             {showComment && (
@@ -377,6 +554,118 @@ function PostDetail() {
                     )}
 
                     {/*comment actions*/}
+                </Modal>
+            )}
+            {showModal && (
+                <Modal
+                    titleBtn={'Gửi yêu cầu'}
+                    titleModal={'Đăng ký tham gia hoạt động'}
+                    className={cx('modal-join')}
+                    onClose={handleShowRequest}
+                    onSave={handleJoinActivity}
+                >
+                    <div className={cx('modal-content')}>
+                        <div className={cx('wrap-title-input')}>
+                            <span className={cx('title')}>Mã số sinh viên</span>
+                            <div className={cx('wrap-input')}>
+                                <input
+                                    type="text"
+                                    value={studentID}
+                                    placeholder="Nhập mã số sinh viên"
+                                    onChange={(e) => setStudentID(e.target.value)}
+                                />
+                            </div>
+                        </div>
+                        <div className={cx('wrap-title-input')}>
+                            <span className={cx('title')}>Họ và tên</span>
+                            <div className={cx('wrap-input')}>
+                                <input
+                                    type="text"
+                                    value={fullName}
+                                    placeholder="Nhập họ và tên"
+                                    onChange={(e) => setFullName(e.target.value)}
+                                />
+                            </div>
+                        </div>
+                        <div className={cx('wrap-title-input')}>
+                            <span className={cx('title')}>Lớp</span>
+                            <div className={cx('wrap-input')}>
+                                <input
+                                    type="text"
+                                    value={className}
+                                    placeholder="Nhập mã lớp"
+                                    onChange={(e) => setClassName(e.target.value)}
+                                />
+                            </div>
+                        </div>
+                        <div className={cx('wrap-title-input')}>
+                            <span className={cx('title')}>Khoa / Viện</span>
+                            <div className={cx('wrap-input')}>
+                                <input
+                                    type="text"
+                                    value={department}
+                                    placeholder="Nhập tên khoa / viện"
+                                    onChange={(e) => setDepartment(e.target.value)}
+                                />
+                            </div>
+                        </div>
+                        <div className={cx('wrap-title-input')}>
+                            <span className={cx('title')}>Email</span>
+                            <div className={cx('wrap-input')}>
+                                <input
+                                    type="email"
+                                    value={email}
+                                    placeholder="Nhập email trường"
+                                    onChange={(e) => setEmail(e.target.value)}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </Modal>
+            )}
+            {showList && (
+                <Modal
+                    titleModal={'Danh sách tham gia hoạt động'}
+                    onClose={handleShowList}
+                    className={cx('list-modal')}
+                >
+                    {dataList ? (
+                        <div className={cx('wrap-content-list')}>
+                            <div className={cx('wrap-mark')}>
+                                <span className={cx('title-mark')}>Điểm rèn luyện</span>
+                                <div className={cx('wrap-input')}>
+                                    <input
+                                        type="number"
+                                        placeholder="0"
+                                        className={cx('input-mark')}
+                                        value={mark}
+                                        onChange={(e) => setMark(e.target.value)}
+                                    />
+                                </div>
+                                <Button primary onClick={handleUpdateMark}>
+                                    Áp dụng
+                                </Button>
+                            </div>
+                            <CustomTable columns={columns} data={dataList} onCheckboxChange={handleCheckboxChange} />
+                        </div>
+                    ) : (
+                        <>
+                            {' '}
+                            <span>Chưa có thành viên tham gia</span>
+                        </>
+                    )}
+                </Modal>
+            )}
+            {showModalUpload && (
+                <Modal
+                    titleBtn={'Xong'}
+                    titleModal={'Cập nhật ảnh minh chứng'}
+                    className={cx('modal-upload')}
+                    onClose={handelShowModalUpload}
+                    onSave={handleSaveUrlImage}
+                >
+                    {/* url={handleSetURL} */}
+                    <ImageUploader imageUrl={handleSetURL} />
                 </Modal>
             )}
         </div>

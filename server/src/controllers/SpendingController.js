@@ -18,6 +18,7 @@ class SpendingController{
     async updateSpending(req, res) {
         try {
             const { id } = req.params;
+
             const { description, amount, categoryId } = req.body;
             const updatedSpending = await Spending.findByIdAndUpdate(id, { description, amount, categoryId }, { new: true });
             if (!updatedSpending) {
@@ -72,7 +73,6 @@ class SpendingController{
         }
     }
     
-    
     async createcategory(req, res) {
         try {
             const { name} = req.body;
@@ -113,6 +113,7 @@ class SpendingController{
                 walletId: { $in: wallets.map(wallet => wallet._id) }
             }
             ); // Lấy tất cả các danh mục từ bảng categorySpending
+
             res.json(allspending);
         } catch (error) {
             res.status(500).json({ error: 'Could not get categories' });

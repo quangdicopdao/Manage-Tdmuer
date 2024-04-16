@@ -24,6 +24,7 @@ function Blog() {
     // Search
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResult, setSearchResult] = useState([]);
+    const [selectedTagId, setSelectedTagId] = useState('');
 
     //save post
 
@@ -50,11 +51,16 @@ function Blog() {
 
     const handleSearchSubmit = async () => {
         try {
-            const res = await searchPost(searchQuery);
+            const res = await searchPost(searchQuery, selectedTagId);
             setSearchResult(res);
         } catch (error) {
             console.error('Error searching:', error);
         }
+    };
+
+    const handleTagFilter = (id) => {
+        setSelectedTagId(id);
+        handleSearchSubmit();
     };
     const [tag, setTag] = useState([]);
     console.log('tag:', tag);
@@ -71,10 +77,10 @@ function Blog() {
             handleSearchSubmit();
         };
         fetchData();
-    }, [dispatch, user?.accessToken, searchQuery, currentPage]);
+    }, [dispatch, user?.accessToken, searchQuery, currentPage, selectedTagId]);
 
     // Chọn danh sách bài viết để hiển thị dựa trên có query tìm kiếm hay không
-    const displayPosts = searchQuery ? searchResult : posts;
+    const displayPosts = searchQuery || selectedTagId ? searchResult : posts;
     console.log(posts);
 
     return (
@@ -108,6 +114,7 @@ function Blog() {
                                     nameUser={post.userId.username}
                                     postId={post._id}
                                     to={`/post/${post._id}`}
+                                    tagName={post.tagName}
                                     createAt={post.createdAt}
                                     savePost={() => {
                                         handleSavePost(post._id);
@@ -148,7 +155,13 @@ function Blog() {
                                 {tag && tag.length > 0 && (
                                     <ul className={cx('wrap-list')}>
                                         {tag.map((data) => (
-                                            <li className={cx('list-item')} key={data._id}>
+                                            <li
+                                                className={cx('list-item')}
+                                                key={data._id}
+                                                onClick={() => {
+                                                    handleTagFilter(data._id);
+                                                }}
+                                            >
                                                 <span className={cx('item-name')}>{data.name}</span>
                                             </li>
                                         ))}

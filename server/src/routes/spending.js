@@ -3,7 +3,7 @@ const router = express.Router();
 const SpendingController = require('../controllers/SpendingController');
 const authMiddleware = require('../middlewares/authMiddleware');
 
-
+// chi tiêu
 router.post('/api/createSpending', authMiddleware.verifyToken, SpendingController.createSpending);
 router.get('/api/getSpending/:userId', SpendingController.getSpending);
 router.get('/api/getAllSpending/:userId', SpendingController.getAllSpending);
@@ -12,4 +12,7 @@ router.delete('/api/deleteSpending/:id', authMiddleware.verifyToken, SpendingCon
 // test api category
 router.post('/api/createcategory',SpendingController.createcategory);
 router.get('/api/getcategory', SpendingController.getCategorySpending);
+// ví
+router.post('/api/createWallet', authMiddleware.verifyToken, SpendingController.createWallet);
+router.get('/api/getAllWallet/:userId', SpendingController.getAllWallet);
 module.exports = router;

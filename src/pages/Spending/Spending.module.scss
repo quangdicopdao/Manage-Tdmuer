@@ -6,8 +6,12 @@
 }
 
 .col-7 {
-    width: 80%;
+    width: 75%;
     min-height: 600px;
+}
+.col-6{
+    width: 50%; /* Đặt kích thước cho container là 50% của phần parent */
+  height: 400px;
 }
 .header-info {
     display: flex;

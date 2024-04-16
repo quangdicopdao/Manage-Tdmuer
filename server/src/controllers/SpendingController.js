@@ -1,24 +1,24 @@
 const User = require('../models/User.js');
 const Spending = require('../models/Spending.js');
 const Category = require('../models/CategorySpending.js');
+const Wallet = require('../models/Wallet.js');
 const mongoose = require('mongoose');
 class SpendingController{
     async createSpending(req, res) {
         try {
-            const { description, amount, userId, categoryId} = req.body;
-            const newSpending = new Spending({ description, amount, userId, categoryId });
+            const { description, amount, categoryId, walletId} = req.body;
+            const newSpending = new Spending({ description, amount, categoryId, walletId });
             await newSpending.save();
             res.status(201).json(newSpending);
         } catch (error) {
             res.status(400).json({ message: error.message });
         }
     }
-    
     // Hàm cập nhật một mục chi tiêu đã tồn tại
     async updateSpending(req, res) {
         try {
             const { id } = req.params;
-            const { description, amount,categoryId } = req.body;
+            const { description, amount, categoryId } = req.body;
             const updatedSpending = await Spending.findByIdAndUpdate(id, { description, amount, categoryId }, { new: true });
             if (!updatedSpending) {
                 return res.status(404).json({ message: 'Không tìm thấy mục chi tiêu' });
@@ -55,14 +55,23 @@ class SpendingController{
             const startDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
             const endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59);
     
-            // Lấy các mục chi tiêu có userId tương ứng và ngày nằm trong khoảng thời gian đã chỉ định
-            const spendings = await Spending.find({ userId, date: { $gte: startDate, $lte: endDate } });
+            // Lấy tất cả các ví của người dùng dựa trên userId
+            const wallets = await Wallet.find({ userId });
     
+            if (!wallets || wallets.length === 0) {
+                return res.status(404).json({ error: 'Wallets not found' });
+            }
+            // Lấy tất cả các mục chi tiêu thuộc các ví của người dùng trong khoảng thời gian đã chỉ định
+            const spendings = await Spending.find({ 
+                walletId: { $in: wallets.map(wallet => wallet._id) },
+                date: { $gte: startDate, $lte: endDate } 
+            });
             res.json(spendings);
         } catch (error) {
             res.status(500).json({ error: 'Could not get spendings' });
         }
     }
+    
     
     async createcategory(req, res) {
         try {
@@ -94,11 +103,40 @@ class SpendingController{
     }
     async getAllSpending(req,res) {
         try {
-            const allspending = await Spending.find(); // Lấy tất cả các danh mục từ bảng categorySpending
+            const userId = req.params.userId; 
+            const wallets = await Wallet.find({ userId });
+    
+            if (!wallets || wallets.length === 0) {
+                return res.status(404).json({ error: 'Wallets not found' });
+            }
+            const allspending = await Spending.find({
+                walletId: { $in: wallets.map(wallet => wallet._id) }
+            }
+            ); // Lấy tất cả các danh mục từ bảng categorySpending
             res.json(allspending);
         } catch (error) {
             res.status(500).json({ error: 'Could not get categories' });
         }
     }
+    // tạo ví và get ví
+    async createWallet(req, res) {
+        try{
+            const {Initialbalance, userId} = req.body;
+            const newWallet = new Wallet({Initialbalance,userId});
+            await newWallet.save();
+            res.status(201).json(newWallet);
+        } catch(error) {
+            res.status(400).json({ message: error.message });
+        }
+    }
+    async getAllWallet(req, res) {
+        try {
+            const userId = req.params.userId; // Lấy userId từ tham số của request
+            const allWallet = await Wallet.find({ userId }); // Lấy tất cả các ví dựa trên userId
+            res.json(allWallet);
+        } catch (error) {
+            res.status(500).json({ error: 'Could not get wallets' });
+        }
+    }    
 }
 module.exports = new SpendingController();
